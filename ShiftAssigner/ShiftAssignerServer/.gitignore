@@ -1,0 +1,65 @@
+# Ignore Visual Studio temporary files, build results, and user-specific files
+# Build
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# VS Code
+.vscode/
+
+# Visual Studio
+.vs/
+
+# DotNet user secrets
+secrets.json
+
+# Rider
+.idea/
+
+# NuGet
+*.nupkg
+# The packages folder can be ignored because of PackageReference
+**/packages/
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Directories for test results or other build outputs
+TestResults/
+
+# Log files
+*.log
+
+# OS generated files
+.DS_Store
+desktop.ini
+
+# Publish output
+publish/
+
+# Resharper
+_ReSharper*/
+*.DotSettings.user
+
+# Entity Framework
+*.Migrations.sql
+
+# Built files
+*.dll
+*.exe
+*.pdb
+*.cache
+
+# dotnet tools
+.store/
+
+# Repository-specific generated artifacts found by git status
+# Ignore Visual Studio workspace and Copilot indices under a sibling 'ShiftAssigner' folder
+ShiftAssigner/.vs/
+ShiftAssigner/.vs/**

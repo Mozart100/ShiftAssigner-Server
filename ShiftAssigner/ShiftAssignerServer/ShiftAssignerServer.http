@@ -1,0 +1,6 @@
+@ShiftAssignerServer_HostAddress = http://localhost:5041
+
+GET {{ShiftAssignerServer_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

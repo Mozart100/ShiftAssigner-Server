@@ -5,19 +5,17 @@ namespace ShiftAssignerServer.Models
     /// <summary>
     /// Boss represents a higher-level person. Inherits from Person directly (bosses may not be "workers").
     /// </summary>
-    public record Boss : Person
+    public record Boss : ShiftLeader
     {
         public Boss()
         {
         }
 
-        public Boss(string firstName, string lastName, string phone, DateOnly dob, string tenant)
+        public Boss(string id,string firstName, string lastName, string phone, DateOnly dob, string tenant,  RoleState roleState,
+            string passwordHash)
+            : base(id,firstName, lastName, phone, dob, tenant, roleState, passwordHash)
+        
         {
-            FirstName = firstName;
-            LastName = lastName;
-            PhoneNumber = phone;
-            DateOfBirth = dob;
-            Tenant = tenant;
         }
     }
 }

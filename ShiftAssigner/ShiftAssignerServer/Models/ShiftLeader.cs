@@ -14,6 +14,7 @@ namespace ShiftAssignerServer.Models
         }
 
         public ShiftLeader(
+            string id,
             string firstName,
             string lastName,
             string phone,
@@ -22,7 +23,7 @@ namespace ShiftAssignerServer.Models
             RoleState roleState,
             string passwordHash
         )
-            : base(firstName, lastName, phone, dob, tenant, roleState, passwordHash)
+            : base(id,firstName, lastName, phone, dob, tenant, roleState, passwordHash)
         {
         }
     }

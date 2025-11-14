@@ -9,13 +9,13 @@ namespace ShiftAssignerServer.Services
     /// </summary>
     public class InMemoryUserStore
     {
-        private readonly ConcurrentDictionary<string, Person> _users = new();
+        private readonly ConcurrentDictionary<string, PersonBase> _users = new();
         private readonly ConcurrentDictionary<string, string> _passwordHashes = new();
 
         /// <summary>
         /// Adds a person and their password hash to the store. Returns true on success.
         /// </summary>
-        public bool Add(Person person, string passwordHash)
+        public bool Add(PersonBase person, string passwordHash)
         {
             var added = _users.TryAdd(person.Id, person);
             if (added)
@@ -28,7 +28,7 @@ namespace ShiftAssignerServer.Services
         /// <summary>
         /// Get a person by id (or null if not found).
         /// </summary>
-        public Person? Get(string id)
+        public PersonBase? Get(string id)
         {
             _users.TryGetValue(id, out var p);
             return p;

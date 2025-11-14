@@ -5,7 +5,7 @@ namespace ShiftAssignerServer.Models
     /// <summary>
     /// Base class for people in the system.
     /// </summary>
-  public abstract record Person
+  public abstract record PersonBase
 {
     /// <summary>
     /// Unique identifier for the person. Use string to remain DB-agnostic (GUID as string by default).

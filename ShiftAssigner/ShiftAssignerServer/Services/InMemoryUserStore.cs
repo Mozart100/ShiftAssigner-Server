@@ -4,31 +4,46 @@ using ShiftAssignerServer.Models;
 
 namespace ShiftAssignerServer.Services
 {
+    /// <summary>
+    /// Simple in-memory store that keeps Person objects and credential hashes.
+    /// </summary>
     public class InMemoryUserStore
     {
-        private readonly ConcurrentDictionary<string, UserRecord> _users = new();
+        private readonly ConcurrentDictionary<string, Person> _users = new();
+        private readonly ConcurrentDictionary<string, string> _passwordHashes = new();
 
-        public bool Add(UserRecord user)
+        /// <summary>
+        /// Adds a person and their password hash to the store. Returns true on success.
+        /// </summary>
+        public bool Add(Person person, string passwordHash)
         {
-            return _users.TryAdd(user.Id, user);
+            var added = _users.TryAdd(person.Id, person);
+            if (added)
+            {
+                _passwordHashes[person.Id] = passwordHash;
+            }
+            return added;
         }
 
-        public UserRecord? Get(string id)
+        /// <summary>
+        /// Get a person by id (or null if not found).
+        /// </summary>
+        public Person? Get(string id)
         {
-            _users.TryGetValue(id, out var u);
-            return u;
+            _users.TryGetValue(id, out var p);
+            return p;
         }
-    }
 
-    public class UserRecord
-    {
-        public string Id { get; set; } = string.Empty;
-        public string Role { get; set; } = string.Empty;
-        public string Tenant { get; set; } = string.Empty;
-        public string PasswordHash { get; set; } = string.Empty;
-        public string FirstName { get; set; } = string.Empty;
-        public string LastName { get; set; } = string.Empty;
-        public string PhoneNumber { get; set; } = string.Empty;
-        public DateOnly DateOfBirth { get; set; }
+        /// <summary>
+        /// Validate a user's password (hash comparison). Returns false if user not found.
+        /// </summary>
+        public bool ValidatePassword(string id, string passwordHash)
+        {
+            if (_passwordHashes.TryGetValue(id, out var stored))
+            {
+                return stored == passwordHash;
+            }
+            return false;
+        }
     }
 }

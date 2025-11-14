@@ -5,7 +5,7 @@ namespace ShiftAssignerServer.Models
     /// <summary>
     /// Boss represents a higher-level person. Inherits from Person directly (bosses may not be "workers").
     /// </summary>
-    public class Boss : Person
+    public record Boss : Person
     {
         public Boss()
         {

@@ -23,42 +23,27 @@ namespace ShiftAssignerServer.Controllers
         [HttpPost("register-worker")]
         public IActionResult RegisterWorker([FromBody] RegisterDto dto)
         {
-            var user = new UserRecord
-            {
-                Id = dto.ID,
-                Role = "Worker",
-                Tenant = dto.Tenant,
-                PasswordHash = Hash(dto.Password),
-                FirstName = dto.FirstName,
-                LastName = dto.LastName,
-                PhoneNumber = dto.PhoneNumber,
-                DateOfBirth = dto.DateOfBirth
-            };
+            // Create typed Worker instance (constructor expects role and passwordHash)
+            var pwHash = Hash(dto.Password);
+            var worker = new Worker(dto.FirstName, dto.LastName, dto.PhoneNumber, dto.DateOfBirth, dto.Tenant, RoleState.Worker, pwHash);
+            worker.Id = Guid.NewGuid().ToString();
+            _store.Add(worker, pwHash);
 
-            _store.Add(user);
-
-            var token = _jwt.GenerateToken(user.Id, user.Role, user.Tenant);
+            var role = worker.Role.ToString(); // "Worker"
+            var token = _jwt.GenerateToken(worker.Id, role, worker.Tenant);
             return Ok(new { token });
         }
 
         [HttpPost("register-shiftleader")]
         public IActionResult RegisterShiftLeader([FromBody] RegisterDto dto)
         {
-            var user = new UserRecord
-            {
-                Id = dto.ID,
-                Role = "ShiftLeader",
-                Tenant = dto.Tenant,
-                PasswordHash = Hash(dto.Password),
-                FirstName = dto.FirstName,
-                LastName = dto.LastName,
-                PhoneNumber = dto.PhoneNumber,
-                DateOfBirth = dto.DateOfBirth
-            };
+            var pwHash = Hash(dto.Password);
+            var leader = new ShiftLeader(dto.FirstName, dto.LastName, dto.PhoneNumber, dto.DateOfBirth, dto.Tenant, RoleState.ShiftLeader, pwHash);
+            leader.Id = Guid.NewGuid().ToString();
+            _store.Add(leader, pwHash);
 
-            _store.Add(user);
-
-            var token = _jwt.GenerateToken(user.Id, user.Role, user.Tenant);
+            var role = leader.Role.ToString(); // "ShiftLeader"
+            var token = _jwt.GenerateToken(leader.Id, role, leader.Tenant);
             return Ok(new { token });
         }
 

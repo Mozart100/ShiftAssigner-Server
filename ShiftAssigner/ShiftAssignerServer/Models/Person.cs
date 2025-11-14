@@ -5,25 +5,30 @@ namespace ShiftAssignerServer.Models
     /// <summary>
     /// Base class for people in the system.
     /// </summary>
-    public abstract class Person
-    {
-        /// <summary>
+  public abstract record Person
+{
+    /// <summary>
     /// Unique identifier for the person. Use string to remain DB-agnostic (GUID as string by default).
     /// </summary>
-    public string Id { get; set; } = Guid.NewGuid().ToString();
+    public string Id { get; set; } = string.Empty;
 
-        public string FirstName { get; set; } = string.Empty;
+    public string FirstName { get; set; } = string.Empty;
 
-        public string LastName { get; set; } = string.Empty;
+    public string LastName { get; set; } = string.Empty;
 
-        public string PhoneNumber { get; set; } = string.Empty;
+    public string PhoneNumber { get; set; } = string.Empty;
 
-        // DateOnly is available on net6+ / net8
-        public DateOnly DateOfBirth { get; set; }
+    // DateOnly is available on net6+ / net8
+    public DateOnly DateOfBirth { get; set; }
 
-        /// <summary>
-        /// Represents the tenant / company name this person belongs to.
-        /// </summary>
-        public string Tenant { get; set; } = string.Empty;
-    }
+    /// <summary>
+    /// Represents the tenant / company name this person belongs to.
+    /// </summary>
+    public string Tenant { get; set; } = string.Empty;
+
+    public RoleState Role { get; set; }
+
+    public string PasswordHash { get; set; } = string.Empty;
+}
+
 }

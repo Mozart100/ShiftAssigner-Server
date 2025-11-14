@@ -8,9 +8,9 @@ namespace ShiftAssignerServer.Models
     public abstract class Person
     {
         /// <summary>
-        /// Unique identifier for the person. Use Guid so these models are DB-agnostic.
-        /// </summary>
-        public Guid Id { get; set; } = Guid.NewGuid();
+    /// Unique identifier for the person. Use string to remain DB-agnostic (GUID as string by default).
+    /// </summary>
+    public string Id { get; set; } = Guid.NewGuid().ToString();
 
         public string FirstName { get; set; } = string.Empty;
 

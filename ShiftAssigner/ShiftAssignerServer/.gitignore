@@ -10,7 +10,10 @@ obj/
 *.sln.docstates
 
 # VS Code
-.vscode/
+# Allow committing .vscode/launch.json and .vscode/tasks.json; ignore other workspace settings
+.vscode/*
+!.vscode/launch.json
+!.vscode/tasks.json
 
 # Visual Studio
 .vs/

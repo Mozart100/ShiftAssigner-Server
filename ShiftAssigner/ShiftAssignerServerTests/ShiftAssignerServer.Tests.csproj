@@ -6,11 +6,14 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.0" />
-    <PackageReference Include="xunit" Version="2.4.2" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
+
+    <!-- xUnit updated to match Reqnroll.xUnit 3.2.0 requirements -->
+    <PackageReference Include="xunit" Version="2.8.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
 
     <!-- Reqnroll 3.2 packages -->
@@ -24,10 +27,12 @@
     </PackageReference>
   </ItemGroup>
 
-
-
   <ItemGroup>
     <None Include="Features\RegisterWorker.feature" />
   </ItemGroup>
-  
+
+  <!-- Reference to main web API project (adjust path if needed) -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\ShiftAssignerServer.csproj" />
+  </ItemGroup>
 </Project>

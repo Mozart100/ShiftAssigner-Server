@@ -1,7 +1,7 @@
 using System;
 using ShiftAssignerServer.Repositories;
 
-namespace ShiftAssignerServer.Models;
+namespace ShiftAssignerServer.Models.Stuff;
 
 public interface IRegistrationMapper : IAutoMapperEntities
 {

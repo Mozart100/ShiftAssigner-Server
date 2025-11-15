@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using ShiftAssignerServer.Models;
+using ShiftAssignerServer.Models.Stuff;
 using ShiftAssignerServer.Requests;
 
 namespace ShiftAssignerServer.Startup;

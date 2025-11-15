@@ -1,5 +1,4 @@
 using System;
-using AutoMapper;
 
 namespace ShiftAssignerServer.Repositories;
 
@@ -8,45 +7,42 @@ public interface IAutoMapperEntities
 
 }
 
-public interface IRepositoryBase<TModel, TModelDto> where TModel : IAutoMapperEntities where TModelDto : IAutoMapperEntities
+public interface IRepositoryBase<TModel> where TModel : IAutoMapperEntities 
 {
-    TModelDto Insert(TModel instance);
+    TModel Insert(TModel instance);
 
-    Task<TModelDto> InsertAsync(TModel instance);
-
-
-
-    IEnumerable<TModelDto> GetAll();
-
-    Task<TModelDto> FirstOrDefualtAsync(Predicate<TModel> selector);
+    Task<TModel> InsertAsync(TModel instance);
 
 
-    Task<IEnumerable<TModelDto>> GetAllAsync(Func<TModel, bool> selector);
 
-    Task<IEnumerable<TModelDto>> GetAllAsync();
+    IEnumerable<TModel> GetAll();
+
+    Task<TModel> FirstOrDefualtAsync(Predicate<TModel> selector);
+
+
+    Task<IEnumerable<TModel>> GetAllAsync(Func<TModel, bool> selector);
+
+    Task<IEnumerable<TModel>> GetAllAsync();
 
 
 
     Task<bool> UpdateAsync(Predicate<TModel> selector, Action<TModel> updateCallback);
     Task<bool> RemoveAsync(Predicate<TModel> selector);
     bool Remove(Predicate<TModel> selector);
-    TModelDto FirstOrDefualt(Predicate<TModel> selector);
-    IEnumerable<TModelDto> GetAll(Func<TModel, bool> selector);
+    TModel FirstOrDefault(Predicate<TModel> selector);
+    IEnumerable<TModel> GetAll(Func<TModel, bool> selector);
     bool Update(Predicate<TModel> selector, Action<TModel> updateCallback);
 }
 
 
-
-public abstract class AutoRepositoryBase<TModel, TModelDto> : IRepositoryBase<TModel, TModelDto> where TModel : IAutoMapperEntities where TModelDto : IAutoMapperEntities
+public abstract class RepositoryBase<TModel> : IRepositoryBase<TModel> where TModel : IAutoMapperEntities 
 {
-    private readonly IMapper _mapper;
 
     protected HashSet<TModel> Models;
 
-    public AutoRepositoryBase(IMapper mapper)
+    public RepositoryBase()
     {
         Models = new HashSet<TModel>();
-        this._mapper = mapper;
     }
 
     public async virtual Task<bool> RemoveAsync(Predicate<TModel> selector)
@@ -77,20 +73,9 @@ public abstract class AutoRepositoryBase<TModel, TModelDto> : IRepositoryBase<TM
         return result;
     }
 
-    //public async Task<TModelDto> FirstAsync(Predicate<TModel> selector)
-    //{
-    //    return _mapper.Map<TModelDto>(Get(selector));
-    //}
-
-    //public TModelDto First(Predicate<TModel> selector)
-    //{
-    //    return _mapper.Map<TModelDto>(Get(selector));
-    //}
-
-
-    public async Task<TModelDto> FirstOrDefualtAsync(Predicate<TModel> selector)
+    public async Task<TModel> FirstOrDefualtAsync(Predicate<TModel> selector)
     {
-        var result = default(TModelDto);
+        var result = default(TModel);
 
         var model = CoreGet(selector);
         if (model is null)
@@ -98,12 +83,12 @@ public abstract class AutoRepositoryBase<TModel, TModelDto> : IRepositoryBase<TM
             return result;
         }
 
-        return _mapper.Map<TModelDto>(model);
+        return model;
     }
 
-    public TModelDto FirstOrDefualt(Predicate<TModel> selector)
+    public TModel FirstOrDefault(Predicate<TModel> selector)
     {
-        var result = default(TModelDto);
+        var result = default(TModel);
 
         var model = CoreGet(selector);
         if (model is null)
@@ -111,7 +96,7 @@ public abstract class AutoRepositoryBase<TModel, TModelDto> : IRepositoryBase<TM
             return result;
         }
 
-        return _mapper.Map<TModelDto>(model);
+        return model;
     }
 
 
@@ -129,21 +114,21 @@ public abstract class AutoRepositoryBase<TModel, TModelDto> : IRepositoryBase<TM
         return result;
     }
 
-    public virtual async Task<TModelDto> InsertAsync(TModel model)
+    public virtual async Task<TModel> InsertAsync(TModel model)
     {
         return Insert(model);
     }
 
-    public async Task<IEnumerable<TModelDto>> GetAllAsync()
+    public async Task<IEnumerable<TModel>> GetAllAsync()
     {
-        return Models.Select(item => _mapper.Map<TModelDto>(item)).ToArray();
+        return Models.ToArray();
     }
     /// <summary>
     /// Auto Id Generator
     /// </summary>
     /// <param name="instance"></param>
     /// <returns></returns>
-    public virtual TModelDto Insert(TModel instance)
+    public virtual TModel Insert(TModel instance)
     {
 
         if (Models.Add(instance) == false)
@@ -151,22 +136,22 @@ public abstract class AutoRepositoryBase<TModel, TModelDto> : IRepositoryBase<TM
             throw new Exception("Key already present.");
         }
 
-        return _mapper.Map<TModelDto>(instance);
+        return instance;
     }
 
-    public virtual IEnumerable<TModelDto> GetAll()
+    public virtual IEnumerable<TModel> GetAll()
     {
-        return Models.Select(x => _mapper.Map<TModelDto>(x)).ToArray();
+        return Models.ToArray();
     }
 
-    public async Task<IEnumerable<TModelDto>> GetAllAsync(Func<TModel, bool> selector)
+    public async Task<IEnumerable<TModel>> GetAllAsync(Func<TModel, bool> selector)
     {
-        return Models.Where(x => selector(x)).Select(item => _mapper.Map<TModelDto>(item)).ToArray();
+        return Models.Where(x => selector(x)).ToArray();
     }
 
-    public IEnumerable<TModelDto> GetAll(Func<TModel, bool> selector)
+    public IEnumerable<TModel> GetAll(Func<TModel, bool> selector)
     {
-        return Models.Where(x => selector(x)).Select(item => _mapper.Map<TModelDto>(item)).ToArray();
+        return Models.Where(x => selector(x)).ToArray();
     }
 
     public async Task<bool> UpdateAsync(Predicate<TModel> selector, Action<TModel> updateCallback)
@@ -195,3 +180,4 @@ public abstract class AutoRepositoryBase<TModel, TModelDto> : IRepositoryBase<TM
         return false;
     }
 }
+

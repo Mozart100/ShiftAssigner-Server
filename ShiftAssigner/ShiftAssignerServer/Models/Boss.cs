@@ -2,16 +2,21 @@ using System;
 
 namespace ShiftAssignerServer.Models
 {
+    public interface IBossTenantRegistrationMapper : IRegistrationMapper
+    {
+
+    }
+
     /// <summary>
     /// Boss represents a higher-level person. Inherits from Person directly (bosses may not be "workers").
     /// </summary>
-    public record Boss : ShiftLeader
+    public record BossTenant : ShiftLeader,IBossTenantRegistrationMapper
     {
-        public Boss()
+        public BossTenant()
         {
         }
 
-        public Boss(string id,string firstName, string lastName, string phone, DateOnly dob, string tenant,  RoleState roleState,
+        public BossTenant(string id,string firstName, string lastName, string phone, DateOnly dob, string tenant,  RoleState roleState,
             string passwordHash)
             : base(id,firstName, lastName, phone, dob, tenant, roleState, passwordHash)
         

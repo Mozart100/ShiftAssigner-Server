@@ -2,11 +2,17 @@ using System;
 
 namespace ShiftAssignerServer.Models
 {
+
+    public interface IShiftLeaderRegistrationMapper : IRegistrationMapper
+    {
+
+    }
+    
     /// <summary>
     /// Shift leader is a specialized Worker responsible for leading a shift.
     /// Inherits from Worker so it keeps all worker properties and can gain leader-specific fields later.
     /// </summary>
-    public record ShiftLeader : Worker
+    public record ShiftLeader : Worker,IShiftLeaderRegistrationMapper
     {
         // EF Core requires a parameterless constructor
         public ShiftLeader()

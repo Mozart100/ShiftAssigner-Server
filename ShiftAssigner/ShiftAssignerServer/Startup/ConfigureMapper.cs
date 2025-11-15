@@ -10,6 +10,7 @@ public class ConfigureMapper : Profile
     {
         CreateMap<RegisterRequest, Worker>();
         CreateMap<RegisterRequest, ShiftLeader>();
+        CreateMap<RegisterRequest, BossTenant>();
 
         // CreateMap<Chat, ChatDto>();
         //      //.ForMember(dest => dest.Messages, opt => opt.MapFrom(src => src.UserMessages));

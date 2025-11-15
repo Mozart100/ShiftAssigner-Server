@@ -56,6 +56,19 @@ namespace ShiftAssignerServer.Controllers
             return Ok(new RegisterResponse { Token = token });
         }
 
+         [HttpPost("register-boss-tenant")]
+        public ActionResult<RegisterResponse> RegisterBossTenant([FromBody] RegisterRequest dto)
+        {
+            // Debugger.Break();
+            var pwHash = Hash(dto.PasswordHash);
+            var leader =_mapper.Map<BossTenant>(dto);
+            _store.Add(leader, pwHash);
+
+            var role = leader.Role.ToString(); // "ShiftLeader"
+            var token = _jwt.GenerateToken(leader.ID, role, leader.Tenant);
+            return Ok(new RegisterResponse { Token = token });
+        }
+
         // ---------------------------------------------------------------------------------------------------------------
         // ---------------------------------------------------------------------------------------------------------------
         // ---------------------------------------------------------------------------------------------------------------

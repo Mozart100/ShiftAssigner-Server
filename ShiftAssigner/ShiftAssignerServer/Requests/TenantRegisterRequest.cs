@@ -1,14 +1,14 @@
-using System;
-using ShiftAssignerServer.Models;
 using ShiftAssignerServer.Models.Stuff;
-using ShiftAssignerServer.Repositories;
 
 namespace ShiftAssignerServer.Requests;
 
+public interface ITenantRegistrationMapper : IRegistrationMapper
+{
+    string CompanyName { get; set; }
 
+}
 
-
-public class RegisterRequest : IRegistrationMapper
+public class TenantRegisterRequest : IRegistrationMapper
 {
     public string ID { get; set; }
     public string FirstName { get; set; } = string.Empty;
@@ -17,13 +17,13 @@ public class RegisterRequest : IRegistrationMapper
     public DateOnly DateOfBirth { get; set; }
     public string Tenant { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
+
+
+    public string CompanyName { get; set; }
 }
 
 
-public class RegisterResponse
+public class TenantRegisterResponse:RegisterResponse 
 {
-    /// JWT token string
-    /// </summary>
-    public string Token { get; set; } = string.Empty;
 }
 

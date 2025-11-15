@@ -1,6 +1,6 @@
 using System;
 
-namespace ShiftAssignerServer.Models
+namespace ShiftAssignerServer.Models.Stuff
 {
     public interface IBossTenantRegistrationMapper : IRegistrationMapper
     {

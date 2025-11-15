@@ -5,6 +5,7 @@ using System.Text;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using ShiftAssignerServer.Models;
+using ShiftAssignerServer.Models.Stuff;
 using ShiftAssignerServer.Requests;
 using ShiftAssignerServer.Services;
 
@@ -36,7 +37,7 @@ namespace ShiftAssignerServer.Controllers
 
             var worker =_mapper.Map<Worker>(dto);
             // var worker = new Worker(dto.ID, dto.FirstName, dto.LastName, dto.PhoneNumber, dto.DateOfBirth, dto.Tenant, RoleState.Worker, pwHash);
-            _store.Add(worker, pwHash);
+            // _store.Add(worker, pwHash);
 
             var role = worker.Role.ToString(); // "Worker"
             var token = _jwt.GenerateToken(worker.ID, role, worker.Tenant);
@@ -49,7 +50,7 @@ namespace ShiftAssignerServer.Controllers
             // Debugger.Break();
             var pwHash = Hash(dto.PasswordHash);
             var leader =_mapper.Map<ShiftLeader>(dto);
-            _store.Add(leader, pwHash);
+            // _store.Add(leader, pwHash);
 
             var role = leader.Role.ToString(); // "ShiftLeader"
             var token = _jwt.GenerateToken(leader.ID, role, leader.Tenant);
@@ -57,16 +58,16 @@ namespace ShiftAssignerServer.Controllers
         }
 
          [HttpPost("register-boss-tenant")]
-        public ActionResult<RegisterResponse> RegisterBossTenant([FromBody] RegisterRequest dto)
+        public ActionResult<TenantRegisterResponse> RegisterBossTenant([FromBody] TenantRegisterRequest dto)
         {
             // Debugger.Break();
             var pwHash = Hash(dto.PasswordHash);
             var leader =_mapper.Map<BossTenant>(dto);
-            _store.Add(leader, pwHash);
+            // _store.Add(leader, pwHash);
 
             var role = leader.Role.ToString(); // "ShiftLeader"
             var token = _jwt.GenerateToken(leader.ID, role, leader.Tenant);
-            return Ok(new RegisterResponse { Token = token });
+            return Ok(new TenantRegisterResponse { Token = token });
         }
 
         // ---------------------------------------------------------------------------------------------------------------

@@ -17,10 +17,10 @@ namespace ShiftAssignerServer.Services
         /// </summary>
         public bool Add(PersonBase person, string passwordHash)
         {
-            var added = _users.TryAdd(person.Id, person);
+            var added = _users.TryAdd(person.ID, person);
             if (added)
             {
-                _passwordHashes[person.Id] = passwordHash;
+                _passwordHashes[person.ID] = passwordHash;
             }
             return added;
         }

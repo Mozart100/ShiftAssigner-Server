@@ -10,7 +10,7 @@ namespace ShiftAssignerServer.Models
     /// <summary>
     /// Unique identifier for the person. Use string to remain DB-agnostic (GUID as string by default).
     /// </summary>
-    public string Id { get; set; } = string.Empty;
+    public string ID { get; set; } = string.Empty;
 
     public string FirstName { get; set; } = string.Empty;
 

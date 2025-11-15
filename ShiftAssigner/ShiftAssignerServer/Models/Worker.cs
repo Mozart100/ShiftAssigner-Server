@@ -1,32 +1,41 @@
 using System;
+using ShiftAssignerServer.Repositories;
 
-namespace ShiftAssignerServer.Models
+namespace ShiftAssignerServer.Models;
+
+public interface IRegistrationMapper : IAutoMapperEntities
 {
-    /// <summary>
-    /// Represents a regular worker.
-    /// </summary>
-    public record Worker : PersonBase
+     string ID { get; set; }
+     string FirstName { get; set; }
+     string LastName { get; set; }
+     string PhoneNumber { get; set; }
+     DateOnly DateOfBirth { get; set; }
+     string Tenant { get; set; }
+     string PasswordHash { get; set; }
+}
+
+/// <summary>
+/// Represents a regular worker.
+/// </summary>
+public record Worker : PersonBase , IRegistrationMapper
+{
+    // No additional properties for now — keep the Worker as a typed specialization
+    // in case we need worker-specific fields later (e.g. skill set, availability).
+
+
+    public Worker()
     {
-        // No additional properties for now — keep the Worker as a typed specialization
-        // in case we need worker-specific fields later (e.g. skill set, availability).
+    }
 
-
-        public Worker()
-        {
-        }
-
-        public Worker(string id , string firstName, string lastName, string phone, DateOnly birthDate, string tenant, RoleState roleState, string passwordHash)
-        {
-            Id = id;
-            FirstName = firstName;
-            LastName = lastName;
-            PhoneNumber = phone;
-            DateOfBirth = birthDate;
-            Tenant = tenant;
-            this.Role = roleState;
-            PasswordHash = passwordHash;
-            // passwordHash will be stored in the in-memory credential store; do not keep duplicates here.
-        }
-
+    public Worker(string id , string firstName, string lastName, string phone, DateOnly birthDate, string tenant, RoleState roleState, string passwordHash)
+    {
+        ID = id;
+        FirstName = firstName;
+        LastName = lastName;
+        PhoneNumber = phone;
+        DateOfBirth = birthDate;
+        Tenant = tenant;
+        this.Role = roleState;
+        PasswordHash = passwordHash;
     }
 }

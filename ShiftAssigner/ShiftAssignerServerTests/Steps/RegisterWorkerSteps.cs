@@ -33,7 +33,7 @@ public class RegisterWorkerSteps
             PhoneNumber = "555-0100",
             DateOfBirth = new System.DateOnly(1990,1,1),
             Tenant = "CompanyA",
-            Password = "P@ssw0rd!"
+            PasswordHash = "P@ssw0rd!"
         };
 
         

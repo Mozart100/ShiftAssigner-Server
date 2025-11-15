@@ -15,6 +15,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// AutoMapper registration
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
+
 // Authentication
 var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
 builder.Services.AddAuthentication(options =>
@@ -22,21 +25,21 @@ builder.Services.AddAuthentication(options =>
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-    .AddJwtBearer(options =>
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
     {
-        options.RequireHttpsMetadata = false;
-        options.SaveToken = true;
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidIssuer = jwtIssuer,
-            ValidateAudience = true,
-            ValidAudience = jwtAudience,
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = signingKey,
-            ValidateLifetime = true
-        };
-    });
+        ValidateIssuer = true,
+        ValidIssuer = jwtIssuer,
+        ValidateAudience = true,
+        ValidAudience = jwtAudience,
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = signingKey,
+        ValidateLifetime = true
+    };
+});
 
 // Application services
 builder.Services.AddSingleton(new ShiftAssignerServer.Services.JwtService(jwtKey, jwtIssuer, jwtAudience));
@@ -47,15 +50,10 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    // In development enable Swagger UI
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// Only use HTTPS redirection when NOT in development. In many container/dev setups
-// HTTPS is not configured inside the container, so redirecting to https will
-// cause browsers to fail to connect. Keep HTTPS redirection enabled for
-// production environments where certificates are provisioned.
 if (!app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
@@ -65,5 +63,4 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
 app.Run();

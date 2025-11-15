@@ -18,7 +18,10 @@ namespace ShiftAssignerServer.Controllers
         private readonly InMemoryUserStore _store;
         private readonly IMapper _mapper;
 
-        public AuthController(JwtService jwt, InMemoryUserStore store , IMapper mapper)
+        public AuthController(JwtService jwt,
+         InMemoryUserStore store 
+         ,        IMapper mapper
+         )
         {
             _jwt = jwt;
             _store = store;
@@ -45,7 +48,7 @@ namespace ShiftAssignerServer.Controllers
         {
             // Debugger.Break();
             var pwHash = Hash(dto.PasswordHash);
-            var leader = new ShiftLeader(dto.ID, dto.FirstName, dto.LastName, dto.PhoneNumber, dto.DateOfBirth, dto.Tenant, RoleState.ShiftLeader, pwHash);
+            var leader =_mapper.Map<ShiftLeader>(dto);
             _store.Add(leader, pwHash);
 
             var role = leader.Role.ToString(); // "ShiftLeader"

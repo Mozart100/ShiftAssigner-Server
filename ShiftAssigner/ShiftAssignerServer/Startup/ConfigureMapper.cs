@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Identity.Data;
 using ShiftAssignerServer.Models;
+using ShiftAssignerServer.Requests;
 
 namespace ShiftAssignerServer.Startup;
 

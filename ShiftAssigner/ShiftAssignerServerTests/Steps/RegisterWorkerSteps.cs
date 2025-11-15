@@ -16,8 +16,6 @@ public class RegisterWorkerSteps
 
     private readonly ScenarioContext _scenarioContext;
     // private WebApplicationFactory<Program>? _factory;
-    private HttpResponseMessage? _response;
-    private string? _payloadJson;
 
     public RegisterWorkerSteps(ScenarioContext scenarioContext)
     {

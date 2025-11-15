@@ -44,7 +44,7 @@ public class RegisterWorkerSteps
     [When("I POST the payload to \"(.*)\"")]
     public async Task WhenIPostThePayloadTo(string url)
     {
-        const string registrationPath = @"api/Auth/register-worker";
+        const string registrationPath = @"api/v1/Auth/register-worker";
         
         var path = PathLocator.Combine(registrationPath);
 

@@ -21,7 +21,7 @@ namespace ShiftAssignerServer.Controllers
         }
 
         [HttpPost("register-worker")]
-        public IActionResult RegisterWorker([FromBody] RegisterDto dto)
+        public ActionResult<string> RegisterWorker([FromBody] RegisterRequest dto)
         {
             // Create typed Worker instance (constructor expects role and passwordHash)
             var pwHash = Hash(dto.Password);
@@ -34,7 +34,7 @@ namespace ShiftAssignerServer.Controllers
         }
 
         [HttpPost("register-shiftleader")]
-        public IActionResult RegisterShiftLeader([FromBody] RegisterDto dto)
+        public ActionResult<string> RegisterShiftLeader([FromBody] RegisterRequest dto)
         {
             var pwHash = Hash(dto.Password);
             var leader = new ShiftLeader(dto.ID,dto.FirstName, dto.LastName, dto.PhoneNumber, dto.DateOfBirth, dto.Tenant, RoleState.ShiftLeader, pwHash);

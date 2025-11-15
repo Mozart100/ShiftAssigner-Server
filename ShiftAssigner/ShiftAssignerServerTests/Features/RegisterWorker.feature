@@ -3,6 +3,7 @@ Feature: Register Worker
   As a client of the API
   I want to register a worker and receive an authentication token
 
+@registration
   Scenario: Successful worker registration returns auth token
     Given I have a worker registration payload
     When I POST the payload to "/api/auth/register-worker"

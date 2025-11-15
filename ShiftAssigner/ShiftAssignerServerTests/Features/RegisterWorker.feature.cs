@@ -137,15 +137,17 @@ namespace ShiftAssignerServer.Tests.Features
         [global::Xunit.SkippableFactAttribute(DisplayName="Successful worker registration returns auth token")]
         [global::Xunit.TraitAttribute("FeatureTitle", "Register Worker")]
         [global::Xunit.TraitAttribute("Description", "Successful worker registration returns auth token")]
+        [global::Xunit.TraitAttribute("Category", "registration")]
         public async global::System.Threading.Tasks.Task SuccessfulWorkerRegistrationReturnsAuthToken()
         {
-            string[] tagsOfScenario = ((string[])(null));
+            string[] tagsOfScenario = new string[] {
+                    "registration"};
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
             string pickleIndex = "0";
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Successful worker registration returns auth token", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
-#line 6
+#line 7
   this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -155,13 +157,13 @@ namespace ShiftAssignerServer.Tests.Features
             else
             {
                 await this.ScenarioStartAsync();
-#line 7
+#line 8
     await testRunner.GivenAsync("I have a worker registration payload", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
-#line 8
+#line 9
     await testRunner.WhenAsync("I POST the payload to \"/api/auth/register-worker\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 9
+#line 10
     await testRunner.ThenAsync("the response should contain a JWT token", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }

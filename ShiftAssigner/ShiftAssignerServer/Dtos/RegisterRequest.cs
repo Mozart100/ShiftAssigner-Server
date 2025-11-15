@@ -2,7 +2,7 @@ using System;
 
 namespace ShiftAssignerServer.Models
 {
-    public class RegisterDto
+    public class RegisterRequest
     {
         public string ID { get; set; }
         public string FirstName { get; set; } = string.Empty;

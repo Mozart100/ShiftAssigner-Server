@@ -47,11 +47,19 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    // In development enable Swagger UI
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// Only use HTTPS redirection when NOT in development. In many container/dev setups
+// HTTPS is not configured inside the container, so redirecting to https will
+// cause browsers to fail to connect. Keep HTTPS redirection enabled for
+// production environments where certificates are provisioned.
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseAuthentication();
 app.UseAuthorization();

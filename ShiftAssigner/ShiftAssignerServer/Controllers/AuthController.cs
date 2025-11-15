@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
@@ -23,6 +24,7 @@ namespace ShiftAssignerServer.Controllers
         [HttpPost("register-worker")]
         public ActionResult<string> RegisterWorker([FromBody] RegisterRequest dto)
         {
+            Debugger.Break();
             // Create typed Worker instance (constructor expects role and passwordHash)
             var pwHash = Hash(dto.Password);
             var worker = new Worker(dto.ID, dto.FirstName, dto.LastName, dto.PhoneNumber, dto.DateOfBirth, dto.Tenant, RoleState.Worker, pwHash);
@@ -36,6 +38,7 @@ namespace ShiftAssignerServer.Controllers
         [HttpPost("register-shiftleader")]
         public ActionResult<string> RegisterShiftLeader([FromBody] RegisterRequest dto)
         {
+            Debugger.Break();
             var pwHash = Hash(dto.Password);
             var leader = new ShiftLeader(dto.ID,dto.FirstName, dto.LastName, dto.PhoneNumber, dto.DateOfBirth, dto.Tenant, RoleState.ShiftLeader, pwHash);
             _store.Add(leader, pwHash);

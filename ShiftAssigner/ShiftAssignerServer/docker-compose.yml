@@ -1,0 +1,19 @@
+version: "3.8"
+services:
+  shiftassigner:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: shiftassignerserver:local
+    container_name: shiftassigner
+    ports:
+      - "8080:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost/swagger" ]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 5s
+

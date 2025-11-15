@@ -31,8 +31,9 @@
     <None Include="Features\RegisterWorker.feature" />
   </ItemGroup>
 
-  <!-- Reference to main web API project (adjust path if needed) -->
   <ItemGroup>
-    <ProjectReference Include="..\..\ShiftAssignerServer.csproj" />
+    <ProjectReference Include="..\ShiftAssignerServer\ShiftAssignerServer.csproj" />
   </ItemGroup>
+
+  <!-- Reference to main web API project (adjust path if needed) -->
 </Project>

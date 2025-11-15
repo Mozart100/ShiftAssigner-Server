@@ -1,7 +1,8 @@
 using System.Net.Http;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Reqnroll;
+using ShiftAssignerServer.Requests;
+using ShiftAssignerServer.Tests.Infrastructure;
 
 namespace ShiftAssignerServer.Tests.Steps;
 
@@ -21,23 +22,36 @@ public class RegisterWorkerSteps
     [Given("I have a worker registration payload")]
     public void GivenIHaveAWorkerRegistrationPayload()
     {
-        var payload = new
+        var payload = new RegisterRequest
         {
+            ID="111", 
             FirstName = "Test",
             LastName = "Worker",
             PhoneNumber = "555-0100",
-            DateOfBirth = "1990-01-01",
+            DateOfBirth = new System.DateOnly(1990,1,1),
             Tenant = "CompanyA",
             Password = "P@ssw0rd!"
         };
 
-        _payloadJson = JsonSerializer.Serialize(payload);
-        _scenarioContext["payload"] = _payloadJson;
+        
+        // _payloadJson = JsonSerializer.Serialize(payload);
+        _scenarioContext["payload"] = payload;
     }
 
     [When("I POST the payload to \"(.*)\"")]
     public async Task WhenIPostThePayloadTo(string url)
     {
+        const string registrationPath = @"api/Auth/register-worker";
+        
+        var path = PathLocator.Combine(registrationPath);
+
+        var request = _scenarioContext["payload"] as RegisterRequest;
+
+        var client = new ClientSender();
+        var response = await client.PostCommandAsync<RegisterRequest,RegisterResponse>(path,request);
+
+
+
         // create a fresh factory per scenario to isolate in-memory state
         // _factory = new WebApplicationFactory<Program>();
         // var client = _factory.CreateClient();

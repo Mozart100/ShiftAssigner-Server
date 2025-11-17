@@ -9,6 +9,13 @@ namespace ShiftAssignerServer.Tests.Infrastructure;
 
 public class ClientSender
 {
+    private string _baseUrl;
+
+    public ClientSender(string baseUrl)
+    {
+        _baseUrl = baseUrl;
+    }
+    
     protected async Task<TResponse> DeleteCommand<TResponse>(string url) where TResponse : class
     {
         using (HttpClient client = new HttpClient())
@@ -108,8 +115,10 @@ public class ClientSender
         }
     }
 
-    public async Task<TResponse> PostCommandAsync<TRequest, TResponse>(string url, TRequest request)
+    public async Task<TResponse> PostCommandAsync<TRequest, TResponse>( TRequest request,string relativePath)
     {
+        var url = PathLocator.Combine(_baseUrl,relativePath);
+
         using (HttpClient client = new HttpClient())
         {
             var sendOptions = new JsonSerializerOptions();

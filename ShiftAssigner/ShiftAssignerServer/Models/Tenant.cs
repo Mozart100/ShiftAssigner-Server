@@ -9,7 +9,7 @@ namespace ShiftAssignerServer.Models;
 /// </summary>
 public class Tenant : IAutoMapperEntities
 {
-    public int ID { get; set; }
+    // public int ID { get; set; }  
 
     // Non-nullable string - provide a default to satisfy nullable reference checks.
     public string CompanyName { get; set; } = string.Empty;

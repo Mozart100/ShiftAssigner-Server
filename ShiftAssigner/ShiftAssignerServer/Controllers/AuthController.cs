@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using ShiftAssignerServer.Models;
@@ -18,15 +19,18 @@ namespace ShiftAssignerServer.Controllers
         private readonly JwtService _jwt;
         private readonly InMemoryUserStore _store;
         private readonly IMapper _mapper;
+        private readonly ITenantService _tenantService;
 
         public AuthController(JwtService jwt,
-         InMemoryUserStore store 
-         ,        IMapper mapper
+         InMemoryUserStore store
+         , IMapper mapper,
+         ITenantService tenantService
          )
         {
             _jwt = jwt;
             _store = store;
             this._mapper = mapper;
+            _tenantService = tenantService;
         }
 
         [HttpPost("register-worker")]
@@ -35,7 +39,7 @@ namespace ShiftAssignerServer.Controllers
             // Create typed Worker instance (constructor expects role and passwordHash)
             var pwHash = Hash(dto.PasswordHash);
 
-            var worker =_mapper.Map<Worker>(dto);
+            var worker = _mapper.Map<Worker>(dto);
             // var worker = new Worker(dto.ID, dto.FirstName, dto.LastName, dto.PhoneNumber, dto.DateOfBirth, dto.Tenant, RoleState.Worker, pwHash);
             // _store.Add(worker, pwHash);
 
@@ -49,7 +53,7 @@ namespace ShiftAssignerServer.Controllers
         {
             // Debugger.Break();
             var pwHash = Hash(dto.PasswordHash);
-            var leader =_mapper.Map<ShiftLeader>(dto);
+            var leader = _mapper.Map<ShiftLeader>(dto);
             // _store.Add(leader, pwHash);
 
             var role = leader.Role.ToString(); // "ShiftLeader"
@@ -57,16 +61,17 @@ namespace ShiftAssignerServer.Controllers
             return Ok(new RegisterResponse { Token = token });
         }
 
-         [HttpPost("register-boss-tenant")]
-        public ActionResult<TenantRegisterResponse> RegisterBossTenant([FromBody] TenantRegisterRequest dto)
+        [HttpPost("register-boss-tenant")]
+        public async Task<ActionResult<TenantRegisterResponse>> RegisterBossTenant([FromBody] TenantRegisterRequest dto)
         {
             // Debugger.Break();
             var pwHash = Hash(dto.PasswordHash);
-            var leader =_mapper.Map<BossTenant>(dto);
-            // _store.Add(leader, pwHash);
+            var tenant = _mapper.Map<BossTenant>(dto);
 
-            var role = leader.Role.ToString(); // "ShiftLeader"
-            var token = _jwt.GenerateToken(leader.ID, role, leader.Tenant);
+            await _tenantService.AddTenantAsync(tenant.Tenant);
+
+            var role = tenant.Role.ToString(); // "ShiftLeader"
+            var token = _jwt.GenerateToken(tenant.ID, role, tenant.Tenant);
             return Ok(new TenantRegisterResponse { Token = token });
         }
 

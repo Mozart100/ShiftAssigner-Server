@@ -1,0 +1,41 @@
+root = true
+
+[*.cs]
+# Use underscore prefix for private fields, camelCase after underscore
+dotnet_naming_rule.private_fields_underscore.symbols = private_fields
+dotnet_naming_rule.private_fields_underscore.style = underscore_style
+dotnet_naming_rule.private_fields_underscore.severity = suggestion
+
+dotnet_naming_symbols.private_fields.applicable_kinds = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+dotnet_naming_symbols.private_fields.required_modifiers =
+
+dotnet_naming_style.underscore_style.required_prefix = _
+dotnet_naming_style.underscore_style.required_suffix =
+dotnet_naming_style.underscore_style.word_separator =
+dotnet_naming_style.underscore_style.capitalization = camel_case
+
+# Also prefer _camelCase for readonly private fields (common pattern)
+dotnet_naming_rule.private_readonly_fields_underscore.symbols = private_readonly_fields
+dotnet_naming_rule.private_readonly_fields_underscore.style = underscore_style
+dotnet_naming_rule.private_readonly_fields_underscore.severity = suggestion
+
+dotnet_naming_symbols.private_readonly_fields.applicable_kinds = field
+dotnet_naming_symbols.private_readonly_fields.applicable_accessibilities = private
+dotnet_naming_symbols.private_readonly_fields.required_modifiers = readonly
+
+# Optional: prefer _prefix for backing fields used for properties
+dotnet_naming_rule.backing_fields_underscore.symbols = backing_fields
+dotnet_naming_rule.backing_fields_underscore.style = underscore_style
+dotnet_naming_rule.backing_fields_underscore.severity = suggestion
+
+dotnet_naming_symbols.backing_fields.applicable_kinds = field
+dotnet_naming_symbols.backing_fields.applicable_accessibilities = private
+dotnet_naming_symbols.backing_fields.required_modifiers =
+
+# Editor preferences
+indent_style = space
+indent_size = 4
+charset = utf-8
+end_of_line = crlf
+trim_trailing_whitespace = true

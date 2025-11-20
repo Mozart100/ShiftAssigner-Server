@@ -3,7 +3,12 @@ using ShiftAssignerServer.Models;
 
 namespace ShiftAssignerServer.Repositories;
 
-public class TenantRepository : RepositoryBase<Tenant>
+public interface ITenantRepository : IRepositoryBase<Tenant>
+{
+    
+}
+
+public class TenantRepository : RepositoryBase<Tenant> , ITenantRepository
 {
     public TenantRepository()
     {

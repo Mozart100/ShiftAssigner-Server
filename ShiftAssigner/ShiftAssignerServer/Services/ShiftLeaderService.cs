@@ -11,6 +11,7 @@ namespace ShiftAssignerServer.Services;
 
 public interface IShiftLeaderService
 {
+    Task<bool> AddTenantAsync(ShiftLeader leader);
     Task<IEnumerable<PubShiftLeader>> GetAllAsync(string perTenant);
 }
 
@@ -25,12 +26,20 @@ public class ShiftLeaderService : IShiftLeaderService
         _mapper = mapper;
     }
 
+
+    public async Task<bool> AddTenantAsync(ShiftLeader shiftLeader)
+    {
+        var model = await _repo.InsertAsync(shiftLeader);
+        return true;
+    }
+
     public async Task<IEnumerable<PubShiftLeader>> GetAllAsync(string perTenant)
     {
         var leaders = await _repo.GetAllAsync(x => x.Tenant.Equals(perTenant, StringComparison.CurrentCultureIgnoreCase));
 
-        if (leaders is null)
+        if (leaders.IsEmpty())
         {
+            return [];
         }
 
         var dtos = _mapper.Map<IEnumerable<PubShiftLeader>>(leaders);

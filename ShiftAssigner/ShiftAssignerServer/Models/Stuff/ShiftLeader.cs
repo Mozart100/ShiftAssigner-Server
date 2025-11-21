@@ -9,7 +9,7 @@ namespace ShiftAssignerServer.Models.Stuff
 
     }
 
-      public interface IPubShiftLeaderMapper : IAutoMapperEntities
+    public interface IPubShiftLeaderMapper : IAutoMapperEntities
     {
         string ID { get; set; }
         string FirstName { get; set; }
@@ -47,9 +47,9 @@ namespace ShiftAssignerServer.Models.Stuff
     }
 
 
-  
 
-    public record PubShiftLeader : IPubShiftLeaderMapper
+
+    public class PubShiftLeader : IPubShiftLeaderMapper
     {
         public string ID { get; set; } = string.Empty;
         public string FirstName { get; set; } = string.Empty;

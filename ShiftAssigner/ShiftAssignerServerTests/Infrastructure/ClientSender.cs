@@ -217,7 +217,20 @@ public class ClientSender
             response = JsonSerializer.Deserialize<TResponse>(responseContent, recieveOptions);
         }
 
-        return response;
+        if (message.IsSuccessStatusCode)
+        {
+            return response;
+        }
+
+        // Read response content (if any) and throw a more descriptive exception so tests can surface server errors.
+        var errorContent = string.Empty;
+        try
+        {
+            errorContent = await message.Content.ReadAsStringAsync();
+        }
+        catch { /* ignore read errors */ }
+
+        throw new HttpRequestException($"Request failed with status {(int)message.StatusCode} ({message.ReasonPhrase}). Response: {errorContent}");
     }
 
     protected string ConvertFileToBase64(string filePath)

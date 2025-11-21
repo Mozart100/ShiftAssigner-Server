@@ -20,9 +20,9 @@ public class ShiftLeadersController : ControllerBase
 
     // GET: api/v1/ShiftLeaders/{tenant}
     [HttpGet("{tenant}")]
-    public async Task<ActionResult<IEnumerable<PubShiftLeader>>> GetAllPerTenant(string tenant)
+    public async Task<ActionResult<GetShiftLeaderPerTenantResponse>> GetAllPerTenant(string tenant)
     {
         var leaders = await _service.GetAllAsync(tenant);
-        return Ok(leaders);
+        return Ok(new GetShiftLeaderPerTenantResponse{ ShifLeaders = leaders });
     }
 }

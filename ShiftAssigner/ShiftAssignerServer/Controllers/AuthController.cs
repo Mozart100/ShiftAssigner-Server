@@ -21,19 +21,25 @@ namespace ShiftAssignerServer.Controllers
         private readonly JwtService _jwt;
         private readonly IMapper _mapper;
         private readonly ITenantService _tenantService;
+        private readonly IShiftLeaderService _shiftLeaderService;
+        private readonly IWorkerService _workerService;
 
         public AuthController(JwtService jwt,
           IMapper mapper,
-         ITenantService tenantService
+         ITenantService tenantService,
+         IShiftLeaderService shiftLeaderService,
+         IWorkerService workerService
          )
         {
             _jwt = jwt;
             this._mapper = mapper;
             _tenantService = tenantService;
+            _shiftLeaderService = shiftLeaderService;
+            _workerService = workerService;
         }
 
         [HttpPost("register-worker")]
-        public ActionResult<RegisterResponse> RegisterWorker([FromBody] RegisterRequest dto)
+        public async Task<ActionResult<RegisterResponse>> RegisterWorker([FromBody] RegisterRequest dto)
         {
             // Create typed Worker instance (constructor expects role and passwordHash)
             var pwHash = Hash(dto.PasswordHash);
@@ -41,19 +47,23 @@ namespace ShiftAssignerServer.Controllers
             var worker = _mapper.Map<Worker>(dto);
             // var worker = new Worker(dto.ID, dto.FirstName, dto.LastName, dto.PhoneNumber, dto.DateOfBirth, dto.Tenant, RoleState.Worker, pwHash);
             // _store.Add(worker, pwHash);
-
+            bool flag = await _workerService.AddWorker(worker);
             var role = worker.Role.ToString(); // "Worker"
             var token = _jwt.GenerateToken(worker.ID, role, worker.Tenant);
             return Ok(new RegisterResponse { Token = token });
         }
 
         [HttpPost("register-shift-leader")]
-        public ActionResult<RegisterResponse> RegisterShiftLeader([FromBody] RegisterRequest dto)
+        public async Task<ActionResult<RegisterResponse>> RegisterShiftLeader([FromBody] RegisterRequest dto)
         {
             // Debugger.Break();
             var pwHash = Hash(dto.PasswordHash);
             var leader = _mapper.Map<ShiftLeader>(dto);
+            leader.Role = RoleState.ShiftLeader;
             // _store.Add(leader, pwHash);
+
+
+            bool flag = await _shiftLeaderService.AddTenantAsync(leader);
 
             var role = leader.Role.ToString(); // "ShiftLeader"
             var token = _jwt.GenerateToken(leader.ID, role, leader.Tenant);

@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Reqnroll;
 using ShiftAssignerServer.Controllers;
+using ShiftAssignerServer.Models.Stuff;
 using ShiftAssignerServer.Requests;
 using ShiftAssignerServer.Tests.Infrastructure;
 using Xunit;
@@ -16,6 +17,7 @@ public class RegisterBossTenantVerifySteps
     private const string Payload_Context = "payload";
     private const string Response_Context = "response";
     private const string Tenants_Context = "tenants";
+    private const string ShiftLeaders_Context = "shiftleaders";
 
     private readonly ScenarioContext _scenarioContext;
     private readonly ClientSender _serverSender;
@@ -62,10 +64,32 @@ public class RegisterBossTenantVerifySteps
     [Then("the response should contain a JWT token")]
     public void ThenTheResponseShouldContainJwtToken()
     {
-        var response = _scenarioContext[Response_Context] as TenantRegisterResponse;
+        var response = _scenarioContext[Response_Context] as RegisterResponse;
         Assert.NotNull(response);
         Assert.True(!string.IsNullOrWhiteSpace(response!.Token));
     }
+
+    [When("I create a shift leader for tenant \"(.*)\" with id \"(.*)\"")]
+    public async Task WhenICreateAShiftLeaderForTenant(string tenant, string leaderId)
+    {
+        var payload = new RegisterRequest
+        {
+            ID = leaderId,
+            FirstName = "Bob",
+            LastName = "Leader",
+            PhoneNumber = "555-0200",
+            DateOfBirth = new System.DateOnly(1990, 6, 1),
+            Tenant = tenant,
+            PasswordHash = "P@ssw0rd!"
+        };
+
+        const string registrationPath = "api/v1/Auth/register-shift-leader";
+
+        var response = await _serverSender.PostCommandAsync<RegisterRequest, RegisterResponse>(payload, registrationPath);
+        _scenarioContext[Response_Context] = response;
+    }
+
+
 
     [When("I GET the tenants list")]
     public async Task WhenIGetTheTenantsList()
@@ -98,5 +122,32 @@ public class RegisterBossTenantVerifySteps
         }
 
         Assert.True(isContains);
+    }
+
+    [When("I GET the shiftleaders for tenant \"(.*)\"")]
+    public async Task WhenIGetTheShiftLeadersForTenant(string tenant)
+    {
+        var path = PathLocator.Combine($"api/v1/ShiftLeaders/{tenant}");
+        var response = await _serverSender.GetAsync<GetShiftLeaderPerTenantResponse>(path);
+        _scenarioContext[ShiftLeaders_Context] = response;
+    }
+
+    [Then("the shiftleaders list should contain id \"(.*)\"")]
+    public void ThenTheShiftLeadersListShouldContainId(string leaderId)
+    {
+        var response = _scenarioContext[ShiftLeaders_Context] as GetShiftLeaderPerTenantResponse;
+        Assert.NotNull(response);
+        var exists = false;
+        
+        foreach (var shiftLeader in response.ShifLeaders)
+        {
+            if (shiftLeader.ID.Equals(leaderId, System.StringComparison.InvariantCulture))
+            {
+                exists = true;
+                break;
+            }
+        }
+
+        Assert.True(exists);
     }
 }

@@ -17,22 +17,22 @@ namespace ShiftAssignerServer.Tests.Features
     
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "3.0.0.0")]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public partial class RegisterWorkerFeature : object, global::Xunit.IClassFixture<RegisterWorkerFeature.FixtureData>, global::Xunit.IAsyncLifetime
+    public partial class RegisterTenantBossAndVerifyTenantExistsFeature : object, global::Xunit.IClassFixture<RegisterTenantBossAndVerifyTenantExistsFeature.FixtureData>, global::Xunit.IAsyncLifetime
     {
         
         private global::Reqnroll.ITestRunner testRunner;
         
         private static string[] featureTags = ((string[])(null));
         
-        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Features", "Register Worker", "  In order to allow workers to authenticate\r\n  As a client of the API\r\n  I want t" +
-                "o register a worker and receive an authentication token", global::Reqnroll.ProgrammingLanguage.CSharp, featureTags, InitializeCucumberMessages());
+        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Features", "Register Tenant Boss and verify tenant exists", "  In order to ensure tenant creation\r\n  As a client of the API\r\n  I want to regis" +
+                "ter a tenant boss and then GET the tenants list to verify the company exists", global::Reqnroll.ProgrammingLanguage.CSharp, featureTags, InitializeCucumberMessages());
         
         private global::Xunit.Abstractions.ITestOutputHelper _testOutputHelper;
         
-#line 1 "RegisterWorker.feature"
+#line 1 "RegisterBossTenantVerify.feature"
 #line hidden
         
-        public RegisterWorkerFeature(RegisterWorkerFeature.FixtureData fixtureData, global::Xunit.Abstractions.ITestOutputHelper testOutputHelper)
+        public RegisterTenantBossAndVerifyTenantExistsFeature(RegisterTenantBossAndVerifyTenantExistsFeature.FixtureData fixtureData, global::Xunit.Abstractions.ITestOutputHelper testOutputHelper)
         {
             this._testOutputHelper = testOutputHelper;
         }
@@ -106,7 +106,7 @@ namespace ShiftAssignerServer.Tests.Features
         
         private static global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages InitializeCucumberMessages()
         {
-            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Features/RegisterWorker.feature.ndjson", 3);
+            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Features/RegisterBossTenantVerify.feature.ndjson", 3);
         }
         
         async global::System.Threading.Tasks.Task global::Xunit.IAsyncLifetime.InitializeAsync()
@@ -134,17 +134,19 @@ namespace ShiftAssignerServer.Tests.Features
             await this.TestTearDownAsync();
         }
         
-        [global::Xunit.SkippableFactAttribute(DisplayName="Successful worker registration returns auth token")]
-        [global::Xunit.TraitAttribute("FeatureTitle", "Register Worker")]
-        [global::Xunit.TraitAttribute("Description", "Successful worker registration returns auth token")]
+        [global::Xunit.SkippableFactAttribute(DisplayName="Register boss and verify tenant appears in tenants list")]
+        [global::Xunit.TraitAttribute("FeatureTitle", "Register Tenant Boss and verify tenant exists")]
+        [global::Xunit.TraitAttribute("Description", "Register boss and verify tenant appears in tenants list")]
+        [global::Xunit.TraitAttribute("Category", "integration")]
         [global::Xunit.TraitAttribute("Category", "registration")]
-        public async global::System.Threading.Tasks.Task SuccessfulWorkerRegistrationReturnsAuthToken()
+        public async global::System.Threading.Tasks.Task RegisterBossAndVerifyTenantAppearsInTenantsList()
         {
             string[] tagsOfScenario = new string[] {
+                    "integration",
                     "registration"};
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
             string pickleIndex = "0";
-            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Successful worker registration returns auth token", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Register boss and verify tenant appears in tenants list", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
             string[] tagsOfRule = ((string[])(null));
             global::Reqnroll.RuleInfo ruleInfo = null;
 #line 7
@@ -158,10 +160,10 @@ namespace ShiftAssignerServer.Tests.Features
             {
                 await this.ScenarioStartAsync();
 #line 8
-    await testRunner.GivenAsync("I have a worker registration payload", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+    await testRunner.GivenAsync("I have a tenant boss registration payload for company \"Acme Ltd\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 9
-    await testRunner.WhenAsync("I POST the payload to \"/api/auth/register-worker\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+    await testRunner.WhenAsync("Tenant registration \"1\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 10
     await testRunner.ThenAsync("the response should contain a JWT token", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
@@ -177,12 +179,12 @@ namespace ShiftAssignerServer.Tests.Features
             
             async global::System.Threading.Tasks.Task global::Xunit.IAsyncLifetime.InitializeAsync()
             {
-                await RegisterWorkerFeature.FeatureSetupAsync();
+                await RegisterTenantBossAndVerifyTenantExistsFeature.FeatureSetupAsync();
             }
             
             async global::System.Threading.Tasks.Task global::Xunit.IAsyncLifetime.DisposeAsync()
             {
-                await RegisterWorkerFeature.FeatureTearDownAsync();
+                await RegisterTenantBossAndVerifyTenantExistsFeature.FeatureTearDownAsync();
             }
         }
     }

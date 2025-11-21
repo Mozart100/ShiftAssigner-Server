@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -15,7 +17,70 @@ public class ClientSender
     {
         _baseUrl = baseUrl;
     }
-    
+
+    public async Task<TDto> GetAsync<TDto>(string url, string? token = null, Dictionary<string, string> parameters = null) where TDto : class
+    {
+        using (HttpClient client = new HttpClient())
+        {
+
+            if (token is not null)
+            {
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
+
+            if (parameters is not null)
+            {
+                var encoder = new FormUrlEncodedContent(parameters);
+                var queryString = await encoder.ReadAsStringAsync();
+                url = $"{url}?{queryString}";
+            }
+
+
+            HttpResponseMessage response = await client.GetAsync(url);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var result = default(TDto);
+
+                if (typeof(TDto) == typeof(byte[]))
+                {
+                    var buffer = await response.Content.ReadAsByteArrayAsync();
+                    if (response.Content.Headers.ContentDisposition != null)
+                    {
+                        var fileName = response.Content.Headers.ContentDisposition.FileName?.Trim('\"');
+                    }
+                    else
+                    {
+                        // Handle cases where Content-Disposition header is missing or malformed
+                        var fileName = "unknown_filename";
+                    }
+
+                    result = buffer as TDto;
+                }
+                else
+                {
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    if (responseContent.IsEmpty() == false)
+                    {
+                        var options = new JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true
+                        };
+
+                        result = JsonSerializer.Deserialize<TDto>(responseContent, options);
+                    }
+                }
+
+                return result;
+            }
+
+            throw new Exception("xxx");
+
+            // var errorResponse = await response.Content.ReadFromJsonAsync<ErrorResponse>();
+            // throw new ErrorResponseException { ErrorResponse = errorResponse };
+        }
+    }
+
     protected async Task<TResponse> DeleteCommand<TResponse>(string url) where TResponse : class
     {
         using (HttpClient client = new HttpClient())
@@ -115,9 +180,9 @@ public class ClientSender
         }
     }
 
-    public async Task<TResponse> PostCommandAsync<TRequest, TResponse>( TRequest request,string relativePath)
+    public async Task<TResponse> PostCommandAsync<TRequest, TResponse>(TRequest request, string relativePath)
     {
-        var url = PathLocator.Combine(_baseUrl,relativePath);
+        var url = PathLocator.Combine(_baseUrl, relativePath);
 
         using (HttpClient client = new HttpClient())
         {

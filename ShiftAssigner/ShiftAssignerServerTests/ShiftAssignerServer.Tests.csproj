@@ -28,10 +28,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Features\RegisterWorker.feature" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\ShiftAssignerServer\ShiftAssignerServer.csproj" />
   </ItemGroup>
 

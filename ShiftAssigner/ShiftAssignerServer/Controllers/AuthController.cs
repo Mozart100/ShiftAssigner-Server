@@ -48,7 +48,7 @@ namespace ShiftAssignerServer.Controllers
             return Ok(new RegisterResponse { Token = token });
         }
 
-        [HttpPost("register-shiftleader")]
+        [HttpPost("register-shift-leader")]
         public ActionResult<RegisterResponse> RegisterShiftLeader([FromBody] RegisterRequest dto)
         {
             // Debugger.Break();

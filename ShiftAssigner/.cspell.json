@@ -1,0 +1,24 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "words": [
+    "JWT",
+    "AJWT",
+    "accessibilities",
+    "dotnet_naming_symbols",
+    "dotnet_naming_rule",
+    "dotnet_naming_style",
+    "camel_case",
+    "PathLocator",
+    "Reqnroll",
+    "vsdbg",
+    "TenantRegister",
+    "BossTenant",
+    "shiftassigner"
+  ],
+  "ignorePaths": [
+    "**/bin/**",
+    "**/obj/**",
+    ".git/**"
+  ]
+}

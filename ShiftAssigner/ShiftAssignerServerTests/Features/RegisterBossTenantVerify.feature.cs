@@ -160,13 +160,19 @@ namespace ShiftAssignerServer.Tests.Features
             {
                 await this.ScenarioStartAsync();
 #line 8
-    await testRunner.GivenAsync("I have a tenant boss registration payload for company \"Acme Ltd\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+  await testRunner.GivenAsync("I have a tenant boss registration payload for tenant \"Acme Ltd\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 9
     await testRunner.WhenAsync("Tenant registration \"1\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 10
     await testRunner.ThenAsync("the response should contain a JWT token", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 11
+    await testRunner.WhenAsync("I GET the tenants list", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 12
+  await testRunner.ThenAsync("the tenants list should contain tenant \"Acme Ltd\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

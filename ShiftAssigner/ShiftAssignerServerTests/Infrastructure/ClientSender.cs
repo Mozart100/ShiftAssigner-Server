@@ -18,8 +18,10 @@ public class ClientSender
         _baseUrl = baseUrl;
     }
 
-    public async Task<TDto> GetAsync<TDto>(string url, string? token = null, Dictionary<string, string> parameters = null) where TDto : class
+    public async Task<TDto> GetAsync<TDto>(string relativePath, string? token = null, Dictionary<string, string> parameters = null) where TDto : class
     {
+        var url = PathLocator.Combine(_baseUrl, relativePath);
+
         using (HttpClient client = new HttpClient())
         {
 

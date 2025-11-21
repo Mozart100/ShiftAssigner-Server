@@ -2,5 +2,5 @@ namespace ShiftAssignerServer.Requests;
 
 public class TenantResponse
 {
-    public List<string> Tenants { get; set; } 
+    public List<string> Tenants { get; set; } = new List<string>();
 }

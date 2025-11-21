@@ -4,7 +4,7 @@ namespace ShiftAssignerServer.Requests;
 
 public interface ITenantRegistrationMapper : IRegistrationMapper
 {
-    string CompanyName { get; set; }
+    // string CompanyName { get; set; }
 
 }
 
@@ -19,7 +19,6 @@ public class TenantRegisterRequest : IRegistrationMapper
     public string PasswordHash { get; set; } = string.Empty;
 
 
-    public string CompanyName { get; set; }
 }
 
 

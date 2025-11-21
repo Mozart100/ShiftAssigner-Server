@@ -16,6 +16,8 @@ namespace ShiftAssignerServer.Controllers
     [Route("api/v1/[controller]")]
     public class AuthController : ControllerBase
     {
+        public const string Register_Tenant = "register-boss-tenant";
+
         private readonly JwtService _jwt;
         private readonly InMemoryUserStore _store;
         private readonly IMapper _mapper;
@@ -61,7 +63,7 @@ namespace ShiftAssignerServer.Controllers
             return Ok(new RegisterResponse { Token = token });
         }
 
-        [HttpPost("register-boss-tenant")]
+        [HttpPost(Register_Tenant)]
         public async Task<ActionResult<TenantRegisterResponse>> RegisterBossTenant([FromBody] TenantRegisterRequest dto)
         {
             // Debugger.Break();

@@ -2,8 +2,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Reqnroll;
+using ShiftAssignerServer.Controllers;
 using ShiftAssignerServer.Requests;
 using ShiftAssignerServer.Tests.Infrastructure;
 using Xunit;
@@ -30,8 +32,8 @@ public class RegisterBossTenantVerifySteps
 
     }
 
-    [Given("I have a tenant boss registration payload for company \"(.*)\"")]
-    public void GivenIHaveATenantBossRegistrationPayload(string company)
+    [Given("I have a tenant boss registration payload for tenant \"(.*)\"")]
+    public void GivenIHaveATenantBossRegistrationPayload(string tenant)
     {
         var payload = new TenantRegisterRequest
         {
@@ -40,8 +42,7 @@ public class RegisterBossTenantVerifySteps
             LastName = "Owner",
             PhoneNumber = "555-0100",
             DateOfBirth = new System.DateOnly(1985, 1, 1),
-            Tenant = company.ToLowerInvariant().Replace(" ", "-"),
-            CompanyName = company,
+            Tenant = tenant,
             PasswordHash = "P@ssw0rd!"
         };
 
@@ -51,7 +52,7 @@ public class RegisterBossTenantVerifySteps
     [When("Tenant registration \"(.*)\"")]
     public async Task WhenIPostThePayloadTo(string tenantId)
     {
-        const string registrationPath = @"api/v1/Auth/register-worker";
+        const string registrationPath = $"api/v1/Auth/{AuthController.Register_Tenant}";
 
         var ptr = _scenarioContext[Payload_Context];
 
@@ -86,12 +87,22 @@ public class RegisterBossTenantVerifySteps
         _scenarioContext[Tenants_Context] = response;
     }
 
-    [Then("the tenants list should contain company \"(.*)\"")]
-    public void ThenTheTenantsListShouldContainCompany(string company)
+    [Then("the tenants list should contain tenant \"(.*)\"")]
+    public void ThenTheTenantsListShouldContainCompany(string tenant)
     {
-        var tenants = _scenarioContext[Tenants_Context] as TenantResponse;
+        var response = _scenarioContext[Tenants_Context] as TenantResponse;
 
-        var isContains = tenants.Tenants.Contains(company);
+        var isContains = false;
+
+        foreach (var t in response.Tenants)
+        {
+            if (t.Equals(tenant, System.StringComparison.InvariantCulture))
+            {
+                isContains = true;
+                break;
+            }
+        }
+
         Assert.True(isContains);
     }
 }

@@ -1,8 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Text.Json;
-using System.Threading;
 using System.Threading.Tasks;
 using Reqnroll;
 using ShiftAssignerServer.Controllers;
@@ -91,12 +86,11 @@ public class RegisterBossTenantVerifySteps
     public void ThenTheTenantsListShouldContainCompany(string tenant)
     {
         var response = _scenarioContext[Tenants_Context] as TenantResponse;
-
         var isContains = false;
 
-        foreach (var t in response.Tenants)
+        foreach (var ten in response.Tenants)
         {
-            if (t.Equals(tenant, System.StringComparison.InvariantCulture))
+            if (ten.Equals(tenant, System.StringComparison.InvariantCulture))
             {
                 isContains = true;
                 break;

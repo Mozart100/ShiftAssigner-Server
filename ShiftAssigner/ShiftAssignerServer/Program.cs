@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using ShiftAssignerServer.Repositories;
+using ShiftAssignerServer.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,11 +45,12 @@ builder.Services.AddAuthentication(options =>
 
 // Application services
 builder.Services.AddSingleton(new ShiftAssignerServer.Services.JwtService(jwtKey, jwtIssuer, jwtAudience));
-builder.Services.AddSingleton<ShiftAssignerServer.Services.InMemoryUserStore>();
 builder.Services.AddSingleton<ITenantRepository,TenantRepository>();
+builder.Services.AddSingleton<IShiftLeaderRepository,ShiftLeaderRepository>();
 
 
 builder.Services.AddTransient<ITenantService,TenantService>();
+builder.Services.AddTransient<IShiftLeaderService,ShiftLeaderService>();
 
 
 var app = builder.Build();

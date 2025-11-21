@@ -1,0 +1,39 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using AutoMapper;
+using ShiftAssignerServer.Models.Stuff;
+using ShiftAssignerServer.Repositories;
+using ShiftAssignerServer.Requests;
+
+namespace ShiftAssignerServer.Services;
+
+public interface IShiftLeaderService
+{
+    Task<IEnumerable<PubShiftLeader>> GetAllAsync(string perTenant);
+}
+
+public class ShiftLeaderService : IShiftLeaderService
+{
+    private readonly IShiftLeaderRepository _repo;
+    private readonly IMapper _mapper;
+
+    public ShiftLeaderService(IShiftLeaderRepository repo, IMapper mapper)
+    {
+        _repo = repo;
+        _mapper = mapper;
+    }
+
+    public async Task<IEnumerable<PubShiftLeader>> GetAllAsync(string perTenant)
+    {
+        var leaders = await _repo.GetAllAsync(x => x.Tenant.Equals(perTenant, StringComparison.CurrentCultureIgnoreCase));
+
+        if (leaders is null)
+        {
+        }
+
+        var dtos = _mapper.Map<IEnumerable<PubShiftLeader>>(leaders);
+        return dtos;
+    }
+}

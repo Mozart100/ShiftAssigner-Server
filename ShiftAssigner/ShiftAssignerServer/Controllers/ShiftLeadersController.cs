@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using ShiftAssignerServer.Models.Stuff;
+using ShiftAssignerServer.Requests;
 using ShiftAssignerServer.Services;
 
 namespace ShiftAssignerServer.Controllers;
@@ -10,19 +11,18 @@ namespace ShiftAssignerServer.Controllers;
 [Route("api/v1/[controller]")]
 public class ShiftLeadersController : ControllerBase
 {
-    private readonly InMemoryUserStore _store;
+    private readonly IShiftLeaderService _service;
 
-    public ShiftLeadersController(InMemoryUserStore store)
+    public ShiftLeadersController(IShiftLeaderService service)
     {
-        _store = store;
+        _service = service;
     }
 
-    // GET: api/v1/ShiftLeaders
-    [HttpGet]
-    public ActionResult<IEnumerable<ShiftLeader>> GetAll()
+    // GET: api/v1/ShiftLeaders/{tenant}
+    [HttpGet("{tenant}")]
+    public async Task<ActionResult<IEnumerable<PubShiftLeader>>> GetAllPerTenant(string tenant)
     {
-        var all = _store.GetAll();
-        var leaders = all.OfType<ShiftLeader>().ToList();
+        var leaders = await _service.GetAllAsync(tenant);
         return Ok(leaders);
     }
 }

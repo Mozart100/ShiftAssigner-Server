@@ -19,18 +19,15 @@ namespace ShiftAssignerServer.Controllers
         public const string Register_Tenant = "register-boss-tenant";
 
         private readonly JwtService _jwt;
-        private readonly InMemoryUserStore _store;
         private readonly IMapper _mapper;
         private readonly ITenantService _tenantService;
 
         public AuthController(JwtService jwt,
-         InMemoryUserStore store
-         , IMapper mapper,
+          IMapper mapper,
          ITenantService tenantService
          )
         {
             _jwt = jwt;
-            _store = store;
             this._mapper = mapper;
             _tenantService = tenantService;
         }

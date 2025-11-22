@@ -44,7 +44,7 @@ builder.Services.AddAuthentication(options =>
 });
 
 // Application services
-builder.Services.AddSingleton(new ShiftAssignerServer.Services.JwtService(jwtKey, jwtIssuer, jwtAudience));
+builder.Services.AddSingleton(new JwtService(jwtKey, jwtIssuer, jwtAudience));
 builder.Services.AddSingleton<ITenantRepository,TenantRepository>();
 builder.Services.AddSingleton<IShiftLeaderRepository,ShiftLeaderRepository>();
 builder.Services.AddSingleton<IWorkerRepository,WorkerRepository>();

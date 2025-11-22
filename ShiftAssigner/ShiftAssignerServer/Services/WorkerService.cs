@@ -12,7 +12,7 @@ namespace ShiftAssignerServer.Services;
 public interface IWorkerService
 {
     Task<bool> AddWorker(Worker worker);
-    Task<IEnumerable<Worker>> GetAllAsync(string perTenant);
+    Task<IEnumerable<PubWorker>> GetAllAsync(string perTenant);
 }
 
 public class WorkerService : IWorkerService
@@ -45,8 +45,5 @@ public class WorkerService : IWorkerService
         return dtos;
     }
 
-    Task<IEnumerable<Worker>> IWorkerService.GetAllAsync(string perTenant)
-    {
-        throw new NotImplementedException();
-    }
+    // Interface implemented above - no explicit fallback required.
 }

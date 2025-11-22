@@ -181,10 +181,19 @@ namespace ShiftAssignerServer.Tests.Features
     await testRunner.ThenAsync("the response should contain a JWT token", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
 #line 15
-    await testRunner.WhenAsync("I GET the shiftleaders", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+  await testRunner.WhenAsync("I GET the shiftleaders", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 16
-    await testRunner.ThenAsync("the shiftleaders list should contain id \"leader-1\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+  await testRunner.ThenAsync("the shiftleaders list should contain id \"leader-1\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 17
+  await testRunner.WhenAsync("the shift leader creates 2 workers", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 18
+  await testRunner.WhenAsync("I GET the workers", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 19
+  await testRunner.ThenAsync("the workers list should contain the created workers", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

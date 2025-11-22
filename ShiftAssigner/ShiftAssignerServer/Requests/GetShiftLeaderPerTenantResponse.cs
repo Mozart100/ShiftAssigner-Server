@@ -6,4 +6,3 @@ public class GetShiftLeaderPerTenantResponse
 {
     public IEnumerable<PubShiftLeader> ShifLeaders { get; set; } 
 }
-

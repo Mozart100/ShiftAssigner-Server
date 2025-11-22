@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Reqnroll;
 using ShiftAssignerServer.Controllers;
@@ -14,12 +15,15 @@ public class RegisterBossTenantVerifySteps
 {
     public const string HttpBaseurl = $"http://localhost:8080/";
     public const string Tenant_ID = "Acme ltd";
+    public const string Worker_ID = "1111";
 
 
     private const string Payload_Context = "payload";
     private const string Response_Context = "response";
     private const string Tenants_Context = "tenants";
     private const string ShiftLeaders_Context = "shiftleaders";
+    private const string WorkersIDs_Context = "workersIds";
+    private const string Workers_Context = "workers";
 
     private readonly ScenarioContext _scenarioContext;
     private readonly ClientSender _serverSender;
@@ -149,5 +153,66 @@ public class RegisterBossTenantVerifySteps
         }
 
         Assert.True(exists);
+    }
+
+    [When("the shift leader creates 2 workers")]
+    public async Task WhenTheShiftLeaderCreatesTwoWorkers()
+    {
+        var tenant = (_scenarioContext[Payload_Context] as TenantRegisterRequest)?.Tenant;
+        var created = new List<string>();
+
+        for (var i = 0; i < 2; i++)
+        {
+            var id = $"Worker_ID_{Guid.NewGuid():N}";
+            var payload = new RegisterRequest
+            {
+                ID = id,
+                FirstName = "Worker",
+                LastName = i == 0 ? "One" : "Two",
+                PhoneNumber = "555-0300",
+                DateOfBirth = new System.DateOnly(1995, 1, 1),
+                Tenant = tenant,
+                PasswordHash = "P@ssw0rd!"
+            };
+
+            const string registrationPath = "api/v1/Auth/register-worker";
+            var response = await _serverSender.PostCommandAsync<RegisterRequest, RegisterResponse>(payload, registrationPath);
+            // store created id
+            created.Add(id);
+        }
+
+        _scenarioContext[WorkersIDs_Context] = created;
+    }
+
+    [When("I GET the workers")]
+    public async Task WhenIGetTheWorkers()
+    {
+        var tenant = (_scenarioContext[Payload_Context] as TenantRegisterRequest)?.Tenant;
+        var path = PathLocator.Combine($"api/v1/Workers/{tenant}");
+        var response = await _serverSender.GetAsync<GetWorkerPerTenantResponse>(path);
+        _scenarioContext[Workers_Context] = response;
+    }
+
+    [Then("the workers list should contain the created workers")]
+    public void ThenTheWorkersListShouldContainCreated()
+    {
+        var response = _scenarioContext[Workers_Context] as GetWorkerPerTenantResponse;
+        Assert.NotNull(response);
+        var created = _scenarioContext[WorkersIDs_Context] as List<string> ?? new List<string>();
+
+        foreach (var id in created)
+        {
+            var found = false;
+            foreach (var w in response.Workers)
+            {
+                if (w.ID.Equals(id, StringComparison.InvariantCulture))
+                {
+                    found = true;
+                    break;
+                }
+            }
+
+            Assert.True(found, $"Worker with id {id} was not found in workers list");
+        }
     }
 }

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using ShiftAssignerServer.Models.Stuff;
+using ShiftAssignerServer.Requests;
 using ShiftAssignerServer.Services;
 
 namespace ShiftAssignerServer.Controllers;
@@ -19,9 +20,9 @@ public class WorkersController : ControllerBase
 
     // GET: api/v1/Workers/{tenant}
     [HttpGet("{tenant}")]
-    public async Task<ActionResult<IEnumerable<Worker>>> GetAllPerTenant(string tenant)
+    public async Task<ActionResult<GetWorkerPerTenantResponse>> GetAllPerTenant(string tenant)
     {
         var workers = await _service.GetAllAsync(tenant);
-        return Ok(workers);
+        return Ok(new GetWorkerPerTenantResponse{ Workers = workers});
     }
 }

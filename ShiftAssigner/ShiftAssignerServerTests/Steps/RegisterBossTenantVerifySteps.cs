@@ -22,6 +22,7 @@ public class RegisterBossTenantVerifySteps
     private const string Response_Context = "response";
     private const string Tenants_Context = "tenants";
     private const string ShiftLeaders_Context = "shiftleaders";
+    private const string ShiftLeaderID_Context = "shiftleaderId";
     private const string WorkersIDs_Context = "workersIds";
     private const string Workers_Context = "workers";
 
@@ -117,14 +118,14 @@ public class RegisterBossTenantVerifySteps
             LastName = "Leader",
             PhoneNumber = "555-0200",
             DateOfBirth = new System.DateOnly(1990, 6, 1),
-            Tenant = (_scenarioContext[Payload_Context] as TenantRegisterRequest)?.Tenant,
             PasswordHash = "P@ssw0rd!"
         };
-
-        const string registrationPath = "api/v1/Auth/register-shift-leader";
+        var tenant = (_scenarioContext[Payload_Context] as TenantRegisterRequest)?.Tenant;
+        var registrationPath = PathLocator.Combine($"api/v1/Auth/register-shift-leader?tenant={tenant}");
 
         var response = await _serverSender.PostCommandAsync<RegisterRequest, RegisterResponse>(payload, registrationPath);
         _scenarioContext[Response_Context] = response;
+        _scenarioContext[ShiftLeaderID_Context] = leaderId;
     }
 
     [When("I GET the shiftleaders")]
@@ -161,6 +162,7 @@ public class RegisterBossTenantVerifySteps
         var tenant = (_scenarioContext[Payload_Context] as TenantRegisterRequest)?.Tenant;
         var created = new List<string>();
 
+        var shiftLeaderId = _scenarioContext[ShiftLeaderID_Context] as string;
         for (var i = 0; i < 2; i++)
         {
             var id = $"Worker_ID_{Guid.NewGuid():N}";
@@ -171,7 +173,7 @@ public class RegisterBossTenantVerifySteps
                 LastName = i == 0 ? "One" : "Two",
                 PhoneNumber = "555-0300",
                 DateOfBirth = new System.DateOnly(1995, 1, 1),
-                Tenant = tenant,
+                ShiftLeaderId = shiftLeaderId,
                 PasswordHash = "P@ssw0rd!"
             };
 
@@ -187,8 +189,8 @@ public class RegisterBossTenantVerifySteps
     [When("I GET the workers")]
     public async Task WhenIGetTheWorkers()
     {
-        var tenant = (_scenarioContext[Payload_Context] as TenantRegisterRequest)?.Tenant;
-        var path = PathLocator.Combine($"api/v1/Workers/{tenant}");
+        var leaderId = _scenarioContext[ShiftLeaderID_Context] as string;
+        var path = PathLocator.Combine($"api/v1/Workers/leader/{leaderId}");
         var response = await _serverSender.GetAsync<GetWorkerPerTenantResponse>(path);
         _scenarioContext[Workers_Context] = response;
     }

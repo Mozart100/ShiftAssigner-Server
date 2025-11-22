@@ -10,7 +10,6 @@ public interface IRegistrationMapper : IAutoMapperEntities
     string LastName { get; set; }
     string PhoneNumber { get; set; }
     DateOnly DateOfBirth { get; set; }
-    string Tenant { get; set; }
     string PasswordHash { get; set; }
 }
 

@@ -9,6 +9,7 @@ using ShiftAssignerServer.Models;
 using ShiftAssignerServer.Models.Stuff;
 using ShiftAssignerServer.Requests;
 using ShiftAssignerServer.Services;
+using ShiftAssignerServer.Repositories;
 
 namespace ShiftAssignerServer.Controllers
 {
@@ -21,16 +22,18 @@ namespace ShiftAssignerServer.Controllers
         private readonly JwtService _jwt;
         private readonly IMapper _mapper;
         private readonly ITenantService _tenantService;
-        private readonly IShiftLeaderService _shiftLeaderService;
+    private readonly IShiftLeaderService _shiftLeaderService;
         private readonly IWorkerService _workerService;
         private readonly IShiftAssignmentService _shiftAssignmentService;
+    private readonly IShiftLeaderRepository _shiftLeaderRepository;
 
         public AuthController(JwtService jwt,
             IMapper mapper,
          ITenantService tenantService,
          IShiftLeaderService shiftLeaderService,
          IWorkerService workerService,
-         IShiftAssignmentService shiftAssignmentService
+         IShiftAssignmentService shiftAssignmentService,
+         IShiftLeaderRepository shiftLeaderRepository
          )
         {
             _jwt = jwt;
@@ -39,6 +42,7 @@ namespace ShiftAssignerServer.Controllers
             _shiftLeaderService = shiftLeaderService;
             _workerService = workerService;
             _shiftAssignmentService = shiftAssignmentService;
+            _shiftLeaderRepository = shiftLeaderRepository;
         }
 
         [HttpPost("register-worker")]
@@ -57,10 +61,13 @@ namespace ShiftAssignerServer.Controllers
             // If the registration included a supervising shift leader, create an initial assignment
             if (!string.IsNullOrWhiteSpace(dto.ShiftLeaderId))
             {
+                // try to find the leader's tenant and set it on the assignment
+                var leader = _shiftLeaderRepository.FirstOrDefault(x => x.ID.Equals(dto.ShiftLeaderId, StringComparison.InvariantCultureIgnoreCase));
                 var assignment = new ShiftAssignment
                 {
                     WorkerId = worker.ID,
                     ShiftLeaderId = dto.ShiftLeaderId,
+                    Tenant = leader?.Tenant ?? string.Empty,
                     PeriodStart = DateOnly.FromDateTime(DateTime.UtcNow),
                     PeriodEnd = null,
                     Notes = "Assigned on registration"
@@ -73,14 +80,14 @@ namespace ShiftAssignerServer.Controllers
         }
 
         [HttpPost("register-shift-leader")]
-        public async Task<ActionResult<RegisterResponse>> RegisterShiftLeader([FromBody] RegisterRequest dto)
+        public async Task<ActionResult<RegisterResponse>> RegisterShiftLeader([FromBody] RegisterRequest dto, [FromQuery] string tenant = "")
         {
             // Debugger.Break();
             var pwHash = Hash(dto.PasswordHash);
             var leader = _mapper.Map<ShiftLeader>(dto);
             leader.Role = RoleState.ShiftLeader;
-            // _store.Add(leader, pwHash);
-
+            // If tenant provided as query param, use it; otherwise leader.Tenant remains as mapped (empty)
+            if (!string.IsNullOrWhiteSpace(tenant)) leader.Tenant = tenant;
 
             bool flag = await _shiftLeaderService.AddTenantAsync(leader);
 

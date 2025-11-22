@@ -18,27 +18,27 @@ public interface IShiftAssignmentService
 
 public class ShiftAssignmentService : IShiftAssignmentService
 {
-    private readonly IShiftAssignmentRepository _repo;
+    private readonly IShiftAssignmentRepository _shiftAssignmentRepository;
     private readonly IWorkerRepository _workerRepo;
     private readonly IMapper _mapper;
 
-    public ShiftAssignmentService(IShiftAssignmentRepository repo, IWorkerRepository workerRepo, IMapper mapper)
+    public ShiftAssignmentService(IShiftAssignmentRepository shiftAssignmentRepository, IWorkerRepository workerRepo, IMapper mapper)
     {
-        _repo = repo;
+        _shiftAssignmentRepository = shiftAssignmentRepository;
         _workerRepo = workerRepo;
         _mapper = mapper;
     }
 
     public async Task<bool> AssignAsync(ShiftAssignment assignment)
     {
-        await _repo.InsertAsync(assignment);
+        await _shiftAssignmentRepository.InsertAsync(assignment);
         return true;
     }
 
     public async Task<IEnumerable<PubWorker>> GetWorkersForLeaderPeriodAsync(string tenant, string shiftLeaderId, DateOnly periodStart, DateOnly? periodEnd = null)
     {
         // If periodEnd is supplied, treat assignment as matching any assignment whose period intersects the range
-        var assignments = await _repo.GetAllAsync(x =>
+        var assignments = await _shiftAssignmentRepository.GetAllAsync(x =>
             x.Tenant.Equals(tenant, StringComparison.InvariantCultureIgnoreCase)
             && x.ShiftLeaderId.Equals(shiftLeaderId, StringComparison.InvariantCultureIgnoreCase)
             && (

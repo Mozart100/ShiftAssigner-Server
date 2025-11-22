@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using ShiftAssignerServer.Repositories;
 using ShiftAssignerServer.Services;
+using ShiftAssignerServer.Startup;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -65,6 +66,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+// Global error handling - catch unhandled exceptions and return stable JSON payloads
+app.UseGlobalErrorHandling();
 
 if (!app.Environment.IsDevelopment())
 {

@@ -4,6 +4,8 @@ using Microsoft.IdentityModel.Tokens;
 using ShiftAssignerServer.Repositories;
 using ShiftAssignerServer.Services;
 using ShiftAssignerServer.Startup;
+using Serilog;
+using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -58,6 +60,17 @@ builder.Services.AddTransient<IWorkerService,WorkerService>();
 builder.Services.AddTransient<IStuffBookingService,StuffBookingService>();
 
 
+// Configure Serilog for container-friendly logging (console) and optional file sink with retention.
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+    .Enrich.FromLogContext()
+    // Primary sink for containers: console (stdout)
+    .WriteTo.Console()
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -79,4 +92,17 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.Run();
+
+try
+{
+    Log.Information("Starting web host");
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Host terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
+}

@@ -23,12 +23,14 @@ namespace ShiftAssignerServer.Controllers
         private readonly ITenantService _tenantService;
         private readonly IShiftLeaderService _shiftLeaderService;
         private readonly IWorkerService _workerService;
+        private readonly IShiftAssignmentService _shiftAssignmentService;
 
         public AuthController(JwtService jwt,
-          IMapper mapper,
+            IMapper mapper,
          ITenantService tenantService,
          IShiftLeaderService shiftLeaderService,
-         IWorkerService workerService
+         IWorkerService workerService,
+         IShiftAssignmentService shiftAssignmentService
          )
         {
             _jwt = jwt;
@@ -36,6 +38,7 @@ namespace ShiftAssignerServer.Controllers
             _tenantService = tenantService;
             _shiftLeaderService = shiftLeaderService;
             _workerService = workerService;
+            _shiftAssignmentService = shiftAssignmentService;
         }
 
         [HttpPost("register-worker")]
@@ -50,6 +53,22 @@ namespace ShiftAssignerServer.Controllers
             bool flag = await _workerService.AddWorker(worker);
             var role = worker.Role.ToString(); // "Worker"
             var token = _jwt.GenerateToken(worker.ID, role, worker.Tenant);
+
+            // If the registration included a supervising shift leader, create an initial assignment
+            if (!string.IsNullOrWhiteSpace(dto.ShiftLeaderId))
+            {
+                var assignment = new ShiftAssignment
+                {
+                    WorkerId = worker.ID,
+                    ShiftLeaderId = dto.ShiftLeaderId,
+                    PeriodStart = DateOnly.FromDateTime(DateTime.UtcNow),
+                    PeriodEnd = null,
+                    Notes = "Assigned on registration"
+                };
+
+                await _shiftAssignmentService.AssignAsync(assignment);
+            }
+
             return Ok(new RegisterResponse { Token = token });
         }
 

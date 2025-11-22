@@ -48,11 +48,13 @@ builder.Services.AddSingleton(new JwtService(jwtKey, jwtIssuer, jwtAudience));
 builder.Services.AddSingleton<ITenantRepository,TenantRepository>();
 builder.Services.AddSingleton<IShiftLeaderRepository,ShiftLeaderRepository>();
 builder.Services.AddSingleton<IWorkerRepository,WorkerRepository>();
+builder.Services.AddSingleton<IShiftAssignmentRepository,ShiftAssignmentRepository>();
 
 
 builder.Services.AddTransient<ITenantService,TenantService>();
 builder.Services.AddTransient<IShiftLeaderService,ShiftLeaderService>();
 builder.Services.AddTransient<IWorkerService,WorkerService>();
+builder.Services.AddTransient<IShiftAssignmentService,ShiftAssignmentService>();
 
 
 var app = builder.Build();

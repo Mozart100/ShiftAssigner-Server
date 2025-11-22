@@ -16,6 +16,8 @@ public class RegisterRequest : IRegistrationMapper
     public string PhoneNumber { get; set; } = string.Empty;
     public DateOnly DateOfBirth { get; set; }
     public string Tenant { get; set; } = string.Empty;
+    // Optional: associate this worker to a supervising shift leader at registration
+    public string ShiftLeaderId { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
 }
 

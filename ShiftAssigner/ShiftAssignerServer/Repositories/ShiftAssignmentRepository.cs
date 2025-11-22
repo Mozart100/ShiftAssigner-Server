@@ -1,14 +1,3 @@
-using ShiftAssignerServer.Models.Stuff;
+// Renamed: ShiftAssignmentRepository -> StuffBookingRepository
+// New repository: IStuffBookingRepository / StuffBookingRepository in Repositories/StuffBookingRepository.cs
 
-namespace ShiftAssignerServer.Repositories;
-
-public interface IShiftAssignmentRepository : IRepositoryBase<ShiftAssignment>
-{
-}
-
-public class ShiftAssignmentRepository : RepositoryBase<ShiftAssignment>, IShiftAssignmentRepository
-{
-    public ShiftAssignmentRepository()
-    {
-    }
-}

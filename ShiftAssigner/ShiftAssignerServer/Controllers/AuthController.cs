@@ -24,7 +24,7 @@ namespace ShiftAssignerServer.Controllers
         private readonly ITenantService _tenantService;
     private readonly IShiftLeaderService _shiftLeaderService;
         private readonly IWorkerService _workerService;
-        private readonly IShiftAssignmentService _shiftAssignmentService;
+    private readonly IStuffBookingService _shiftAssignmentService;
     private readonly IShiftLeaderRepository _shiftLeaderRepository;
 
         public AuthController(JwtService jwt,
@@ -32,7 +32,7 @@ namespace ShiftAssignerServer.Controllers
          ITenantService tenantService,
          IShiftLeaderService shiftLeaderService,
          IWorkerService workerService,
-         IShiftAssignmentService shiftAssignmentService,
+         IStuffBookingService shiftAssignmentService,
          IShiftLeaderRepository shiftLeaderRepository
          )
         {
@@ -66,7 +66,7 @@ namespace ShiftAssignerServer.Controllers
                 var leader = _shiftLeaderRepository.FirstOrDefault(x => x.ID.Equals(dto.ShiftLeaderId, StringComparison.InvariantCultureIgnoreCase));
                 tenantForToken = leader?.Tenant ?? string.Empty;
 
-                var assignment = new ShiftAssignment
+                var assignment = new StuffBooking
                 {
                     WorkerId = worker.ID,
                     ShiftLeaderId = dto.ShiftLeaderId,

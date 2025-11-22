@@ -9,18 +9,18 @@ namespace ShiftAssignerServer.Controllers;
 
 [ApiController]
 [Route("api/v1/[controller]")]
-public class ShiftAssignmentsController : ControllerBase
+public class StuffBookingsController : ControllerBase
 {
-    private readonly IShiftAssignmentService _service;
+    private readonly IStuffBookingService _service;
 
-    public ShiftAssignmentsController(IShiftAssignmentService service)
+    public StuffBookingsController(IStuffBookingService service)
     {
         _service = service;
     }
 
-    // POST: api/v1/ShiftAssignments/assign
+    // POST: api/v1/StuffBookings/assign
     [HttpPost("assign")]
-    public async Task<IActionResult> Assign([FromBody] ShiftAssignmentRequest request)
+    public async Task<IActionResult> Assign([FromBody] StuffBookingRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.WorkerId) || string.IsNullOrWhiteSpace(request.ShiftLeaderId) || string.IsNullOrWhiteSpace(request.PeriodStart) || string.IsNullOrWhiteSpace(request.Tenant))
         {
@@ -42,7 +42,7 @@ public class ShiftAssignmentsController : ControllerBase
             periodEnd = pe;
         }
 
-        var assignment = new ShiftAssignment
+        var booking = new StuffBooking
         {
             WorkerId = request.WorkerId,
             ShiftLeaderId = request.ShiftLeaderId,
@@ -52,11 +52,11 @@ public class ShiftAssignmentsController : ControllerBase
             Notes = request.Notes
         };
 
-        await _service.AssignAsync(assignment);
+        await _service.AssignAsync(booking);
         return Ok();
     }
 
-    // GET: api/v1/ShiftAssignments/leader/{leaderId}?period=yyyy-MM-dd
+    // GET: api/v1/StuffBookings/leader/{leaderId}?period=yyyy-MM-dd
     [HttpGet("leader/{leaderId}")]
     public async Task<IActionResult> GetWorkersForLeader(string leaderId, [FromQuery] string period, [FromQuery] string tenant, [FromQuery] string periodEnd = "")
     {

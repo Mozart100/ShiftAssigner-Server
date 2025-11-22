@@ -9,42 +9,40 @@ using static ShiftAssignerServer.Models.Stuff.Worker;
 
 namespace ShiftAssignerServer.Services;
 
-public interface IShiftAssignmentService
+public interface IStuffBookingService
 {
-    Task<bool> AssignAsync(ShiftAssignment assignment);
+    Task<bool> AssignAsync(StuffBooking booking);
     // Get workers supervised by a leader for a given tenant and period range (periodStart .. optional periodEnd)
     Task<IEnumerable<PubWorker>> GetWorkersForLeaderPeriodAsync(string tenant, string shiftLeaderId, DateOnly periodStart, DateOnly? periodEnd = null);
 }
 
-public class ShiftAssignmentService : IShiftAssignmentService
+public class StuffBookingService : IStuffBookingService
 {
-    private readonly IShiftAssignmentRepository _shiftAssignmentRepository;
+    private readonly IStuffBookingRepository _stuffBookingRepository;
     private readonly IWorkerRepository _workerRepo;
     private readonly IMapper _mapper;
 
-    public ShiftAssignmentService(IShiftAssignmentRepository shiftAssignmentRepository, IWorkerRepository workerRepo, IMapper mapper)
+    public StuffBookingService(IStuffBookingRepository stuffBookingRepository, IWorkerRepository workerRepo, IMapper mapper)
     {
-        _shiftAssignmentRepository = shiftAssignmentRepository;
+        _stuffBookingRepository = stuffBookingRepository;
         _workerRepo = workerRepo;
         _mapper = mapper;
     }
 
-    public async Task<bool> AssignAsync(ShiftAssignment assignment)
+    public async Task<bool> AssignAsync(StuffBooking booking)
     {
-        await _shiftAssignmentRepository.InsertAsync(assignment);
+        await _stuffBookingRepository.InsertAsync(booking);
         return true;
     }
 
     public async Task<IEnumerable<PubWorker>> GetWorkersForLeaderPeriodAsync(string tenant, string shiftLeaderId, DateOnly periodStart, DateOnly? periodEnd = null)
     {
-        // If periodEnd is supplied, treat assignment as matching any assignment whose period intersects the range
-        var assignments = await _shiftAssignmentRepository.GetAllAsync(x =>
+        var assignments = await _stuffBookingRepository.GetAllAsync(x =>
             x.Tenant.Equals(tenant, StringComparison.InvariantCultureIgnoreCase)
             && x.ShiftLeaderId.Equals(shiftLeaderId, StringComparison.InvariantCultureIgnoreCase)
             && (
                 (periodEnd is null && x.PeriodStart.Equals(periodStart)) ||
                 (periodEnd is not null &&
-                 // assignment intersects [periodStart, periodEnd]
                  ((x.PeriodEnd ?? x.PeriodStart) >= periodStart && x.PeriodStart <= periodEnd.Value))
             ));
 

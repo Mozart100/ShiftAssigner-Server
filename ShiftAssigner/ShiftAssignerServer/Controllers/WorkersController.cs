@@ -13,10 +13,10 @@ namespace ShiftAssignerServer.Controllers;
 public class WorkersController : ControllerBase
 {
     private readonly IWorkerService _service;
-    private readonly IShiftAssignmentService _assignmentService;
+    private readonly IStuffBookingService _assignmentService;
     private readonly IShiftLeaderRepository _shiftLeaderRepository;
 
-    public WorkersController(IWorkerService service, IShiftAssignmentService assignmentService, IShiftLeaderRepository shiftLeaderRepository)
+    public WorkersController(IWorkerService service, IStuffBookingService assignmentService, IShiftLeaderRepository shiftLeaderRepository)
     {
         _service = service;
         _assignmentService = assignmentService;

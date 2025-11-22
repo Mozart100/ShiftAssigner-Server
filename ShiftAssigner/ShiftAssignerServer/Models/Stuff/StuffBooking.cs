@@ -4,26 +4,27 @@ using ShiftAssignerServer.Repositories;
 namespace ShiftAssignerServer.Models.Stuff;
 
 /// <summary>
-/// Represents an assignment of a Worker to a ShiftLeader for a specific period (week/day).
+/// Represents a booking of a Worker to a ShiftLeader for a specific period (week/day).
 /// This allows the same worker to be supervised by different leaders across different periods.
+/// Renamed from ShiftAssignment to StuffBooking.
 /// </summary>
-public partial class ShiftAssignment : IAutoMapperEntities
+public partial class StuffBooking : IAutoMapperEntities
 {
     public string ID { get; set; } = Guid.NewGuid().ToString("N");
 
-    // Worker who is assigned
+    // Worker who is booked
     public string WorkerId { get; set; } = string.Empty;
 
     // Supervising shift leader for the given period
     public string ShiftLeaderId { get; set; } = string.Empty;
 
-    // Tenant (company) this assignment belongs to - enforces tenant isolation
+    // Tenant (company) this booking belongs to - enforces tenant isolation
     public string Tenant { get; set; } = string.Empty;
 
     // Period start date (use DateOnly to represent a day/period boundary). Interpret as week-start or period identifier.
     public DateOnly PeriodStart { get; set; }
 
-    // Optional end/top date for the period. If set, the assignment is valid for the inclusive range [PeriodStart..PeriodEnd].
+    // Optional end/top date for the period. If set, the booking is valid for the inclusive range [PeriodStart..PeriodEnd].
     public DateOnly? PeriodEnd { get; set; }
 
     // Optional notes
@@ -31,15 +32,15 @@ public partial class ShiftAssignment : IAutoMapperEntities
 }
 
 /// <summary>
-/// Additional computed members for <see cref="ShiftAssignment"/>.
+/// Additional computed members for <see cref="StuffBooking"/>.
 /// </summary>
-public partial class ShiftAssignment
+public partial class StuffBooking
 {
     /// <summary>
-    /// Returns true when the assignment is currently active.
+    /// Returns true when the booking is currently active.
     /// Interpretation: active when the current UTC date is on or after <see cref="PeriodStart"/> and
     /// (if <see cref="PeriodEnd"/> is set) on or before <see cref="PeriodEnd"/>. If <see cref="PeriodEnd"/>
-    /// is null the assignment remains active from <see cref="PeriodStart"/> onward.
+    /// is null the booking remains active from <see cref="PeriodStart"/> onward.
     /// </summary>
     public bool Active
     {
@@ -54,7 +55,7 @@ public partial class ShiftAssignment
             {
                 return true;
             }
-            
+
             return today <= PeriodEnd.Value;
         }
     }

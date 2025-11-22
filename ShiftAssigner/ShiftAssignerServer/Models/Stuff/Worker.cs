@@ -26,14 +26,13 @@ public record Worker : PersonBase, IRegistrationMapper
     {
     }
 
-    public Worker(string id, string firstName, string lastName, string phone, DateOnly birthDate, string tenant, RoleState roleState, string passwordHash)
+    public Worker(string id, string firstName, string lastName, string phone, DateOnly birthDate, RoleState roleState, string passwordHash)
     {
         ID = id;
         FirstName = firstName;
         LastName = lastName;
         PhoneNumber = phone;
         DateOfBirth = birthDate;
-        Tenant = tenant;
         this.Role = roleState;
         PasswordHash = passwordHash;
     }
@@ -46,7 +45,7 @@ public record Worker : PersonBase, IRegistrationMapper
         string LastName { get; set; }
         string PhoneNumber { get; set; }
         DateOnly DateOfBirth { get; set; }
-        string Tenant { get; set; }
+        string ShiftLeaderId { get; set; }
     }
 
     public class PubWorker : IPubWorker
@@ -56,6 +55,6 @@ public record Worker : PersonBase, IRegistrationMapper
         public string LastName { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
         public DateOnly DateOfBirth { get; set; }
-        public string Tenant { get; set; } = string.Empty;
+        public string ShiftLeaderId { get; set; } = string.Empty;
     }
 }

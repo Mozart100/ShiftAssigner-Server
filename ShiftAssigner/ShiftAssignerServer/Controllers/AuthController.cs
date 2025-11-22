@@ -56,18 +56,21 @@ namespace ShiftAssignerServer.Controllers
             // _store.Add(worker, pwHash);
             bool flag = await _workerService.AddWorker(worker);
             var role = worker.Role.ToString(); // "Worker"
-            var token = _jwt.GenerateToken(worker.ID, role, worker.Tenant);
 
-            // If the registration included a supervising shift leader, create an initial assignment
+            // Determine tenant for the token. Workers no longer carry tenant; if the DTO included a ShiftLeaderId
+            // we derive the tenant from that leader and create an initial assignment.
+            string tenantForToken = string.Empty;
             if (!string.IsNullOrWhiteSpace(dto.ShiftLeaderId))
             {
-                // try to find the leader's tenant and set it on the assignment
+                // try to find the leader's tenant and set it on the assignment and token
                 var leader = _shiftLeaderRepository.FirstOrDefault(x => x.ID.Equals(dto.ShiftLeaderId, StringComparison.InvariantCultureIgnoreCase));
+                tenantForToken = leader?.Tenant ?? string.Empty;
+
                 var assignment = new ShiftAssignment
                 {
                     WorkerId = worker.ID,
                     ShiftLeaderId = dto.ShiftLeaderId,
-                    Tenant = leader?.Tenant ?? string.Empty,
+                    Tenant = tenantForToken,
                     PeriodStart = DateOnly.FromDateTime(DateTime.UtcNow),
                     PeriodEnd = null,
                     Notes = "Assigned on registration"
@@ -76,6 +79,7 @@ namespace ShiftAssignerServer.Controllers
                 await _shiftAssignmentService.AssignAsync(assignment);
             }
 
+            var token = _jwt.GenerateToken(worker.ID, role, tenantForToken);
             return Ok(new RegisterResponse { Token = token });
         }
 

@@ -6,7 +6,7 @@ namespace ShiftAssignerServer.Models.Stuff
     /// Base class for people in the system.
     /// </summary>
   public abstract record PersonBase
-{
+  {
     /// <summary>
     /// Unique identifier for the person. Use string to remain DB-agnostic (GUID as string by default).
     /// </summary>
@@ -21,10 +21,7 @@ namespace ShiftAssignerServer.Models.Stuff
     // DateOnly is available on net6+ / net8
     public DateOnly DateOfBirth { get; set; }
 
-    /// <summary>
-    /// Represents the tenant / company name this person belongs to.
-    /// </summary>
-    public string Tenant { get; set; } = string.Empty;
+  // Tenant moved off the base person - assignments now carry tenant/tenant-scoping.
 
     public RoleState Role { get; set; }
 

@@ -21,10 +21,7 @@ namespace ShiftAssignerServer.Models
     // DateOnly is available on net6+ / net8
     public DateOnly DateOfBirth { get; set; }
 
-    /// <summary>
-    /// Represents the tenant / company name this person belongs to.
-    /// </summary>
-    public string Tenant { get; set; } = string.Empty;
+  // Tenant moved off the base person - assignments now carry tenant/tenant-scoping.
 
     public RoleState Role { get; set; }
 

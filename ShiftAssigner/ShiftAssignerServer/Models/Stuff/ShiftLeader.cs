@@ -31,6 +31,8 @@ namespace ShiftAssignerServer.Models.Stuff
         {
         }
 
+        public string Tenant { get; set; } = string.Empty;
+
         public ShiftLeader(
             string id,
             string firstName,
@@ -40,9 +42,9 @@ namespace ShiftAssignerServer.Models.Stuff
             string tenant,
             RoleState roleState,
             string passwordHash
-        )
-            : base(id, firstName, lastName, phone, dob, tenant, roleState, passwordHash)
+        ) : base(id, firstName, lastName, phone, dob, roleState, passwordHash)
         {
+            Tenant = tenant;
         }
     }
 

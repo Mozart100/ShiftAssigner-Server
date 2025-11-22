@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Reqnroll;
 using ShiftAssignerServer.Controllers;
@@ -12,6 +13,7 @@ namespace ShiftAssignerServer.Tests.Steps;
 public class RegisterBossTenantVerifySteps
 {
     public const string HttpBaseurl = $"http://localhost:8080/";
+    public const string Tenant_ID = "Acme ltd";
 
 
     private const string Payload_Context = "payload";
@@ -27,11 +29,13 @@ public class RegisterBossTenantVerifySteps
         _scenarioContext = scenarioContext;
         _serverSender = new ClientSender(HttpBaseurl);
 
+
     }
 
-    [Given("I have a tenant boss registration payload for tenant \"(.*)\"")]
-    public void GivenIHaveATenantBossRegistrationPayload(string tenant)
+    [Given("I have a tenant boss registration payload")]
+    public void GivenIHaveATenantBossRegistrationPayload()
     {
+        var tenantName = $"{Tenant_ID}_{Guid.NewGuid()}";
         var payload = new TenantRegisterRequest
         {
             ID = "boss-verify-1",
@@ -39,7 +43,7 @@ public class RegisterBossTenantVerifySteps
             LastName = "Owner",
             PhoneNumber = "555-0100",
             DateOfBirth = new System.DateOnly(1985, 1, 1),
-            Tenant = tenant,
+            Tenant = tenantName,
             PasswordHash = "P@ssw0rd!"
         };
 
@@ -69,30 +73,23 @@ public class RegisterBossTenantVerifySteps
         Assert.True(!string.IsNullOrWhiteSpace(response!.Token));
     }
 
-
-
-
-
     [When("I GET the tenants list")]
     public async Task WhenIGetTheTenantsList()
     {
         var path = PathLocator.Combine("api/v1/Tenants");
 
         var response = await _serverSender.GetAsync<TenantResponse>(path);
-        // httpResponse.EnsureSuccessStatusCode();
-
-        // var responseContent = await httpResponse.Content.ReadAsStringAsync();
-        // var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-        // var tenants = JsonSerializer.Deserialize<List<TenantResponse>>(responseContent, options) ?? new List<TenantResponse>();
-
         _scenarioContext[Tenants_Context] = response;
     }
 
-    [Then("the tenants list should contain tenant \"(.*)\"")]
-    public void ThenTheTenantsListShouldContainCompany(string tenant)
+    [Then("the tenants list should contain the tenant")]
+    public void ThenTheTenantsListShouldContainCompany()
     {
         var response = _scenarioContext[Tenants_Context] as TenantResponse;
         var isContains = false;
+
+        var payload = _scenarioContext[Payload_Context] as TenantRegisterRequest;
+        var tenant = payload?.Tenant ?? string.Empty;
 
         foreach (var ten in response.Tenants)
         {
@@ -106,8 +103,8 @@ public class RegisterBossTenantVerifySteps
         Assert.True(isContains);
     }
 
-    [When("I create a shift leader for tenant \"(.*)\" with id \"(.*)\"")]
-    public async Task WhenICreateAShiftLeaderForTenant(string tenant, string leaderId)
+    [When("I create a shift leader with id \"(.*)\"")]
+    public async Task WhenICreateAShiftLeaderForTenant(string leaderId)
     {
         var payload = new RegisterRequest
         {
@@ -116,7 +113,7 @@ public class RegisterBossTenantVerifySteps
             LastName = "Leader",
             PhoneNumber = "555-0200",
             DateOfBirth = new System.DateOnly(1990, 6, 1),
-            Tenant = tenant,
+            Tenant = (_scenarioContext[Payload_Context] as TenantRegisterRequest)?.Tenant,
             PasswordHash = "P@ssw0rd!"
         };
 
@@ -126,9 +123,10 @@ public class RegisterBossTenantVerifySteps
         _scenarioContext[Response_Context] = response;
     }
 
-    [When("I GET the shiftleaders for tenant \"(.*)\"")]
-    public async Task WhenIGetTheShiftLeadersForTenant(string tenant)
+    [When("I GET the shiftleaders")]
+    public async Task WhenIGetTheShiftLeadersForTenant()
     {
+        var tenant = (_scenarioContext[Payload_Context] as TenantRegisterRequest)?.Tenant;
         var path = PathLocator.Combine($"api/v1/ShiftLeaders/{tenant}");
         var response = await _serverSender.GetAsync<GetShiftLeaderPerTenantResponse>(path);
         _scenarioContext[ShiftLeaders_Context] = response;

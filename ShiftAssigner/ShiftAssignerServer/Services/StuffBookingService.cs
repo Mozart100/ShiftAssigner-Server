@@ -12,6 +12,7 @@ namespace ShiftAssignerServer.Services;
 public interface IStuffBookingService
 {
     Task<bool> AssignAsync(StuffBooking booking);
+    Task<bool> ReassignAsync(string tenant, string workerId, string newShiftLeaderId, DateOnly periodStart, DateOnly? periodEnd = null, string? notes = null);
     // Get workers supervised by a leader for a given tenant and period range (periodStart .. optional periodEnd)
     Task<IEnumerable<PubWorker>> GetWorkersForLeaderPeriodAsync(string tenant, string shiftLeaderId, DateOnly periodStart, DateOnly? periodEnd = null);
 }
@@ -32,6 +33,31 @@ public class StuffBookingService : IStuffBookingService
     public async Task<bool> AssignAsync(StuffBooking booking)
     {
         await _stuffBookingRepository.InsertAsync(booking);
+        return true;
+    }
+
+    public async Task<bool> ReassignAsync(string tenant, string workerId, string newShiftLeaderId, DateOnly periodStart, DateOnly? periodEnd = null, string? notes = null)
+    {
+        // Remove any existing bookings for this worker in the same tenant that overlap the specified period
+        await _stuffBookingRepository.RemoveAsync(x =>
+            x.Tenant.Equals(tenant, StringComparison.InvariantCultureIgnoreCase)
+            && x.WorkerId.Equals(workerId, StringComparison.InvariantCultureIgnoreCase)
+            && (
+                (periodEnd is null && x.PeriodStart.Equals(periodStart)) ||
+                (periodEnd is not null && ((x.PeriodEnd ?? x.PeriodStart) >= periodStart && x.PeriodStart <= periodEnd.Value))
+            ));
+
+        var newBooking = new StuffBooking
+        {
+            WorkerId = workerId,
+            ShiftLeaderId = newShiftLeaderId,
+            Tenant = tenant,
+            PeriodStart = periodStart,
+            PeriodEnd = periodEnd,
+            Notes = notes ?? string.Empty
+        };
+
+        await _stuffBookingRepository.InsertAsync(newBooking);
         return true;
     }
 

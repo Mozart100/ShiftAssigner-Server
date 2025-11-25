@@ -15,7 +15,7 @@ public class TenantsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<TenantResponse>> GetAll()
+    public async Task<ActionResult<AllTenantsResponse>> GetAll()
     {
         var tenants = await _tenantService.GetAllTenantsAsync();
         return Ok(tenants);

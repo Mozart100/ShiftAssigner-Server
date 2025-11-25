@@ -5,7 +5,7 @@ using ShiftAssignerServer.Requests;
 public interface ITenantService
 {
     Task<bool> AddTenantAsync(string companyName);
-    Task<TenantResponse> GetAllTenantsAsync();
+    Task<AllTenantsResponse> GetAllTenantsAsync();
 }
 
 
@@ -26,9 +26,9 @@ public class TenantService : ITenantService
         return true;
     }
 
-    public async Task<TenantResponse> GetAllTenantsAsync()
+    public async Task<AllTenantsResponse> GetAllTenantsAsync()
     {
-        var result = new TenantResponse();
+        var result = new AllTenantsResponse();
         var tenants = await _tenantRepository.GetAllAsync();
 
         if(tenants.IsEmpty())

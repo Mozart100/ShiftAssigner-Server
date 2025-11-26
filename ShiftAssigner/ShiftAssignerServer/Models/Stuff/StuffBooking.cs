@@ -29,6 +29,11 @@ public partial class StuffBooking : IAutoMapperEntities
 
     // Optional notes
     public string Notes { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Soft delete flag. When false, the entity is considered logically deleted.
+    /// </summary>
+    public bool IsActive { get; set; } = true;
 }
 
 /// <summary>
@@ -42,21 +47,18 @@ public partial class StuffBooking
     /// (if <see cref="PeriodEnd"/> is set) on or before <see cref="PeriodEnd"/>. If <see cref="PeriodEnd"/>
     /// is null the booking remains active from <see cref="PeriodStart"/> onward.
     /// </summary>
-    public bool Active
+    public bool IsOnDuty
     {
         get
         {
             var today = DateOnly.FromDateTime(DateTime.UtcNow);
-            if (today < PeriodStart)
-            {
-                return false;
-            }
-            if (PeriodEnd is null)
+
+            if (today > PeriodStart && PeriodEnd is null)
             {
                 return true;
             }
 
-            return today <= PeriodEnd.Value;
+            return false;
         }
     }
 }

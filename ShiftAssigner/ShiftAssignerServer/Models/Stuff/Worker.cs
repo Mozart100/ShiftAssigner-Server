@@ -24,6 +24,7 @@ public record Worker : PersonBase, IRegistrationMapper
 
     public Worker()
     {
+        IsActive = true;
     }
 
     public Worker(string id, string firstName, string lastName, string phone, DateOnly birthDate, RoleState roleState, string passwordHash)
@@ -35,6 +36,7 @@ public record Worker : PersonBase, IRegistrationMapper
         DateOfBirth = birthDate;
         this.Role = roleState;
         PasswordHash = passwordHash;
+        IsActive = true;
     }
 
 

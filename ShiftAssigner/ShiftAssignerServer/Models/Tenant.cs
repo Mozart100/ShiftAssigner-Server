@@ -13,4 +13,9 @@ public class Tenant : IAutoMapperEntities
 
     // Non-nullable string - provide a default to satisfy nullable reference checks.
     public string CompanyName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Soft delete flag. When false, the entity is considered logically deleted.
+    /// </summary>
+    public bool IsActive { get; set; } = true;
 }

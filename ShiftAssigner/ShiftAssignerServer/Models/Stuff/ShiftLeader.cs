@@ -29,6 +29,7 @@ namespace ShiftAssignerServer.Models.Stuff
         // EF Core requires a parameterless constructor
         public ShiftLeader()
         {
+            IsActive = true;
         }
 
         public string Tenant { get; set; } = string.Empty;
@@ -45,6 +46,7 @@ namespace ShiftAssignerServer.Models.Stuff
         ) : base(id, firstName, lastName, phone, dob, roleState, passwordHash)
         {
             Tenant = tenant;
+            IsActive = true;
         }
     }
 

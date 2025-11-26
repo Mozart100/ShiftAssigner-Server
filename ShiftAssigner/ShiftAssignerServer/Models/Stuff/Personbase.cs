@@ -26,6 +26,11 @@ namespace ShiftAssignerServer.Models
     public RoleState Role { get; set; }
 
     public string PasswordHash { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Soft delete flag. When false, the entity is considered logically deleted.
+    /// </summary>
+    public bool IsActive { get; set; } = true;
 }
 
 }

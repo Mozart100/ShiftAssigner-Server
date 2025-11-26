@@ -14,6 +14,7 @@ namespace ShiftAssignerServer.Models.Stuff
     {
         public BossTenant()
         {
+            IsActive = true;
         }
 
         public BossTenant(string id,string firstName, string lastName, string phone, DateOnly dob, string tenant,  RoleState roleState,
@@ -21,6 +22,7 @@ namespace ShiftAssignerServer.Models.Stuff
             : base(id,firstName, lastName, phone, dob, tenant, roleState, passwordHash)
         
         {
+            IsActive = true;
         }
     }
 }

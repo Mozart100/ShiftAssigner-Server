@@ -36,7 +36,8 @@ public class TenantService : ITenantService
             return result;
         }
 
-        foreach (var tenant in tenants)
+        // Filter only active tenants
+        foreach (var tenant in tenants.Where(t => t.IsActive))
         {
             result.Tenants.Add(tenant.CompanyName);
         }

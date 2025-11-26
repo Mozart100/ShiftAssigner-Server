@@ -27,11 +27,9 @@ public interface IRepositoryBase<TModel> where TModel : IAutoMapperEntities
 
 
     Task<bool> UpdateAsync(Predicate<TModel> selector, Action<TModel> updateCallback);
-    Task<bool> RemoveAsync(Predicate<TModel> selector);
-    bool Remove(Predicate<TModel> selector);
+    bool Update(Predicate<TModel> selector, Action<TModel> updateCallback);
     TModel FirstOrDefault(Predicate<TModel> selector);
     IEnumerable<TModel> GetAll(Func<TModel, bool> selector);
-    bool Update(Predicate<TModel> selector, Action<TModel> updateCallback);
 }
 
 
@@ -43,34 +41,6 @@ public abstract class RepositoryBase<TModel> : IRepositoryBase<TModel> where TMo
     public RepositoryBase()
     {
         Models = new HashSet<TModel>();
-    }
-
-    public async virtual Task<bool> RemoveAsync(Predicate<TModel> selector)
-    {
-        var result = false;
-        foreach (var model in Models)
-        {
-            if (selector(model))
-            {
-                result = Models.Remove(model);
-            }
-        }
-
-        return result;
-    }
-
-    public virtual bool Remove(Predicate<TModel> selector)
-    {
-        var result = false;
-        foreach (var model in Models)
-        {
-            if (selector(model))
-            {
-                result = Models.Remove(model);
-            }
-        }
-
-        return result;
     }
 
     public async Task<TModel> FirstOrDefualtAsync(Predicate<TModel> selector)

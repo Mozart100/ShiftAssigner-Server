@@ -35,14 +35,17 @@ public class WorkerService : IWorkerService
     public async Task<IEnumerable<PubWorker>> GetAllAsync(string perTenant)
     {
         // Tenant information has been moved to ShiftAssignment records.
-        // Returning all workers here; filtering by tenant should be done via assignments/leader endpoints.
+        // Returning all active workers here; filtering by tenant should be done via assignments/leader endpoints.
         var workers = await _repo.GetAllAsync();
         if (workers is null)
         {
             return [];
         }
 
-        var dtos = _mapper.Map<IEnumerable<PubWorker>>(workers);
+        // Filter only active workers
+        var activeWorkers = workers.Where(w => w.IsActive);
+
+        var dtos = _mapper.Map<IEnumerable<PubWorker>>(activeWorkers);
         return dtos;
     }
 

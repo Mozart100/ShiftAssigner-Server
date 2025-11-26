@@ -38,14 +38,16 @@ public class StuffBookingService : IStuffBookingService
 
     public async Task<bool> ReassignAsync(string tenant, string workerId, string newShiftLeaderId, DateOnly periodStart, DateOnly? periodEnd = null, string? notes = null)
     {
-        // Remove any existing bookings for this worker in the same tenant that overlap the specified period
-        await _stuffBookingRepository.RemoveAsync(x =>
-            x.Tenant.Equals(tenant, StringComparison.InvariantCultureIgnoreCase)
+        // Soft delete any existing bookings for this worker in the same tenant that overlap the specified period
+        await _stuffBookingRepository.UpdateAsync(x =>
+            x.IsActive
+            && x.Tenant.Equals(tenant, StringComparison.InvariantCultureIgnoreCase)
             && x.WorkerId.Equals(workerId, StringComparison.InvariantCultureIgnoreCase)
             && (
                 (periodEnd is null && x.PeriodStart.Equals(periodStart)) ||
                 (periodEnd is not null && ((x.PeriodEnd ?? x.PeriodStart) >= periodStart && x.PeriodStart <= periodEnd.Value))
-            ));
+            ),
+            booking => booking.IsActive = false);
 
         var newBooking = new StuffBooking
         {
@@ -54,7 +56,8 @@ public class StuffBookingService : IStuffBookingService
             Tenant = tenant,
             PeriodStart = periodStart,
             PeriodEnd = periodEnd,
-            Notes = notes ?? string.Empty
+            Notes = notes ?? string.Empty,
+            IsActive = true
         };
 
         await _stuffBookingRepository.InsertAsync(newBooking);
@@ -64,7 +67,8 @@ public class StuffBookingService : IStuffBookingService
     public async Task<IEnumerable<PubWorker>> GetWorkersForLeaderPeriodAsync(string tenant, string shiftLeaderId, DateOnly periodStart, DateOnly? periodEnd = null)
     {
         var assignments = await _stuffBookingRepository.GetAllAsync(x =>
-            x.Tenant.Equals(tenant, StringComparison.InvariantCultureIgnoreCase)
+            x.IsActive
+            && x.Tenant.Equals(tenant, StringComparison.InvariantCultureIgnoreCase)
             && x.ShiftLeaderId.Equals(shiftLeaderId, StringComparison.InvariantCultureIgnoreCase)
             && (
                 (periodEnd is null && x.PeriodStart.Equals(periodStart)) ||
@@ -79,7 +83,7 @@ public class StuffBookingService : IStuffBookingService
         var workers = new List<Worker>();
         foreach (var id in workerIds)
         {
-            var w = _workerRepo.FirstOrDefault(x => x.ID.Equals(id, StringComparison.InvariantCultureIgnoreCase));
+            var w = _workerRepo.FirstOrDefault(x => x.ID.Equals(id, StringComparison.InvariantCultureIgnoreCase) && x.IsActive);
             if (w is not null) workers.Add(w);
         }
 

@@ -35,7 +35,7 @@ public class ShiftLeaderService : IShiftLeaderService
 
     public async Task<IEnumerable<PubShiftLeader>> GetAllAsync(string perTenant)
     {
-        var leaders = await _repo.GetAllAsync(x => x.Tenant.Equals(perTenant, StringComparison.CurrentCultureIgnoreCase));
+        var leaders = await _repo.GetAllAsync(x => x.Tenant.Equals(perTenant, StringComparison.CurrentCultureIgnoreCase) && x.IsActive);
 
         if (leaders.IsEmpty())
         {

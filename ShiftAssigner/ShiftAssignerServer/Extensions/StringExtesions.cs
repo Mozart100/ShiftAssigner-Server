@@ -9,6 +9,23 @@ public static class StringExtensions
     {
         return !IsEmpty(str);
     }
+
+    public static bool IsEqual(this string source, string target)
+    {
+
+        if (source.IsEmpty() && target.IsEmpty())
+        {
+            return true;
+        }
+
+        if (source.IsNotEmpty() && target.IsNotEmpty())
+        {
+            return source.Equals(target, StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        return false;
+    }
+
 }
 
 
@@ -17,7 +34,7 @@ public static class AdvanceCollectionExtensions
 {
     public static bool IsEmpty<T>(this IEnumerable<T> list)
     {
-        if (list is null || list.FirstOrDefault() is  null )
+        if (list is null || list.FirstOrDefault() is null)
         {
             return true;
         }

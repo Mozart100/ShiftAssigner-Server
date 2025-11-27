@@ -21,7 +21,7 @@ public class StuffBookingsController : ControllerBase
 
     // POST: api/v1/StuffBookings/assign
     [HttpPost("assign")]
-    public async Task<IActionResult> Assign([FromBody] StuffBookingRequest request)
+    public async Task<IActionResult> Assign([FromBody] AssignStuffRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.WorkerId) || string.IsNullOrWhiteSpace(request.ShiftLeaderId) || string.IsNullOrWhiteSpace(request.PeriodStart) || string.IsNullOrWhiteSpace(request.Tenant))
         {
@@ -59,7 +59,7 @@ public class StuffBookingsController : ControllerBase
 
     // POST: api/v1/StuffBookings/reassign
     [HttpPost("reassign")]
-    public async Task<IActionResult> Reassign([FromBody] StuffBookingRequest request)
+    public async Task<ActionResult<ReassignWorkerResponse>> Reassign([FromBody] ReassignWorkerRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.WorkerId) || string.IsNullOrWhiteSpace(request.ShiftLeaderId) || string.IsNullOrWhiteSpace(request.PeriodStart) || string.IsNullOrWhiteSpace(request.Tenant))
         {
@@ -71,18 +71,17 @@ public class StuffBookingsController : ControllerBase
             return BadRequest("periodStart must be an ISO date: yyyy-MM-dd");
         }
 
-        DateOnly? periodEnd = null;
-        if (!string.IsNullOrWhiteSpace(request.PeriodEnd))
+        await _service.ReassignAsync(request.Tenant, request.WorkerId, request.ShiftLeaderId, periodStart, null, request.Notes);
+        
+        var response = new ReassignWorkerResponse
         {
-            if (!DateOnly.TryParse(request.PeriodEnd, out var pe))
-            {
-                return BadRequest("periodEnd must be an ISO date: yyyy-MM-dd");
-            }
-            periodEnd = pe;
-        }
-
-        await _service.ReassignAsync(request.Tenant, request.WorkerId, request.ShiftLeaderId, periodStart, periodEnd, request.Notes);
-        return Ok();
+            ShiftLeaderId = request.ShiftLeaderId,
+            Tenant = request.Tenant,
+            PeriodStart = request.PeriodStart,
+            Notes = request.Notes
+        };
+        
+        return Ok(response);
     }
 
 
@@ -110,38 +109,38 @@ public class StuffBookingsController : ControllerBase
 
     
     // POST: api/v1/StuffBookings/reassign-bulk
-    [HttpPost("reassign-bulk")]
-    public async Task<IActionResult> ReassignBulk([FromBody] ReassignStuffRequest request)
-    {
-        if (request is null) return BadRequest("request body is required");
-        if (request.WorkerIds is null || !request.WorkerIds.Any()) return BadRequest("workerIds is required and must contain at least one id");
-        if (string.IsNullOrWhiteSpace(request.ShiftLeaderId) || string.IsNullOrWhiteSpace(request.Tenant) || string.IsNullOrWhiteSpace(request.PeriodStart))
-        {
-            return BadRequest("shiftLeaderId (target), tenant and periodStart are required (ISO yyyy-MM-dd)");
-        }
+    // [HttpPost("reassign-bulk")]
+    // public async Task<IActionResult> ReassignBulk([FromBody] ReassignStuffRequest request)
+    // {
+    //     if (request is null) return BadRequest("request body is required");
+    //     if (request.WorkerIds is null || !request.WorkerIds.Any()) return BadRequest("workerIds is required and must contain at least one id");
+    //     if (string.IsNullOrWhiteSpace(request.ShiftLeaderId) || string.IsNullOrWhiteSpace(request.Tenant) || string.IsNullOrWhiteSpace(request.PeriodStart))
+    //     {
+    //         return BadRequest("shiftLeaderId (target), tenant and periodStart are required (ISO yyyy-MM-dd)");
+    //     }
 
-        if (!DateOnly.TryParse(request.PeriodStart, out var periodStart))
-        {
-            return BadRequest("periodStart must be an ISO date: yyyy-MM-dd");
-        }
+    //     if (!DateOnly.TryParse(request.PeriodStart, out var periodStart))
+    //     {
+    //         return BadRequest("periodStart must be an ISO date: yyyy-MM-dd");
+    //     }
 
-        DateOnly? periodEnd = null;
-        if (!string.IsNullOrWhiteSpace(request.PeriodEnd))
-        {
-            if (!DateOnly.TryParse(request.PeriodEnd, out var pe))
-            {
-                return BadRequest("periodEnd must be an ISO date: yyyy-MM-dd");
-            }
-            periodEnd = pe;
-        }
+    //     DateOnly? periodEnd = null;
+    //     if (!string.IsNullOrWhiteSpace(request.PeriodEnd))
+    //     {
+    //         if (!DateOnly.TryParse(request.PeriodEnd, out var pe))
+    //         {
+    //             return BadRequest("periodEnd must be an ISO date: yyyy-MM-dd");
+    //         }
+    //         periodEnd = pe;
+    //     }
 
-        // Perform reassignment for each worker id
-        foreach (var workerId in request.WorkerIds)
-        {
-            if (string.IsNullOrWhiteSpace(workerId)) continue;
-            await _service.ReassignAsync(request.Tenant, workerId, request.ShiftLeaderId, periodStart, periodEnd, request.Notes);
-        }
+    //     // Perform reassignment for each worker id
+    //     foreach (var workerId in request.WorkerIds)
+    //     {
+    //         if (string.IsNullOrWhiteSpace(workerId)) continue;
+    //         await _service.ReassignAsync(request.Tenant, workerId, request.ShiftLeaderId, periodStart, periodEnd, request.Notes);
+    //     }
 
-        return Ok();
-    }
+    //     return Ok();
+    // }
 }

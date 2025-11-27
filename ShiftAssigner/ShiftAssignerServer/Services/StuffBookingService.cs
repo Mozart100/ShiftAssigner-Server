@@ -39,6 +39,7 @@ public class StuffBookingService : IStuffBookingService
     public async Task<bool> ReassignAsync(string tenant, string workerId, string newShiftLeaderId, DateOnly periodStart, DateOnly? periodEnd = null, string? notes = null)
     {
         // Soft delete any existing bookings for this worker in the same tenant that overlap the specified period
+        // Set EndPeriod to the day before the new assignment starts
         await _stuffBookingRepository.UpdateAsync(x =>
             x.IsActive
             && x.Tenant.Equals(tenant, StringComparison.InvariantCultureIgnoreCase)
@@ -47,7 +48,11 @@ public class StuffBookingService : IStuffBookingService
                 (periodEnd is null && x.PeriodStart.Equals(periodStart)) ||
                 (periodEnd is not null && ((x.PeriodEnd ?? x.PeriodStart) >= periodStart && x.PeriodStart <= periodEnd.Value))
             ),
-            booking => booking.IsActive = false);
+            booking =>
+            {
+                booking.IsActive = false;
+                booking.PeriodEnd = DateOnly.FromDateTime(DateTime.UtcNow);
+            });
 
         var newBooking = new StuffBooking
         {

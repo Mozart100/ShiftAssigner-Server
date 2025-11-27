@@ -12,40 +12,35 @@ namespace ShiftAssignerServer.Services;
 public interface IWorkerService
 {
     Task<bool> AddWorker(Worker worker);
-    Task<IEnumerable<PubWorker>> GetAllAsync(string perTenant);
+    Task<IEnumerable<PubWorker>> GetAllActiveWorkersPerShiftLeaderAsync(string perShiftLeader);
 }
 
 public class WorkerService : IWorkerService
 {
-    private readonly IWorkerRepository _repo;
+    private readonly IWorkerRepository _workerRepository;
     private readonly IMapper _mapper;
 
     public WorkerService(IWorkerRepository repo, IMapper mapper)
     {
-        _repo = repo;
+        _workerRepository = repo;
         _mapper = mapper;
     }
 
     public async Task<bool> AddWorker(Worker worker)
     {
-        var ptr = await _repo.InsertAsync(worker);
+        var ptr = await _workerRepository.InsertAsync(worker);
         return true;
     }
 
-    public async Task<IEnumerable<PubWorker>> GetAllAsync(string perTenant)
+    public async Task<IEnumerable<PubWorker>> GetAllActiveWorkersPerShiftLeaderAsync(string perShiftLeader)
     {
-        // Tenant information has been moved to ShiftAssignment records.
-        // Returning all active workers here; filtering by tenant should be done via assignments/leader endpoints.
-        var workers = await _repo.GetAllAsync();
+        var workers = await _workerRepository.GetAllAsync(x => x.IsActive);
         if (workers is null)
         {
             return [];
         }
 
-        // Filter only active workers
-        var activeWorkers = workers.Where(w => w.IsActive);
-
-        var dtos = _mapper.Map<IEnumerable<PubWorker>>(activeWorkers);
+        var dtos = _mapper.Map<IEnumerable<PubWorker>>(workers);
         return dtos;
     }
 

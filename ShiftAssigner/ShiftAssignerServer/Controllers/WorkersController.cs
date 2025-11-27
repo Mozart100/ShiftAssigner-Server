@@ -27,7 +27,7 @@ public class WorkersController : ControllerBase
     [HttpGet("{tenant}")]
     public async Task<ActionResult<GetWorkerPerTenantResponse>> GetAllPerTenant(string tenant)
     {
-        var workers = await _service.GetAllAsync(tenant);
+        var workers = await _service.GetAllActiveWorkersPerShiftLeaderAsync(tenant);
         return Ok(new GetWorkerPerTenantResponse{ Workers = workers});
     }
 

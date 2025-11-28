@@ -22,7 +22,7 @@ public class ShiftLeadersController : ControllerBase
     [HttpGet("{tenant}")]
     public async Task<ActionResult<GetShiftLeaderPerTenantResponse>> GetAllPerTenant(string tenant)
     {
-        var leaders = await _service.GetAllAsync(tenant);
+        var leaders = await _service.GetAllShiftLeaderAsync(tenant);
         return Ok(new GetShiftLeaderPerTenantResponse{ ShifLeaders = leaders });
     }
 }

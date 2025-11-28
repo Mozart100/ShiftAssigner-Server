@@ -1,29 +1,24 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoMapper;
 using ShiftAssignerServer.Models.Stuff;
 using ShiftAssignerServer.Repositories;
-using ShiftAssignerServer.Requests;
 
 namespace ShiftAssignerServer.Services;
 
 public interface IShiftLeaderService
 {
     Task<bool> AddTenantAsync(ShiftLeader leader);
-    Task<IEnumerable<PubShiftLeader>> GetAllAsync(string perTenant);
+    Task<IEnumerable<PubShiftLeader>> GetAllShiftLeaderAsync(string perTenant);
 }
 
 public class ShiftLeaderService : IShiftLeaderService
 {
     private readonly IShiftLeaderRepository _repo;
-    private readonly IMapper _mapper;
+    private readonly IMapper _shiftLeaderRepository;
 
     public ShiftLeaderService(IShiftLeaderRepository repo, IMapper mapper)
     {
         _repo = repo;
-        _mapper = mapper;
+        _shiftLeaderRepository = mapper;
     }
 
 
@@ -33,16 +28,16 @@ public class ShiftLeaderService : IShiftLeaderService
         return true;
     }
 
-    public async Task<IEnumerable<PubShiftLeader>> GetAllAsync(string perTenant)
+    public async Task<IEnumerable<PubShiftLeader>> GetAllShiftLeaderAsync(string perTenant)
     {
-        var leaders = await _repo.GetAllAsync(x => x.Tenant.Equals(perTenant, StringComparison.CurrentCultureIgnoreCase) && x.IsActive);
+        var leaders = await _repo.GetAllAsync(x => x.IsActive && x.Tenant.Equals(perTenant, StringComparison.CurrentCultureIgnoreCase)  );
 
         if (leaders.IsEmpty())
         {
             return [];
         }
 
-        var dtos = _mapper.Map<IEnumerable<PubShiftLeader>>(leaders);
+        var dtos = _shiftLeaderRepository.Map<IEnumerable<PubShiftLeader>>(leaders);
         return dtos;
     }
 }

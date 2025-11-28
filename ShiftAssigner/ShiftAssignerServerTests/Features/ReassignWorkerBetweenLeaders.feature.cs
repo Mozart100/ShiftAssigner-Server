@@ -205,6 +205,18 @@ namespace ShiftAssignerServer.Tests.Features
 #line 29
     await testRunner.ThenAsync("the workers list should contain 1 worker", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
+#line 31
+    await testRunner.WhenAsync("I retire the remaining worker under leader \"leader-A\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 32
+    await testRunner.ThenAsync("the retire response should be successful", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 34
+    await testRunner.WhenAsync("I GET the workers for leader \"leader-A\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 35
+    await testRunner.ThenAsync("the workers list should contain 0 workers", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
             }
             await this.ScenarioCleanupAsync();
         }

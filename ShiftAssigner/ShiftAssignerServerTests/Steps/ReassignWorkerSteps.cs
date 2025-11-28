@@ -98,4 +98,34 @@ public class ReassignWorkerSteps : SingleTenantStep
         // Store the response for potential validation
         _scenarioContext["ReassignWorkerResponse"] = response;
     }
+
+    [When("I retire the remaining worker under leader \"(.*)\"")]
+    public async Task WhenIRetireTheRemainingWorkerUnderLeader(string leaderId)
+    {
+        var tenant = (_scenarioContext[Tenant_Registration_Data_Context] as TenantRegisterRequest)?.Tenant;
+        var workersData = _scenarioContext[Workers_Registration_Data_Context] as List<RegisterRequest>;
+        
+        // Get the first worker (the one still under leader-A)
+        var firstWorker = workersData?[0];
+
+        var retireRequest = new RetireWorkerRequest
+        {
+            WorkerId = firstWorker.ID,
+            Tenant = tenant,
+            Reason = "Worker retired for testing"
+        };
+
+        const string retirePath = "api/v1/Workers/retire";
+        var response = await _serverSender.PostCommandAsync<RetireWorkerRequest, object>(retireRequest, retirePath);
+        
+        // Store the response for validation
+        _scenarioContext["RetireWorkerResponse"] = response;
+    }
+
+    [Then("the retire response should be successful")]
+    public void ThenTheRetireResponseShouldBeSuccessful()
+    {
+        var response = _scenarioContext["RetireWorkerResponse"];
+        Assert.NotNull(response);
+    }
 }

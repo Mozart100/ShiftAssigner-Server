@@ -13,6 +13,7 @@ public interface IWorkerService
 {
     Task<bool> AddWorker(Worker worker);
     Task<IEnumerable<PubWorker>> GetAllActiveWorkersPerShiftLeaderAsync(string perShiftLeader);
+    Task<bool> RetireWorkerAsync(string tenant, string workerId);
 }
 
 public class WorkerService : IWorkerService
@@ -42,6 +43,17 @@ public class WorkerService : IWorkerService
 
         var dtos = _mapper.Map<IEnumerable<PubWorker>>(workers);
         return dtos;
+    }
+
+    public async Task<bool> RetireWorkerAsync(string tenant, string workerId)
+    {
+        // Soft delete: Set IsActive to false for the worker
+       var result =  await _workerRepository.UpdateAsync(
+            x => x.ID.Equals(workerId, StringComparison.InvariantCultureIgnoreCase) 
+                 && x.IsActive,
+            worker => worker.IsActive = false);
+        
+        return result;
     }
 
     // Interface implemented above - no explicit fallback required.

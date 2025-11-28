@@ -47,4 +47,23 @@ public class WorkersController : ControllerBase
         var workers = await _assignmentService.GetWorkersForLeaderPeriodAsync(leader.Tenant, shiftLeaderId, periodStart);
         return Ok(new GetWorkerPerTenantResponse { Workers = workers });
     }
+
+    // POST: api/v1/Workers/retire
+    [HttpPost("retire")]
+    public async Task<IActionResult> RetireWorker([FromBody] RetireWorkerRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.WorkerId) || string.IsNullOrWhiteSpace(request.Tenant))
+        {
+            return BadRequest("workerId and tenant are required");
+        }
+
+        var result = await _service.RetireWorkerAsync(request.Tenant, request.WorkerId);
+        
+        if (result)
+        {
+            return Ok(new { Message = "Worker retired successfully", WorkerId = request.WorkerId });
+        }
+        
+        return BadRequest("Failed to retire worker");
+    }
 }

@@ -27,3 +27,9 @@ Feature: Reassign worker between shift leaders
 
     When I GET the workers for leader "leader-B"
     Then the workers list should contain 1 worker
+
+    When I retire the remaining worker under leader "leader-A"
+    Then the retire response should be successful
+
+    When I GET the workers for leader "leader-A"
+    Then the workers list should contain 0 workers

@@ -15,6 +15,8 @@ public class ReassignWorkerSteps : SingleTenantStep
 {
     private const string CurrentLeaderId_Context = "currentLeaderId";
     private const string PeriodStart_Context = "periodStart";
+    private const string ReassignWorkerResponse_Context = "ReassignWorkerResponse";
+    private const string RetireWorkerResponse_Context = "RetireWorkerResponse";
 
     public ReassignWorkerSteps(ScenarioContext scenarioContext) : base(scenarioContext)
     {
@@ -96,7 +98,7 @@ public class ReassignWorkerSteps : SingleTenantStep
         var response = await _serverSender.PostCommandAsync<ReassignWorkerRequest, ReassignWorkerResponse>(reassignRequest, reassignPath);
         
         // Store the response for potential validation
-        _scenarioContext["ReassignWorkerResponse"] = response;
+        _scenarioContext[ReassignWorkerResponse_Context] = response;
     }
 
     [When("I retire the remaining worker under leader \"(.*)\"")]
@@ -119,13 +121,13 @@ public class ReassignWorkerSteps : SingleTenantStep
         var response = await _serverSender.PostCommandAsync<RetireWorkerRequest, object>(retireRequest, retirePath);
         
         // Store the response for validation
-        _scenarioContext["RetireWorkerResponse"] = response;
+        _scenarioContext[RetireWorkerResponse_Context] = response;
     }
 
     [Then("the retire response should be successful")]
     public void ThenTheRetireResponseShouldBeSuccessful()
     {
-        var response = _scenarioContext["RetireWorkerResponse"];
+        var response = _scenarioContext[RetireWorkerResponse_Context];
         Assert.NotNull(response);
     }
 }

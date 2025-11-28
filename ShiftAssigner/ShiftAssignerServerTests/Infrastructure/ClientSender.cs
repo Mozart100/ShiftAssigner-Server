@@ -240,4 +240,17 @@ public class ClientSender
 
         return base64String;
     }
+
+    /// <summary>
+    /// Gets an HttpClient configured with the base URL for direct HTTP calls.
+    /// Useful for testing error responses and status codes.
+    /// </summary>
+    public HttpClient GetHttpClient()
+    {
+        var client = new HttpClient
+        {
+            BaseAddress = new Uri(_baseUrl)
+        };
+        return client;
+    }
 }

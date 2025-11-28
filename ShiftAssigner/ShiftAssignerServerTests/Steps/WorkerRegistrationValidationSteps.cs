@@ -20,11 +20,9 @@ public class WorkerRegistrationValidationSteps : SingleTenantStep
     private const string RegistrationException_Context = "RegistrationException";
     private const string HttpResponse_Context = "HttpResponse";
     private const string ErrorResponseBody_Context = "ErrorResponseBody";
+    private const string CurrentRequest_Context = "CurrentRequest";
 
-    private RegisterRequest _currentRequest;
-    private RegisterResponse _successResponse;
     private HttpResponseMessage _httpResponse;
-    private string _errorResponseBody;
 
     public WorkerRegistrationValidationSteps(ScenarioContext scenarioContext) : base(scenarioContext)
     {
@@ -33,14 +31,15 @@ public class WorkerRegistrationValidationSteps : SingleTenantStep
     [When("I register a worker with valid data")]
     public async Task WhenIRegisterAWorkerWithValidData(Table table)
     {
-        _currentRequest = BuildRegisterRequestFromTable(table);
+        var currentRequest = BuildRegisterRequestFromTable(table, generateUniqueId: true);
+        _scenarioContext[CurrentRequest_Context] = currentRequest;
         
         const string registrationPath = "api/v1/Auth/register-worker";
         
         try
         {
-            _successResponse = await _serverSender.PostCommandAsync<RegisterRequest, RegisterResponse>(_currentRequest, registrationPath);
-            _scenarioContext[WorkerRegistrationResponse_Context] = _successResponse;
+            var successResponse = await _serverSender.PostCommandAsync<RegisterRequest, RegisterResponse>(currentRequest, registrationPath);
+            _scenarioContext[WorkerRegistrationResponse_Context] = successResponse;
         }
         catch (Exception ex)
         {
@@ -52,7 +51,12 @@ public class WorkerRegistrationValidationSteps : SingleTenantStep
     [When("I register a worker with invalid data")]
     public async Task WhenIRegisterAWorkerWithInvalidData(Table table)
     {
-        _currentRequest = BuildRegisterRequestFromTable(table);
+        // For invalid data tests, generate unique ID unless the test is specifically testing ID validation
+        var generateUniqueId = !table.Rows.Any(r => r["Field"] == "ID" && 
+            (string.IsNullOrWhiteSpace(r["Value"]) || r["Value"].Length < 3));
+        
+        var currentRequest = BuildRegisterRequestFromTable(table, generateUniqueId);
+        _scenarioContext[CurrentRequest_Context] = currentRequest;
         
         const string registrationPath = "api/v1/Auth/register-worker";
         
@@ -61,16 +65,16 @@ public class WorkerRegistrationValidationSteps : SingleTenantStep
             // Try to send the request - expecting it to fail
             var client = _serverSender.GetHttpClient();
             var content = new StringContent(
-                System.Text.Json.JsonSerializer.Serialize(_currentRequest),
+                System.Text.Json.JsonSerializer.Serialize(currentRequest),
                 System.Text.Encoding.UTF8,
                 "application/json");
             
             _httpResponse = await client.PostAsync(registrationPath, content);
-            _errorResponseBody = await _httpResponse.Content.ReadAsStringAsync();
+            var errorResponseBody = await _httpResponse.Content.ReadAsStringAsync();
             
             // Store for assertions
             _scenarioContext[HttpResponse_Context] = _httpResponse;
-            _scenarioContext[ErrorResponseBody_Context] = _errorResponseBody;
+            _scenarioContext[ErrorResponseBody_Context] = errorResponseBody;
         }
         catch (Exception ex)
         {
@@ -81,13 +85,23 @@ public class WorkerRegistrationValidationSteps : SingleTenantStep
     [Then("the worker registration should succeed")]
     public void ThenTheWorkerRegistrationShouldSucceed()
     {
+        var currentRequest = _scenarioContext[CurrentRequest_Context] as RegisterRequest;
+        
         if (_scenarioContext.ContainsKey(RegistrationException_Context))
         {
             var ex = _scenarioContext[RegistrationException_Context] as Exception;
-            Assert.Fail($"Worker registration should have succeeded but threw exception: {ex?.Message}");
+            var requestJson = System.Text.Json.JsonSerializer.Serialize(currentRequest, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+            Assert.Fail($"Worker registration should have succeeded but threw exception: {ex?.Message}\n\nRequest:\n{requestJson}");
         }
         
-        Assert.NotNull(_successResponse);
+        var successResponse = _scenarioContext[WorkerRegistrationResponse_Context] as RegisterResponse;
+        Assert.NotNull(successResponse);
+        
+        if (successResponse == null)
+        {
+            var requestJson = System.Text.Json.JsonSerializer.Serialize(currentRequest, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+            Assert.Fail($"Worker registration failed - response is null\n\nRequest:\n{requestJson}");
+        }
     }
 
     [Then("the worker registration should fail with validation errors")]
@@ -135,7 +149,7 @@ public class WorkerRegistrationValidationSteps : SingleTenantStep
         }
     }
 
-    private RegisterRequest BuildRegisterRequestFromTable(Table table)
+    private RegisterRequest BuildRegisterRequestFromTable(Table table, bool generateUniqueId = false)
     {
         var request = new RegisterRequest();
         
@@ -147,7 +161,15 @@ public class WorkerRegistrationValidationSteps : SingleTenantStep
             switch (field)
             {
                 case "ID":
-                    request.ID = value;
+                    // Generate unique ID if requested and value is not empty/testing ID validation
+                    if (generateUniqueId && !string.IsNullOrWhiteSpace(value))
+                    {
+                        request.ID = $"{value}_{Guid.NewGuid().ToString("N").Substring(0, 8)}";
+                    }
+                    else
+                    {
+                        request.ID = value;
+                    }
                     break;
                 case "FirstName":
                     request.FirstName = value;

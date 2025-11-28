@@ -25,7 +25,15 @@ public class ReassignWorkerSteps : SingleTenantStep
     [When("the shift leader with id \"(.*)\" creates 2 workers")]
     public async Task WhenTheShiftLeaderWithIdCreatesTwoWorkers(string leaderId)
     {
-        _scenarioContext[CurrentLeaderId_Context] = leaderId;
+        // Get the actual leader ID (with unique suffix) from context if it exists
+        var actualLeaderId = leaderId;
+        var leaderKey = $"LeaderID_{leaderId}";
+        if (_scenarioContext.ContainsKey(leaderKey))
+        {
+            actualLeaderId = _scenarioContext[leaderKey] as string ?? leaderId;
+        }
+        
+        _scenarioContext[CurrentLeaderId_Context] = actualLeaderId;
 
         var workersData = new List<RegisterRequest>();
         var workersResponses = new List<RegisterResponse>();
@@ -40,7 +48,7 @@ public class ReassignWorkerSteps : SingleTenantStep
                 LastName = i == 0 ? "One" : "Two",
                 PhoneNumber = "555-0300",
                 DateOfBirth = new System.DateOnly(1995, 1, 1),
-                ShiftLeaderId = leaderId,
+                ShiftLeaderId = actualLeaderId,
                 PasswordHash = "P@ssw0rd!"
             };
 
@@ -60,11 +68,19 @@ public class ReassignWorkerSteps : SingleTenantStep
     [When("I GET the workers for leader \"(.*)\"")]
     public async Task WhenIGetTheWorkersForLeader(string leaderId)
     {
+        // Get the actual leader ID (with unique suffix) from context if it exists
+        var actualLeaderId = leaderId;
+        var leaderKey = $"LeaderID_{leaderId}";
+        if (_scenarioContext.ContainsKey(leaderKey))
+        {
+            actualLeaderId = _scenarioContext[leaderKey] as string ?? leaderId;
+        }
+        
         var tenant = (_scenarioContext[Tenant_Registration_Data_Context] as TenantRegisterRequest)?.Tenant;
         var periodStart = DateOnly.FromDateTime(DateTime.UtcNow).ToString("yyyy-MM-dd");
         _scenarioContext[PeriodStart_Context] = periodStart;
 
-        var path = PathLocator.Combine($"api/v1/StuffBookings/leader/{leaderId}?tenant={tenant}&period={periodStart}");
+        var path = PathLocator.Combine($"api/v1/StuffBookings/leader/{actualLeaderId}?tenant={tenant}&period={periodStart}");
         var response = await _serverSender.GetAsync<GetWorkerPerTenantResponse>(path);
         _scenarioContext[All_Workers_Context] = response;
     }
@@ -80,6 +96,14 @@ public class ReassignWorkerSteps : SingleTenantStep
     [When("I reassign the second worker to leader \"(.*)\"")]
     public async Task WhenIReassignTheSecondWorkerToLeader(string targetLeaderId)
     {
+        // Get the actual leader ID (with unique suffix) from context if it exists
+        var actualLeaderId = targetLeaderId;
+        var leaderKey = $"LeaderID_{targetLeaderId}";
+        if (_scenarioContext.ContainsKey(leaderKey))
+        {
+            actualLeaderId = _scenarioContext[leaderKey] as string ?? targetLeaderId;
+        }
+        
         var tenant = (_scenarioContext[Tenant_Registration_Data_Context] as TenantRegisterRequest)?.Tenant;
         var workersData = _scenarioContext[Workers_Registration_Data_Context] as List<RegisterRequest>;
         var secondWorker = workersData?[1];
@@ -88,7 +112,7 @@ public class ReassignWorkerSteps : SingleTenantStep
         var reassignRequest = new ReassignWorkerRequest
         {
             WorkerId = secondWorker.ID,
-            ShiftLeaderId = targetLeaderId,
+            ShiftLeaderId = actualLeaderId,
             Tenant = tenant,
             PeriodStart = periodStart,
             Notes = "Reassigned for testing"

@@ -17,6 +17,7 @@ namespace ShiftAssignerServer.Tests.Steps;
 public class RegisterBossTenantVerifySteps : SingleTenantStep
 {
     public const string Tenant_ID = "Acme ltd";
+    private const string CurrentLeaderId_Context = "currentLeaderId";
 
 
     public RegisterBossTenantVerifySteps(ScenarioContext scenarioContext):base(scenarioContext)
@@ -47,7 +48,8 @@ public class RegisterBossTenantVerifySteps : SingleTenantStep
         const string registrationPath = $"api/v1/Auth/{AuthController.Register_Tenant}";
 
         var request = _scenarioContext[Tenant_Registration_Data_Context] as TenantRegisterRequest;
-        request.ID = tenantId;
+        // Generate unique ID to avoid conflicts
+        request.ID = $"{tenantId}_{Guid.NewGuid().ToString("N").Substring(0, 8)}";
 
         var response = await _serverSender.PostCommandAsync<TenantRegisterRequest, TenantRegisterResponse>(request, registrationPath!);
 
@@ -95,9 +97,12 @@ public class RegisterBossTenantVerifySteps : SingleTenantStep
     [When("I create a shift leader with id \"(.*)\"")]
     public async Task WhenICreateAShiftLeaderForTenant(string leaderId)
     {
+        // Generate unique ID to avoid conflicts
+        var uniqueLeaderId = $"{leaderId}_{Guid.NewGuid().ToString("N").Substring(0, 8)}";
+        
         var payload = new RegisterRequest
         {
-            ID = leaderId,
+            ID = uniqueLeaderId,
             FirstName = "Bob",
             LastName = "Leader",
             PhoneNumber = "555-0200",
@@ -109,6 +114,10 @@ public class RegisterBossTenantVerifySteps : SingleTenantStep
 
         var response = await _serverSender.PostCommandAsync<RegisterRequest, RegisterResponse>(payload, registrationPath);
         _scenarioContext[Tenant_Registration_Response_Context] = response;
+        
+        // Store the actual leader ID for later verification using a key pattern
+        _scenarioContext[CurrentLeaderId_Context] = uniqueLeaderId;
+        _scenarioContext[$"LeaderID_{leaderId}"] = uniqueLeaderId;
     }
 
     [When("I GET the shiftleaders")]
@@ -125,11 +134,18 @@ public class RegisterBossTenantVerifySteps : SingleTenantStep
     {
         var response = _scenarioContext[All_ShiftLeaders_Context] as GetShiftLeaderPerTenantResponse;
         Assert.NotNull(response);
+        
+        // Get the actual leader ID that was created (with unique suffix)
+        var actualLeaderId = _scenarioContext.ContainsKey(CurrentLeaderId_Context) 
+            ? _scenarioContext[CurrentLeaderId_Context] as string 
+            : leaderId;
+        
         var exists = false;
 
         foreach (var shiftLeader in response.ShifLeaders)
         {
-            if (shiftLeader.ID.Equals(leaderId, System.StringComparison.InvariantCulture))
+            if (shiftLeader.ID.Equals(actualLeaderId, System.StringComparison.InvariantCulture) ||
+                shiftLeader.ID.StartsWith(leaderId, System.StringComparison.InvariantCulture))
             {
                 exists = true;
                 break;

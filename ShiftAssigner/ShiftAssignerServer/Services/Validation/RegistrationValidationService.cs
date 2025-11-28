@@ -41,7 +41,7 @@ public class RegistrationValidationService : ServiceValidatorBase, IRegistration
         // Validate against null
         if (request == null)
         {
-            Validate("Request", "Registration request cannot be null");
+            ValidateAndThrow("Request", "Registration request cannot be null");
             return;
         }
 

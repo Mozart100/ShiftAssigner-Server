@@ -36,7 +36,7 @@ public abstract class ServiceValidatorBase
     }
 
 
-    protected void Validate(string propertyName, string reason)
+    protected void ValidateAndThrow(string propertyName, string reason)
     {
         var error = new ShiftAssignmentError(propertyName, reason);
         var instance = new ShiftAssignmentException(error);

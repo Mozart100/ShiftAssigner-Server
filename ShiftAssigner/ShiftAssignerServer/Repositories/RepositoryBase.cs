@@ -1,4 +1,5 @@
 using System;
+using ShiftAssignerServer.Services.Validation;
 
 namespace ShiftAssignerServer.Repositories;
 
@@ -103,7 +104,8 @@ public abstract class RepositoryBase<TModel> : IRepositoryBase<TModel> where TMo
 
         if (Models.Add(instance) == false)
         {
-            throw new Exception("Key already present.");
+            var error = new ShiftAssignmentError("ID", "A record with this ID already exists.");
+            throw new ShiftAssignmentException(error);
         }
 
         return instance;

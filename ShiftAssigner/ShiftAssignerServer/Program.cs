@@ -1,8 +1,10 @@
 using System.Text;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using ShiftAssignerServer.Repositories;
 using ShiftAssignerServer.Services;
+using ShiftAssignerServer.Services.Validation;
 using ShiftAssignerServer.Startup;
 using Serilog;
 using Serilog.Events;
@@ -58,6 +60,12 @@ builder.Services.AddTransient<ITenantService,TenantService>();
 builder.Services.AddTransient<IShiftLeaderService,ShiftLeaderService>();
 builder.Services.AddTransient<IWorkerService,WorkerService>();
 builder.Services.AddTransient<IStuffBookingService,StuffBookingService>();
+
+// Register FluentValidation validators
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+
+// Register validation services
+builder.Services.AddTransient<IRegistrationValidationService, RegistrationValidationService>();
 
 
 // Configure Serilog for container-friendly logging (console) and optional file sink with retention.

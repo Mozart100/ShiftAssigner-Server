@@ -9,6 +9,7 @@ using ShiftAssignerServer.Models;
 using ShiftAssignerServer.Models.Stuff;
 using ShiftAssignerServer.Requests;
 using ShiftAssignerServer.Services;
+using ShiftAssignerServer.Services.Validation;
 using ShiftAssignerServer.Repositories;
 
 namespace ShiftAssignerServer.Controllers
@@ -22,32 +23,37 @@ namespace ShiftAssignerServer.Controllers
         private readonly JwtService _jwt;
         private readonly IMapper _mapper;
         private readonly ITenantService _tenantService;
-    private readonly IShiftLeaderService _shiftLeaderService;
+        private readonly IShiftLeaderService _shiftLeaderService;
         private readonly IWorkerService _workerService;
-    private readonly IStuffBookingService _shiftAssignmentService;
-    private readonly IShiftLeaderRepository _shiftLeaderRepository;
+        private readonly IStuffBookingService _shiftAssignmentService;
+        private readonly IShiftLeaderRepository _shiftLeaderRepository;
+        private readonly IRegistrationValidationService _validationService;
 
         public AuthController(JwtService jwt,
             IMapper mapper,
-         ITenantService tenantService,
-         IShiftLeaderService shiftLeaderService,
-         IWorkerService workerService,
-         IStuffBookingService shiftAssignmentService,
-         IShiftLeaderRepository shiftLeaderRepository
-         )
+            ITenantService tenantService,
+            IShiftLeaderService shiftLeaderService,
+            IWorkerService workerService,
+            IStuffBookingService shiftAssignmentService,
+            IShiftLeaderRepository shiftLeaderRepository,
+            IRegistrationValidationService validationService)
         {
             _jwt = jwt;
-            this._mapper = mapper;
+            _mapper = mapper;
             _tenantService = tenantService;
             _shiftLeaderService = shiftLeaderService;
             _workerService = workerService;
             _shiftAssignmentService = shiftAssignmentService;
             _shiftLeaderRepository = shiftLeaderRepository;
+            _validationService = validationService;
         }
 
         [HttpPost("register-worker")]
         public async Task<ActionResult<RegisterResponse>> RegisterWorker([FromBody] RegisterRequest dto)
         {
+            // Validate the registration request
+            _validationService.ValidateRegistration(dto, "Worker");
+
             // Create typed Worker instance (constructor expects role and passwordHash)
             var pwHash = Hash(dto.PasswordHash);
 

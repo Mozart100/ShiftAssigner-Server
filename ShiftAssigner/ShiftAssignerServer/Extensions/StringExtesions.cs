@@ -46,4 +46,14 @@ public static class AdvanceCollectionExtensions
     {
         return !IsEmpty(list);
     }
+
+    public static bool SafeAny<T>(this IEnumerable<T> collection)
+    {
+        if (collection == null || !collection.Any())
+        {
+            return false;
+        }
+
+        return true;
+    }
 }

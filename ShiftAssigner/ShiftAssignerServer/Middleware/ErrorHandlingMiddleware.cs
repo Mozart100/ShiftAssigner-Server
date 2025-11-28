@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using ShiftAssignerServer.Services.Validation;
 
 namespace ShiftAssignerServer.Middleware;
 
@@ -25,6 +26,28 @@ public class ErrorHandlingMiddleware
         try
         {
             await _next(context);
+        }
+        catch (ShiftAssignmentException validationEx)
+        {
+            // Handle validation errors specifically
+            _logger.LogWarning(validationEx, "Validation error occurred");
+
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+
+            var errors = validationEx.ShiftAssignmentErrors
+                .Select(e => new { Property = e.PropertyName, Error = e.ErrorMessage })
+                .ToList();
+
+            var response = new
+            {
+                Message = "Validation failed",
+                Errors = errors
+            };
+
+            var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+            var payload = JsonSerializer.Serialize(response, options);
+            await context.Response.WriteAsync(payload);
         }
         catch (Exception ex)
         {

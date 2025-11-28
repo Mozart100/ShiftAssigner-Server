@@ -1,99 +1,220 @@
-Shift Assigner Backend & BDD Testing Instructions
+# Shift Assigner Backend & BDD Testing Instructions
 
-IMPORTANT: Copilot must keep all answers short and to-the-point.
+**IMPORTANT:** Copilot must keep all answers short and to the point.
+Use this instruction with GitHub Copilot Chat inside VS Code.
 
-Use this instruction with GitHub Copilot Chat in VS Code.
+---
 
-Overview
+## Overview
 
-You are helping me implement a C# backend for a multi-company shift-assignment system using ASP.NET Core Web API, and helping me write BDD tests using Reqnroll 3.2 and xUnit.
+You are helping me implement a **C# backend** for a **multi-company shift-assignment system** using **ASP.NET Core Web API**, and helping me write **BDD tests** using **Reqnroll 3.2** and **xUnit**.
 
-Backend Requirements
-Business Rules
+---
 
-System supports multiple companies (multi-tenant).
+# Backend Requirements
 
-Each company has its own separate shift data.
+## Business Rules
 
-Workers schedule preferred shifts (Morning/Day/Evening) for the upcoming week only.
+* System supports **multiple companies** (multi-tenant).
+* Each company has its own **separate shift data**.
+* Workers schedule preferred shifts (**Morning / Day / Evening**) for the **upcoming week only**.
+* Each day must show all shift slots and indicate **available vs filled** slots.
 
-Each day must show all shift slots and indicate available vs filled slots.
+---
 
-Backend Code to Generate
-Domain / Entity Classes
+## Backend Code to Generate
 
-Company
+### Domain / Entity Classes
 
-Worker (belongs to Company)
+* Company
+* Worker (belongs to Company)
+* ShiftDefinition (Morning / Day / Evening)
+* ShiftAssignment (Worker + Shift + Date + Status)
 
-ShiftDefinition (Morning/Day/Evening)
+### DbContext
 
-ShiftAssignment (Worker + Shift + Date + Status)
+* Clean DbContext
+* Includes all required `DbSet<>` items.
 
-DbContext
+### Guidelines
 
-Clean DbContext with all required DbSet<> items.
+* Use **.NET 8 patterns**.
+* Clear naming and comments.
+* Enforce **tenant isolation**.
+* Show **shift-availability** logic.
 
-Guidelines
+---
 
-Use .NET 8 patterns.
+# BDD (Reqnroll 3.2 + xUnit)
 
-Clear naming and comments.
+## BDD Artifacts to Generate
 
-Enforce tenant isolation.
+1. **Feature Scenarios**
 
-Show shift-availability logic.
+   * Worker books Morning shift.
+   * Worker cannot book overlapping shifts.
+   * Worker from Company A cannot access Company B.
+   * Shift at full capacity rejects new bookings.
 
-BDD (Reqnroll 3.2 + xUnit)
-BDD Artifacts to Generate
-1. Feature Scenarios
+2. **Step Definitions**
 
-Worker books Morning shift.
+   * Use attributes: `[Binding]`, `[Given]`, `[When]`, `[Then]`.
+   * Use **WebApplicationFactory<Program>** as the in-memory test server.
+   * Steps focus strictly on **behavior**.
 
-Worker cannot book overlapping shifts.
+3. **Reqnroll Setup**
 
-Worker from Company A cannot access Company B.
+   * Provide example `reqnroll.json`.
+   * Folder structure: `Features/`, `Steps/`, `Hooks/`.
+   * `[BeforeScenario]` resets database/state.
 
-Shift at full capacity rejects new bookings.
+### Coding Guidelines
 
-2. Step Definitions
+* Use modern C# syntax.
+* Add comments explaining:
 
-Use Reqnroll attributes: [Binding], [Given], [When], [Then].
+  * tenant isolation
+  * shift capacity
+  * availability checks
+* Keep structure clean and modular.
 
-Use in-memory test server: WebApplicationFactory<Program>.
+---
 
-Steps focus on behavior.
-
-3. Reqnroll Setup
-
-Provide example reqnroll.json.
-
-Folder structure: Features/, Steps/, Hooks/.
-
-[BeforeScenario] resets DB/state.
-
-Coding Guidelines
-
-Use modern C# syntax.
-
-Add comments explaining: tenant isolation, shift capacity, availability checks.
-
-Keep structure clean and modular.
-
-Expected Output
+# Expected Output from Copilot
 
 Copilot should generate:
 
-Backend models
+* Backend models
+* DbContext
+* API structures (if needed)
+* Feature files
+* Step definitions
+* Reqnroll config
+* All code short, clean, and following .NET 8 style.
 
-DbContext
+---
 
-API structures (if needed)
+# Additional Rules
 
-Feature files
+### 1. Terminology Rule
 
-Step definitions
+When I write **"leader"**, I always mean **Shift Leader**. Copilot must always interpret "leader" as **Shift Leader**.
 
-Reqnroll config
+### 2. ScenarioContext Key Rule
 
-All in clean, short, and well-structured .NET 8 code.
+In BDD tests, **every ScenarioContext key must be stored in a `const string` variable**.
+
+Example:
+
+```csharp
+private const string WorkerKey = "WorkerKey";
+ScenarioContext[WorkerKey] = worker;
+```
+
+### 3. Soft Delete Rule
+
+All models use **`IsActive`** property for soft delete. **Never physically delete records**.
+
+- All entities have `IsActive` boolean property (default: `true`)
+- "Delete" operations set `IsActive = false` using `UpdateAsync`
+- All queries filter by `IsActive = true` to exclude deleted records
+- RemoveAsync/Delete methods are **not used**
+
+Example:
+
+```csharp
+// Soft delete - mark as inactive
+await _repository.UpdateAsync(
+    x => x.ID == id && x.IsActive,
+    entity => entity.IsActive = false);
+
+// Query only active records
+var activeWorkers = await _repository.GetAllAsync(x => x.IsActive);
+```
+
+### 4. Validation Rule
+
+Use **FluentValidation** for all request validation.
+
+- Create validators inheriting from `AbstractValidator<T>`
+- Business rules in dedicated validation services inheriting from `ServiceValidatorBase`
+- Validation errors throw `ShiftAssignmentException`
+- Middleware catches exceptions and returns structured error responses
+
+Example:
+
+```csharp
+public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
+{
+    public RegisterRequestValidator()
+    {
+        RuleFor(x => x.ID).NotEmpty().MinimumLength(3);
+        RuleFor(x => x.FirstName).NotEmpty().MaximumLength(50);
+    }
+}
+```
+
+### 5. Repository Pattern
+
+Using **in-memory HashSet repositories**. No EF Core DbContext currently.
+
+- `IRepositoryBase<TModel>` interface with CRUD operations
+- `RepositoryBase<TModel>` implementation using `HashSet<TModel>`
+- Singleton lifetime for repositories (in-memory persistence)
+- All repositories registered in `Program.cs`
+
+Example:
+
+```csharp
+public interface IWorkerRepository : IRepositoryBase<Worker> { }
+public class WorkerRepository : RepositoryBase<Worker>, IWorkerRepository { }
+```
+
+### 6. Authentication & Authorization
+
+- JWT tokens for authentication
+- `JwtService` generates tokens with user ID, role, and tenant
+- No role-based authorization implemented yet
+
+### 7. Error Handling
+
+- `ErrorHandlingMiddleware` catches all unhandled exceptions
+- `ShiftAssignmentException` for validation errors (HTTP 400)
+- Generic exceptions return HTTP 500 with error ID
+- Development mode includes stack traces
+
+---
+
+# Current Architecture Summary
+
+## Models
+- **PersonBase** (abstract): Base for Worker, ShiftLeader, BossTenant
+- **Worker**: Regular worker assigned to shift leaders
+- **ShiftLeader**: Manages workers, belongs to tenant
+- **BossTenant**: Company admin, creates shift leaders
+- **Tenant**: Company/organization
+- **StuffBooking**: Worker-to-ShiftLeader assignment for periods
+
+## Services
+- **WorkerService**: Worker management and retirement
+- **ShiftLeaderService**: Shift leader operations
+- **TenantService**: Tenant management
+- **StuffBookingService**: Worker assignments and reassignments
+- **RegistrationValidationService**: Registration request validation
+
+## Controllers
+- **AuthController**: Registration endpoints (worker, shift leader, tenant)
+- **WorkersController**: Worker queries and retirement
+- **ShiftLeadersController**: Shift leader operations
+- **TenantsController**: Tenant operations
+- **StuffBookingsController**: Assignment and reassignment endpoints
+
+## Key Features
+- ✅ Multi-tenant isolation
+- ✅ Soft delete pattern
+- ✅ Worker reassignment between shift leaders
+- ✅ Worker retirement
+- ✅ FluentValidation integration
+- ✅ Comprehensive BDD test coverage
+- ✅ JWT authentication
+- ✅ Error handling middleware

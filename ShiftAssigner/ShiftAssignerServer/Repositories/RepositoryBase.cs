@@ -36,8 +36,8 @@ public interface IRepositoryBase<TModel> where TModel : IAutoMapperEntities
 
 public abstract class RepositoryBase<TModel> : IRepositoryBase<TModel> where TModel : IAutoMapperEntities 
 {
-
-    protected HashSet<TModel> Models;
+    protected readonly HashSet<TModel> Models;
+    private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
 
     public RepositoryBase()
     {
@@ -46,53 +46,53 @@ public abstract class RepositoryBase<TModel> : IRepositoryBase<TModel> where TMo
 
     public async Task<TModel> FirstOrDefualtAsync(Predicate<TModel> selector)
     {
-        var result = default(TModel);
-
-        var model = CoreGet(selector);
-        if (model is null)
-        {
-            return result;
-        }
-
-        return model;
+        return await Task.FromResult(CoreGet(selector));
     }
 
     public TModel FirstOrDefault(Predicate<TModel> selector)
     {
-        var result = default(TModel);
-
-        var model = CoreGet(selector);
-        if (model is null)
-        {
-            return result;
-        }
-
-        return model;
+        return CoreGet(selector);
     }
 
 
     protected virtual TModel CoreGet(Predicate<TModel> selector)
     {
-        var result = default(TModel);
-        foreach (var model in Models)
+        _semaphore.Wait();
+        try
         {
-            if (selector(model))
+            var result = default(TModel);
+            foreach (var model in Models)
             {
-                result = model;
+                if (selector(model))
+                {
+                    result = model;
+                    break;
+                }
             }
+            return result;
         }
-
-        return result;
+        finally
+        {
+            _semaphore.Release();
+        }
     }
 
     public virtual async Task<TModel> InsertAsync(TModel model)
     {
-        return Insert(model);
+        return await Task.FromResult(Insert(model));
     }
 
     public async Task<IEnumerable<TModel>> GetAllAsync()
     {
-        return Models.ToArray();
+        await _semaphore.WaitAsync();
+        try
+        {
+            return Models.ToArray();
+        }
+        finally
+        {
+            _semaphore.Release();
+        }
     }
     /// <summary>
     /// Auto Id Generator
@@ -101,55 +101,115 @@ public abstract class RepositoryBase<TModel> : IRepositoryBase<TModel> where TMo
     /// <returns></returns>
     public virtual TModel Insert(TModel instance)
     {
-
-        if (Models.Add(instance) == false)
+        _semaphore.Wait();
+        try
         {
-            var error = new ShiftAssignmentError("ID", "A record with this ID already exists.");
-            throw new ShiftAssignmentException(error);
+            if (Models.Add(instance) == false)
+            {
+                var error = new ShiftAssignmentError("ID", "A record with this ID already exists.");
+                throw new ShiftAssignmentException(error);
+            }
+            return instance;
         }
-
-        return instance;
+        finally
+        {
+            _semaphore.Release();
+        }
     }
 
     public virtual IEnumerable<TModel> GetAll()
     {
-        return Models.ToArray();
+        _semaphore.Wait();
+        try
+        {
+            return Models.ToArray();
+        }
+        finally
+        {
+            _semaphore.Release();
+        }
     }
 
     public async Task<IEnumerable<TModel>> GetAllAsync(Func<TModel, bool> selector)
     {
-        return Models.Where(x => selector(x)).ToArray();
+        await _semaphore.WaitAsync();
+        try
+        {
+            return Models.Where(x => selector(x)).ToArray();
+        }
+        finally
+        {
+            _semaphore.Release();
+        }
     }
 
     public IEnumerable<TModel> GetAll(Func<TModel, bool> selector)
     {
-        return Models.Where(x => selector(x)).ToArray();
+        _semaphore.Wait();
+        try
+        {
+            return Models.Where(x => selector(x)).ToArray();
+        }
+        finally
+        {
+            _semaphore.Release();
+        }
     }
 
     public async Task<bool> UpdateAsync(Predicate<TModel> selector, Action<TModel> updateCallback)
     {
-        var model = CoreGet(selector);
-
-        if (model is not null)
+        await _semaphore.WaitAsync();
+        try
         {
-            updateCallback(model);
-            return true;
+            var result = default(TModel);
+            foreach (var model in Models)
+            {
+                if (selector(model))
+                {
+                    result = model;
+                    break;
+                }
+            }
+            
+            if (result is not null)
+            {
+                updateCallback(result);
+                return true;
+            }
+            return false;
         }
-
-        return false;
+        finally
+        {
+            _semaphore.Release();
+        }
     }
 
     public bool Update(Predicate<TModel> selector, Action<TModel> updateCallback)
     {
-        var model = CoreGet(selector);
-
-        if (model is not null)
+        _semaphore.Wait();
+        try
         {
-            updateCallback(model);
-            return true;
+            var result = default(TModel);
+            foreach (var model in Models)
+            {
+                if (selector(model))
+                {
+                    result = model;
+                    break;
+                }
+            }
+            
+            if (result is not null)
+            {
+                updateCallback(result);
+                return true;
+            }
+            return false;
         }
-
-        return false;
+        finally
+        {
+            _semaphore.Release();
+        }
     }
 }
 

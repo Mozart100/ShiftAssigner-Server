@@ -11,7 +11,7 @@
 #region Designer generated code
 #pragma warning disable
 using Reqnroll;
-namespace ShiftAssignerServer.Tests.Features
+namespace ShiftAssignerServer.Tests.Features.SingleTenant
 {
     
     
@@ -24,7 +24,7 @@ namespace ShiftAssignerServer.Tests.Features
         
         private static string[] featureTags = ((string[])(null));
         
-        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Features", "Register Tenant Boss and verify tenant exists", "  In order to ensure tenant creation\r\n  As a client of the API\r\n  I want to regis" +
+        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Features/SingleTenant", "Register Tenant Boss and verify tenant exists", "  In order to ensure tenant creation\r\n  As a client of the API\r\n  I want to regis" +
                 "ter a tenant boss and then GET the tenants list to verify the company exists", global::Reqnroll.ProgrammingLanguage.CSharp, featureTags, InitializeCucumberMessages());
         
         private global::Xunit.Abstractions.ITestOutputHelper _testOutputHelper;
@@ -106,7 +106,7 @@ namespace ShiftAssignerServer.Tests.Features
         
         private static global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages InitializeCucumberMessages()
         {
-            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Features/RegisterBossTenantVerify.feature.ndjson", 3);
+            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Features/SingleTenant/RegisterBossTenantVerify.feature.ndjson", 3);
         }
         
         async global::System.Threading.Tasks.Task global::Xunit.IAsyncLifetime.InitializeAsync()

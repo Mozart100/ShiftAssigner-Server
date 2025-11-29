@@ -11,7 +11,7 @@
 #region Designer generated code
 #pragma warning disable
 using Reqnroll;
-namespace ShiftAssignerServer.Tests.Features
+namespace ShiftAssignerServer.Tests.Features.SingleTenant
 {
     
     
@@ -24,7 +24,7 @@ namespace ShiftAssignerServer.Tests.Features
         
         private static string[] featureTags = ((string[])(null));
         
-        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Features", "Reassign worker between shift leaders", "  In order to allow flexible worker management\r\n  As a tenant with multiple shift" +
+        private static global::Reqnroll.FeatureInfo featureInfo = new global::Reqnroll.FeatureInfo(new global::System.Globalization.CultureInfo("en-US"), "Features/SingleTenant", "Reassign worker between shift leaders", "  In order to allow flexible worker management\r\n  As a tenant with multiple shift" +
                 " leaders\r\n  I want to reassign a worker from one shift leader to another", global::Reqnroll.ProgrammingLanguage.CSharp, featureTags, InitializeCucumberMessages());
         
         private global::Xunit.Abstractions.ITestOutputHelper _testOutputHelper;
@@ -106,7 +106,7 @@ namespace ShiftAssignerServer.Tests.Features
         
         private static global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages InitializeCucumberMessages()
         {
-            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Features/ReassignWorkerBetweenLeaders.feature.ndjson", 3);
+            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Features/SingleTenant/ReassignWorkerBetweenLeaders.feature.ndjson", 3);
         }
         
         async global::System.Threading.Tasks.Task global::Xunit.IAsyncLifetime.InitializeAsync()

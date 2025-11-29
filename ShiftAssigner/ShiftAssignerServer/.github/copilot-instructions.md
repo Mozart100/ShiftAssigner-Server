@@ -196,13 +196,31 @@ public void GivenIHaveTenantRegistrationsFor(string tenantA, string tenantB) // 
 public async Task WhenIRegisterAWorkerWithValidData(Table table) // → WorkerRegistrationValidationSteps.cs
 ```
 
-### 7. Authentication & Authorization
+### 7. Test Execution Verification Rule
+
+**CRITICAL:** When creating or refactoring tests, **ALWAYS run and verify they are executable**:
+
+- **After creating new features** → Run `dotnet build` and `dotnet test` 
+- **After modifying step definitions** → Verify no ambiguous bindings exist
+- **After refactoring** → Ensure all tests still pass
+- **Before completing task** → Confirm test suite is fully runnable
+
+**Test verification checklist:**
+1. ✅ Build compiles without errors
+2. ✅ No ambiguous step definitions 
+3. ✅ All tests discovered correctly (`dotnet test --list-tests`)
+4. ✅ Test suite runs without binding errors
+5. ✅ Existing functionality remains unbroken
+
+**Never leave tests in a non-runnable state.** If conflicts arise, resolve them immediately.
+
+### 8. Authentication & Authorization
 
 - JWT tokens for authentication
 - `JwtService` generates tokens with user ID, role, and tenant
 - No role-based authorization implemented yet
 
-### 8. Error Handling
+### 9. Error Handling
 
 - `ErrorHandlingMiddleware` catches all unhandled exceptions
 - `ShiftAssignmentException` for validation errors (HTTP 400)

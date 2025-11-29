@@ -170,13 +170,39 @@ public interface IWorkerRepository : IRepositoryBase<Worker> { }
 public class WorkerRepository : RepositoryBase<Worker>, IWorkerRepository { }
 ```
 
-### 6. Authentication & Authorization
+### 6. BDD Step Organization Rule
+
+When creating or modifying BDD features, **common step methods must be automatically organized into shared directories**:
+
+- **Given steps used by multiple features** → `Steps/Given/GivenCommonSteps.cs`
+- **When steps used by multiple features** → `Steps/When/WhenCommonSteps.cs`  
+- **Then steps used by multiple features** → `Steps/Then/ThenCommonSteps.cs`
+
+**Feature-specific steps** stay in their dedicated step files (e.g., `WorkerRegistrationValidationSteps.cs`).
+
+**Constants organization:**
+- **Multi-tenant constants** → `TwoTenantsStep` base class
+- **Single-tenant constants** → `SingleTenantStep` base class
+- No duplicate constants across step files
+
+Example structure:
+```csharp
+// Common step used by multiple features
+[Given("I have tenant registrations for {string} and {string}")]
+public void GivenIHaveTenantRegistrationsFor(string tenantA, string tenantB) // → GivenCommonSteps.cs
+
+// Feature-specific step
+[When("I register a worker with valid data")]  
+public async Task WhenIRegisterAWorkerWithValidData(Table table) // → WorkerRegistrationValidationSteps.cs
+```
+
+### 7. Authentication & Authorization
 
 - JWT tokens for authentication
 - `JwtService` generates tokens with user ID, role, and tenant
 - No role-based authorization implemented yet
 
-### 7. Error Handling
+### 8. Error Handling
 
 - `ErrorHandlingMiddleware` catches all unhandled exceptions
 - `ShiftAssignmentException` for validation errors (HTTP 400)

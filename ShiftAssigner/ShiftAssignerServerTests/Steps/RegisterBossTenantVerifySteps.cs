@@ -59,7 +59,15 @@ public class RegisterBossTenantVerifySteps : SingleTenantStep
     [Then("the response should contain a JWT token")]
     public void ThenTheResponseShouldContainJwtToken()
     {
+        // Try to get as RegisterResponse first (for single tenant tests)
         var response = _scenarioContext[Tenant_Registration_Response_Context] as RegisterResponse;
+        
+        // If not found, try as TenantRegisterResponse (for multi-tenant tests)
+        if (response == null)
+        {
+            response = _scenarioContext[Tenant_Registration_Response_Context] as TenantRegisterResponse;
+        }
+        
         Assert.NotNull(response);
         Assert.True(!string.IsNullOrWhiteSpace(response!.Token));
     }

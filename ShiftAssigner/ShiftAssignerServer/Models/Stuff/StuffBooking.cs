@@ -30,6 +30,9 @@ public partial class StuffBooking : IAutoMapperEntities
     // Optional notes
     public string Notes { get; set; } = string.Empty;
 
+    // Scheduled reassignment date - when null, no reassignment is scheduled
+    public DateOnly? ReassignmentScheduledDate { get; set; }
+
     /// <summary>
     /// Soft delete flag. When false, the entity is considered logically deleted.
     /// </summary>

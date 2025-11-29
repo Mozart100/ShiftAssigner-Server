@@ -38,34 +38,57 @@ public class StuffBookingService : IStuffBookingService
 
     public async Task<bool> ReassignAsync(string tenant, string workerId, string newShiftLeaderId, DateOnly periodStart, DateOnly? periodEnd = null, string? notes = null)
     {
-        // Soft delete any existing bookings for this worker in the same tenant that overlap the specified period
-        // Set EndPeriod to the day before the new assignment starts
-        await _stuffBookingRepository.UpdateAsync(x =>
-            x.IsActive
-            && x.Tenant.Equals(tenant, StringComparison.InvariantCultureIgnoreCase)
-            && x.WorkerId.Equals(workerId, StringComparison.InvariantCultureIgnoreCase)
-            && (
-                (periodEnd is null && x.PeriodStart.Equals(periodStart)) ||
-                (periodEnd is not null && ((x.PeriodEnd ?? x.PeriodStart) >= periodStart && x.PeriodStart <= periodEnd.Value))
-            ),
-            booking =>
-            {
-                booking.IsActive = false;
-                booking.PeriodEnd = DateOnly.FromDateTime(DateTime.UtcNow);
-            });
-
-        var newBooking = new StuffBooking
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        
+        if (periodStart <= today)
         {
-            WorkerId = workerId,
-            ShiftLeaderId = newShiftLeaderId,
-            Tenant = tenant,
-            PeriodStart = periodStart,
-            PeriodEnd = periodEnd,
-            Notes = notes ?? string.Empty,
-            IsActive = true
-        };
+            // Immediate reassignment - execute now
+            await _stuffBookingRepository.UpdateAsync(x =>
+                x.IsActive
+                && x.Tenant.Equals(tenant, StringComparison.InvariantCultureIgnoreCase)
+                && x.WorkerId.Equals(workerId, StringComparison.InvariantCultureIgnoreCase)
+                && (
+                    (periodEnd is null && x.PeriodStart.Equals(periodStart)) ||
+                    (periodEnd is not null && ((x.PeriodEnd ?? x.PeriodStart) >= periodStart && x.PeriodStart <= periodEnd.Value))
+                ),
+                booking =>
+                {
+                    booking.IsActive = false;
+                    booking.PeriodEnd = today;
+                    booking.ReassignmentScheduledDate = today; // Clear scheduled reassignment since it's now executed
+                });
 
-        await _stuffBookingRepository.InsertAsync(newBooking);
+            var newBooking = new StuffBooking
+            {
+                WorkerId = workerId,
+                ShiftLeaderId = newShiftLeaderId,
+                Tenant = tenant,
+                PeriodStart = periodStart,
+                PeriodEnd = periodEnd,
+                Notes = notes ?? string.Empty,
+                ReassignmentScheduledDate = null, // Clear any scheduled reassignment since this is the actual assignment
+                IsActive = true
+            };
+
+            await _stuffBookingRepository.InsertAsync(newBooking);
+        }
+        // else
+        // {
+        //     // Future reassignment - schedule it
+        //     await _stuffBookingRepository.UpdateAsync(x =>
+        //         x.IsActive
+        //         && x.Tenant.Equals(tenant, StringComparison.InvariantCultureIgnoreCase)
+        //         && x.WorkerId.Equals(workerId, StringComparison.InvariantCultureIgnoreCase)
+        //         && x.PeriodStart <= today
+        //         && (x.PeriodEnd == null || x.PeriodEnd >= today),
+        //         booking =>
+        //         {
+        //             booking.ReassignmentScheduledDate = periodStart;
+        //             // Optionally store reassignment details in Notes for now
+        //             booking.Notes = $"{booking.Notes}; Scheduled reassignment to {newShiftLeaderId} on {periodStart:yyyy-MM-dd}. {notes}".Trim();
+        //         });
+        // }
+        
         return true;
     }
 
@@ -79,7 +102,9 @@ public class StuffBookingService : IStuffBookingService
                 (periodEnd is null && x.PeriodStart.Equals(periodStart)) ||
                 (periodEnd is not null &&
                  ((x.PeriodEnd ?? x.PeriodStart) >= periodStart && x.PeriodStart <= periodEnd.Value))
-            ));
+            )
+            // Exclude workers with scheduled reassignments before or on the query period
+            && (x.ReassignmentScheduledDate == null || x.ReassignmentScheduledDate > periodStart));
 
         if (assignments is null) return System.Linq.Enumerable.Empty<PubWorker>();
 

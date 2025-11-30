@@ -1,32 +1,51 @@
 using System.Text;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
+using Serilog.Events;
+using ShiftAssignerServer.Data;
 using ShiftAssignerServer.Repositories;
 using ShiftAssignerServer.Services;
 using ShiftAssignerServer.Services.Validation;
 using ShiftAssignerServer.Startup;
-using Serilog;
-using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// JWT configuration
+// ---------------- JWT configuration ----------------
 var jwtSection = builder.Configuration.GetSection("Jwt");
 var jwtKey = jwtSection.GetValue<string>("Key") ?? throw new InvalidOperationException("Jwt:Key not configured");
 var jwtIssuer = jwtSection.GetValue<string>("Issuer") ?? "ShiftAssignerServer";
 var jwtAudience = jwtSection.GetValue<string>("Audience") ?? "ShiftAssignerClients";
 
-// Add services to the container.
+// ---------------- Services: MVC, Swagger ----------------
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// AutoMapper registration
+// ---------------- Multi-tenancy: HttpContext + TenantProvider ----------------
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ITenantProvider, TenantProvider>();
+
+// ---------------- Database configuration ----------------
+// If you have TenantModelCacheKeyFactory, this supports schema-per-tenant models.
+// Otherwise you can remove the ReplaceService line.
+builder.Services.AddDbContext<ApplicationDbContext>((sp, options) =>
+{
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+
+    // Optional but recommended for schema-per-tenant:
+    // options.ReplaceService<IModelCacheKeyFactory, TenantModelCacheKeyFactory>();
+});
+
+// ---------------- AutoMapper ----------------
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
-// Authentication
+// ---------------- Authentication (JWT) ----------------
 var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -48,47 +67,47 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Application services
+// ---------------- Application services ----------------
 builder.Services.AddSingleton(new JwtService(jwtKey, jwtIssuer, jwtAudience));
-builder.Services.AddSingleton<ITenantRepository,TenantRepository>();
-builder.Services.AddSingleton<IShiftLeaderRepository,ShiftLeaderRepository>();
-builder.Services.AddSingleton<IWorkerRepository,WorkerRepository>();
-builder.Services.AddSingleton<IStuffBookingRepository,StuffBookingRepository>();
 
+// Repositories should NOT be singletons when they depend on DbContext.
+// Use Scoped so they share the request scope with ApplicationDbContext.
+builder.Services.AddScoped<ITenantRepository, TenantRepository>();
+builder.Services.AddScoped<IShiftLeaderRepository, ShiftLeaderRepository>();
+builder.Services.AddScoped<IWorkerRepository, WorkerRepository>();
+builder.Services.AddScoped<IStuffBookingRepository, StuffBookingRepository>();
 
-builder.Services.AddTransient<ITenantService,TenantService>();
-builder.Services.AddTransient<IShiftLeaderService,ShiftLeaderService>();
-builder.Services.AddTransient<IWorkerService,WorkerService>();
-builder.Services.AddTransient<IStuffBookingService,StuffBookingService>();
+builder.Services.AddTransient<ITenantService, TenantService>();
+builder.Services.AddTransient<IShiftLeaderService, ShiftLeaderService>();
+builder.Services.AddTransient<IWorkerService, WorkerService>();
+builder.Services.AddTransient<IStuffBookingService, StuffBookingService>();
 
-// Register FluentValidation validators
+// ---------------- FluentValidation ----------------
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
-// Register validation services
+// Validation services
 builder.Services.AddTransient<IRegistrationValidationService, RegistrationValidationService>();
 
-
-// Configure Serilog for container-friendly logging (console) and optional file sink with retention.
+// ---------------- Serilog ----------------
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Debug()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
     .Enrich.FromLogContext()
-    // Primary sink for containers: console (stdout)
-    .WriteTo.Console()
+    .WriteTo.Console() // good for containers
     .CreateLogger();
 
 builder.Host.UseSerilog();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// ---------------- HTTP pipeline ----------------
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// Global error handling - catch unhandled exceptions and return stable JSON payloads
+// Global error handling middleware (your custom extension)
 app.UseGlobalErrorHandling();
 
 if (!app.Environment.IsDevelopment())

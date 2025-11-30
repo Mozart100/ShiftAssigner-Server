@@ -52,7 +52,7 @@ public class ApplicationDbContext : DbContext
         // Use the tenant-specific schema for tenant-bound entities
         var schema = TenantSchema;
 
-        // Configure Worker entity
+        // Configure Worker entity (base type for TPT inheritance)
         modelBuilder.Entity<Worker>(entity =>
         {
             entity.ToTable("workers", schema);
@@ -66,18 +66,10 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.Role).IsRequired();
         });
 
-        // Configure ShiftLeader entity
+        // Configure ShiftLeader entity (separate table for TPT inheritance)
         modelBuilder.Entity<ShiftLeader>(entity =>
         {
             entity.ToTable("shift_leaders", schema);
-            entity.HasKey(e => e.ID);
-            entity.Property(e => e.ID).IsRequired().HasMaxLength(50);
-            entity.Property(e => e.FirstName).IsRequired().HasMaxLength(100);
-            entity.Property(e => e.LastName).IsRequired().HasMaxLength(100);
-            entity.Property(e => e.PhoneNumber).IsRequired().HasMaxLength(20);
-            entity.Property(e => e.PasswordHash).IsRequired();
-            entity.Property(e => e.IsActive).IsRequired();
-            entity.Property(e => e.Role).IsRequired();
             entity.Property(e => e.Tenant).IsRequired().HasMaxLength(100);
         });
 
@@ -100,13 +92,13 @@ public class ApplicationDbContext : DbContext
             entity.HasIndex(e => new { e.WorkerId, e.IsActive });
             entity.HasIndex(e => new { e.ShiftLeaderId, e.IsActive });
             entity.HasIndex(e => e.ReassignmentScheduledDate)
-                  .HasFilter("reassignment_scheduled_date IS NOT NULL");
+                  .HasFilter("\"ReassignmentScheduledDate\" IS NOT NULL");
         });
 
         // Configure Tenant entity - always in public schema (master data)
         modelBuilder.Entity<Tenant>(entity =>
         {
-            entity.ToTable("tenants", "public");
+            entity.ToTable("tenants", schema);
             entity.HasKey(e => e.CompanyName);
             entity.Property(e => e.CompanyName).IsRequired().HasMaxLength(100);
             entity.Property(e => e.IsActive).IsRequired();

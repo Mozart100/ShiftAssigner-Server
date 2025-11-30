@@ -1,4 +1,5 @@
 using System;
+using ShiftAssignerServer.Common;
 using ShiftAssignerServer.Repositories;
 
 namespace ShiftAssignerServer.Models;

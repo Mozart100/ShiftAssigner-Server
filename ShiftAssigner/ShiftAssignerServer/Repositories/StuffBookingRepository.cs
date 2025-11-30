@@ -1,14 +1,11 @@
+using ShiftAssignerServer.Data;
 using ShiftAssignerServer.Models.Stuff;
 
 namespace ShiftAssignerServer.Repositories;
 
-public interface IStuffBookingRepository : IRepositoryBase<StuffBooking>
-{
-}
+public interface IStuffBookingRepository : IRepositoryBase<StuffBooking> { }
 
-public class StuffBookingRepository : RepositoryBase<StuffBooking>, IStuffBookingRepository
+public class StuffBookingRepository : BaseRepository<StuffBooking>, IStuffBookingRepository
 {
-    public StuffBookingRepository()
-    {
-    }
+    public StuffBookingRepository(ApplicationDbContext context) : base(context) { }
 }

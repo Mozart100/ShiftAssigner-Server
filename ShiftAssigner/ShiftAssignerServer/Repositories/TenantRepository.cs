@@ -1,16 +1,11 @@
-using System;
+using ShiftAssignerServer.Data;
 using ShiftAssignerServer.Models;
 
 namespace ShiftAssignerServer.Repositories;
 
-public interface ITenantRepository : IRepositoryBase<Tenant>
-{
-    
-}
+public interface ITenantRepository : IRepositoryBase<Tenant> { }
 
-public class TenantRepository : RepositoryBase<Tenant> , ITenantRepository
+public class TenantRepository : BaseRepository<Tenant>, ITenantRepository
 {
-    public TenantRepository()
-    {
-    }
+    public TenantRepository(ApplicationDbContext context) : base(context) { }
 }

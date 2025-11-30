@@ -48,8 +48,8 @@ public class StuffBookingService : IStuffBookingService
                 && x.Tenant.Equals(tenant, StringComparison.InvariantCultureIgnoreCase)
                 && x.WorkerId.Equals(workerId, StringComparison.InvariantCultureIgnoreCase)
                 && (
-                    (periodEnd is null && x.PeriodStart.Equals(periodStart)) ||
-                    (periodEnd is not null && ((x.PeriodEnd ?? x.PeriodStart) >= periodStart && x.PeriodStart <= periodEnd.Value))
+                    (periodEnd == null && x.PeriodStart.Equals(periodStart)) ||
+                    (periodEnd != null && ((x.PeriodEnd ?? x.PeriodStart) >= periodStart && x.PeriodStart <= periodEnd.Value))
                 ),
                 booking =>
                 {
@@ -99,8 +99,8 @@ public class StuffBookingService : IStuffBookingService
             && x.Tenant.Equals(tenant, StringComparison.InvariantCultureIgnoreCase)
             && x.ShiftLeaderId.Equals(shiftLeaderId, StringComparison.InvariantCultureIgnoreCase)
             && (
-                (periodEnd is null && x.PeriodStart.Equals(periodStart)) ||
-                (periodEnd is not null &&
+                (periodEnd == null && x.PeriodStart.Equals(periodStart)) ||
+                (periodEnd != null &&
                  ((x.PeriodEnd ?? x.PeriodStart) >= periodStart && x.PeriodStart <= periodEnd.Value))
             )
             // Exclude workers with scheduled reassignments before or on the query period

@@ -1,16 +1,11 @@
+using ShiftAssignerServer.Data;
 using ShiftAssignerServer.Models.Stuff;
 
 namespace ShiftAssignerServer.Repositories;
 
-public interface IShiftLeaderRepository : IRepositoryBase<ShiftLeader>
-{
-    
-}
+public interface IShiftLeaderRepository : IRepositoryBase<ShiftLeader> { }
 
-
-public class ShiftLeaderRepository : RepositoryBase<ShiftLeader> , IShiftLeaderRepository
+public class ShiftLeaderRepository : BaseRepository<ShiftLeader>, IShiftLeaderRepository
 {
-    public ShiftLeaderRepository()
-    {
-    }
+    public ShiftLeaderRepository(ApplicationDbContext context) : base(context) { }
 }

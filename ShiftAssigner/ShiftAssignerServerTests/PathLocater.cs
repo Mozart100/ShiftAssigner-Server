@@ -5,15 +5,25 @@ namespace ShiftAssignerServer.Tests.Infrastructure;
 
 public class PathLocator
 {
-    public static string Combine(string domain,params string[] segments)
+    public static string Combine(string domain, params string[] segments)
     {
-        var path = domain;
+        var url = domain.TrimEnd('/');
+        
         if (segments is not null && segments.Length > 0)
         {
-            var parts = new[] { path }.Concat(segments).ToArray();
-            path = Path.Combine(parts);
+            foreach (var segment in segments)
+            {
+                if (!string.IsNullOrEmpty(segment))
+                {
+                    var cleanSegment = segment.Trim('/');
+                    if (!string.IsNullOrEmpty(cleanSegment))
+                    {
+                        url = $"{url}/{cleanSegment}";
+                    }
+                }
+            }
         }
 
-        return path;
+        return url;
     }
 }

@@ -1,6 +1,11 @@
 using Microsoft.AspNetCore.Http;
 using System;
+using System.IO;
 using System.Linq;
+using System.Text.Json;
+using System.Threading.Tasks;
+using ShiftAssignerServer.Controllers;
+using ShiftAssignerServer.Requests;
 
 namespace ShiftAssignerServer.Data
 {
@@ -41,6 +46,19 @@ namespace ShiftAssignerServer.Data
                     return Default_Schema;
                 }
 
+                // Check if request is from AuthController - these endpoints don't require X-TenantId header
+                var requestPath = httpContext.Request.Path.ToString();
+                if (requestPath.StartsWith($"/api/v1/Auth/{AuthController.Register_Tenant}", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Get the tenant from the request body for tenant registration endpoint
+                    var tenantRequest = GetTenantFromRequestBodyAsync(httpContext).GetAwaiter().GetResult();
+                    if (tenantRequest != null && !string.IsNullOrEmpty(tenantRequest.Tenant))
+                    {
+                        return SanitizeSchemaName(tenantRequest.Tenant);
+                    }
+                    return Default_Schema;
+                }
+
                 if (!httpContext.Request.Headers.TryGetValue(TenantIdHeaderName, out var values))
                 {
                     throw new UnauthorizedAccessException($"Required header '{TenantIdHeaderName}' is missing.");
@@ -78,6 +96,43 @@ namespace ShiftAssignerServer.Data
             }
 
             return cleaned;
+        }
+
+        private static async Task<TenantRegisterRequest> GetTenantFromRequestBodyAsync(HttpContext httpContext)
+        {
+            try
+            {
+                // Enable buffering to allow reading the request body multiple times
+                httpContext.Request.EnableBuffering();
+                
+                // Reset position to beginning
+                httpContext.Request.Body.Position = 0;
+                
+                using (var reader = new StreamReader(httpContext.Request.Body, leaveOpen: true))
+                {
+                    var requestBody = await reader.ReadToEndAsync();
+                    
+                    // Reset position for the controller to read it again
+                    httpContext.Request.Body.Position = 0;
+                    
+                    if (!string.IsNullOrEmpty(requestBody))
+                    {
+                        var options = new JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true
+                        };
+                        
+                        return JsonSerializer.Deserialize<TenantRegisterRequest>(requestBody, options);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // If we can't parse the request body, return null and use default schema
+                return null;
+            }
+            
+            return null;
         }
     }
 }

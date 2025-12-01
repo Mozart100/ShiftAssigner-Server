@@ -5,7 +5,8 @@ namespace ShiftAssignerServer.Tests.Common;
 
 public class FeatureStepBase
 {
-    public const string HttpBaseurl = $"http://localhost:8080/";
+//https://localhost:7083/api/v1/Auth/register-boss-tenant'
+    public const string HttpBaseurl = $"http://localhost:7083/";
     protected readonly ScenarioContext _scenarioContext;
     protected readonly ClientSender _serverSender;
 

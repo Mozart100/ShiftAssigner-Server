@@ -121,7 +121,7 @@ namespace ShiftAssignerServer.Controllers
 
             var role = tenant.Role.ToString(); // "ShiftLeader"
             var token = _jwt.GenerateToken(tenant.ID, role, tenant.Tenant);
-            return Ok(new TenantRegisterResponse { Token = token });
+            return Ok(new TenantRegisterResponse { Token = token  , Tenant  = tenant.Tenant});
         }
 
         // ---------------------------------------------------------------------------------------------------------------

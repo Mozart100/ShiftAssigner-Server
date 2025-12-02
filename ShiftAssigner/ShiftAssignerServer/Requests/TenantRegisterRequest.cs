@@ -22,7 +22,8 @@ public class TenantRegisterRequest : IRegistrationMapper
 }
 
 
-public class TenantRegisterResponse:RegisterResponse 
+public class TenantRegisterResponse:RegisterResponse
 {
+    public string Tenant   { get; set; }
 }
 

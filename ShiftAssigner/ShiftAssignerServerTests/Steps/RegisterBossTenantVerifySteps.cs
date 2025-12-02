@@ -33,22 +33,24 @@ public class RegisterBossTenantVerifySteps : SingleTenantStep
     public async Task WhenTenantRegistration(string tenantId)
     {
         var payload = CreateDefaultTenantRegistration(tenantId);
-        _scenarioContext[Tenant_Registration_Data_Context] = payload;
+        var tenantInfo = new TenantSenderInfo{
+            Request = payload
+        };
+
+        _scenarioContext[Tenant_Registration_Data_Context] = tenantInfo;
 
         var response = await _serverSender.PostCommandAsync<TenantRegisterRequest,TenantRegisterResponse>("/api/v1/Auth/register-boss-tenant", payload);
+        tenantInfo.Response = response;
 
-        _scenarioContext[Tenant_Registration_Response_Context] = response;
-
-        if (response?.Token != null)
-        {
-            _scenarioContext["JwtToken"] = response.Token;
-        }
+        _scenarioContext[Tenant_Registration_Response_Context] = tenantInfo;
     }
 
     public class TenantSenderInfo
     {
         public TenantRegisterRequest Request { get; set; }
         public TenantRegisterResponse Response { get; set; }
+
+        public string JwtToken => Response.Token;
     }
 
     [Then(@"the response should contain a JWT token")]

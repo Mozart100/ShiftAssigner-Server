@@ -137,14 +137,14 @@ public sealed class TenantProvider : ITenantProvider
 }
 
 
-// public sealed class StaticTenantProvider : ITenantProvider
-// {
-//     public StaticTenantProvider(string schema)
-//     {
-//         TenantSchema = schema;
-//     }
+public sealed class StaticTenantProvider : ITenantProvider
+{
+    public StaticTenantProvider(string schema)
+    {
+        TenantSchema = schema;
+    }
 
-//     public string TenantSchema { get; }
+    public string TenantSchema { get; }
 
-//     public string TenantId => TenantSchema;
-// }
+    public string TenantId => TenantSchema;
+}

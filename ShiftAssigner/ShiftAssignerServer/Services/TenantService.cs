@@ -38,8 +38,12 @@ public class TenantService : ITenantService
 
     private async Task CreateTenantSchemaAsync(string companyName)
     {
-        // Use TenantProvider's SanitizeSchemaName method
-        var schemaName = TenantProvider.SanitizeSchemaName(companyName);
+        // Sanitize the company name to create a valid PostgreSQL schema name
+        var schemaName = SanitizeSchemaName(companyName);
+
+        // Create the schema using EF Core
+        var sql = $"CREATE SCHEMA IF NOT EXISTS \"{schemaName}\"";
+        await _context.Database.ExecuteSqlRawAsync(sql);
 
         // Create tenant-specific tables in the new schema
         await CreateTenantTablesAsync(schemaName);
@@ -66,34 +70,90 @@ public class TenantService : ITenantService
             // Force create the database structure for this context
             await tenantCreationContext.Database.EnsureCreatedAsync();
             
-            // If EnsureCreatedAsync doesn't work, we can try to get the create script
-            // and execute it manually
-            var canConnect = await tenantCreationContext.Database.CanConnectAsync();
-            if (canConnect)
-            {
-                // The context is working, so let's try a different approach
-                var script = tenantCreationContext.Database.GenerateCreateScript();
-                if (!string.IsNullOrEmpty(script))
-                {
-                    await tenantCreationContext.Database.ExecuteSqlRawAsync(script);
-                }
-            }
+            // If EnsureCreatedAsync doesn't work, let's manually create the tables
+            await CreateTablesManually(tenantContext, schemaName);
+        }
+        catch (Exception ex)
+        {
+            var message = ex.Message;
+            // Re-throw to see the actual error
+            throw;
         }
     }
 
-    private async Task<bool> CheckIfTablesExist(TenantCreationDbContext context, string schemaName)
+    private async Task CreateTablesManually(PureApplicationDbContext context, string schemaName)
     {
-        try
+        var tableCreationCommands = new[]
         {
-            var tableCount = await context.Database.SqlQueryRaw<int>(
-                $"SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '{schemaName}'"
-            ).FirstOrDefaultAsync();
+            $@"CREATE TABLE IF NOT EXISTS ""{schemaName}"".""workers"" (
+                ""ID"" character varying(50) NOT NULL,
+                ""FirstName"" character varying(100) NOT NULL,
+                ""LastName"" character varying(100) NOT NULL,
+                ""PhoneNumber"" character varying(20) NOT NULL,
+                ""PasswordHash"" text NOT NULL,
+                ""IsActive"" boolean NOT NULL DEFAULT true,
+                ""Role"" integer NOT NULL,
+                ""DateOfBirth"" date NOT NULL,
+                CONSTRAINT ""PK_workers"" PRIMARY KEY (""ID"")
+            )",
             
-            return tableCount > 0;
-        }
-        catch
+            $@"CREATE TABLE IF NOT EXISTS ""{schemaName}"".""shift_leaders"" (
+                ""ID"" character varying(50) NOT NULL,
+                ""Tenant"" character varying(100) NOT NULL,
+                CONSTRAINT ""PK_shift_leaders"" PRIMARY KEY (""ID""),
+                CONSTRAINT ""FK_shift_leaders_workers"" FOREIGN KEY (""ID"") 
+                    REFERENCES ""{schemaName}"".""workers"" (""ID"") ON DELETE CASCADE
+            )",
+            
+            $@"CREATE TABLE IF NOT EXISTS ""{schemaName}"".""stuff_bookings"" (
+                ""ID"" character varying(50) NOT NULL,
+                ""WorkerId"" character varying(50) NOT NULL,
+                ""ShiftLeaderId"" character varying(50) NOT NULL,
+                ""Tenant"" character varying(100) NOT NULL,
+                ""PeriodStart"" date NOT NULL,
+                ""PeriodEnd"" date,
+                ""ReassignmentScheduledDate"" date,
+                ""Notes"" character varying(1000),
+                ""IsActive"" boolean NOT NULL DEFAULT true,
+                CONSTRAINT ""PK_stuff_bookings"" PRIMARY KEY (""ID"")
+            )",
+            
+            $@"CREATE TABLE IF NOT EXISTS ""{schemaName}"".""tenants"" (
+                ""CompanyName"" character varying(100) NOT NULL,
+                ""IsActive"" boolean NOT NULL DEFAULT true,
+                CONSTRAINT ""PK_tenants"" PRIMARY KEY (""CompanyName"")
+            )",
+            
+            // Create indexes
+            $@"CREATE INDEX IF NOT EXISTS ""IX_stuff_bookings_WorkerId_IsActive"" 
+                ON ""{schemaName}"".""stuff_bookings"" (""WorkerId"", ""IsActive"")",
+            $@"CREATE INDEX IF NOT EXISTS ""IX_stuff_bookings_ShiftLeaderId_IsActive"" 
+                ON ""{schemaName}"".""stuff_bookings"" (""ShiftLeaderId"", ""IsActive"")",
+            $@"CREATE INDEX IF NOT EXISTS ""IX_stuff_bookings_ReassignmentScheduledDate"" 
+                ON ""{schemaName}"".""stuff_bookings"" (""ReassignmentScheduledDate"") 
+                WHERE ""ReassignmentScheduledDate"" IS NOT NULL"
+        };
+
+        foreach (var command in tableCreationCommands)
         {
-            return false;
+            await context.Database.ExecuteSqlRawAsync(command);
+        }
+    }
+
+    private static string SanitizeSchemaName(string value)
+    {
+        var cleaned = value
+            .ToLowerInvariant()
+            .Replace(" ", "_")
+            .Replace("-", "_")
+            .Replace(".", "_")
+            .Where(c => char.IsLetterOrDigit(c) || c == '_')
+            .Aggregate("", (current, c) => current + c);
+
+        // PostgreSQL identifiers must not start with a digit
+        if (string.IsNullOrEmpty(cleaned) || (!char.IsLetter(cleaned[0]) && cleaned[0] != '_'))
+        {
+            cleaned = "_" + cleaned;
         }
     }
 

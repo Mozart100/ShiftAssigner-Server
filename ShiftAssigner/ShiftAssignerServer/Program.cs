@@ -2,6 +2,7 @@ using System.Text;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;    // 👈 ADD THIS
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Events;
@@ -32,8 +33,9 @@ builder.Services.AddScoped<ITenantProvider, TenantProvider>();
 builder.Services.AddDbContext<ApplicationDbContext>((sp, options) =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
-    // Enable tenant model cache if you add TenantModelCacheKeyFactory:
-    // options.ReplaceService<IModelCacheKeyFactory, TenantModelCacheKeyFactory>();
+
+    // 👇 IMPORTANT: enable per-tenant model cache (ApplicationDbContext + StaticTenantProvider)
+    options.ReplaceService<IModelCacheKeyFactory, TenantModelCacheKeyFactory>();
 });
 
 // ---------------- AutoMapper ----------------
@@ -73,7 +75,6 @@ builder.Services.AddScoped<IWorkerRepository, WorkerRepository>();
 builder.Services.AddScoped<IShiftLeaderRepository, ShiftLeaderRepository>();
 builder.Services.AddScoped<IStuffBookingRepository, StuffBookingRepository>();
 builder.Services.AddScoped<ITenantRepository, TenantRepository>();
-
 
 // Unit of Work (recommended)
 builder.Services.AddScoped<ShiftAssignerServer.Repositories.IUnitOfWork, ShiftAssignerServer.Repositories.UnitOfWork>();

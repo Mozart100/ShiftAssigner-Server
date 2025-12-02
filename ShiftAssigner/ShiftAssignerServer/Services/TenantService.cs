@@ -1,4 +1,7 @@
+using System.Linq;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using ShiftAssignerServer.Data;
 using ShiftAssignerServer.Models;
 using ShiftAssignerServer.Repositories;
 using ShiftAssignerServer.Requests;
@@ -13,17 +16,115 @@ public class TenantService : ITenantService
 {
     private readonly ITenantRepository _tenantRepository;
     private readonly IMapper _mapper;
+    private readonly ApplicationDbContext _context;
 
-    public TenantService(ITenantRepository tenantRepository, IMapper mapper)
+    public TenantService(ITenantRepository tenantRepository, IMapper mapper, ApplicationDbContext context)
     {
         this._tenantRepository = tenantRepository;
         _mapper = mapper;
+        _context = context;
     }
 
     public async Task<bool> AddTenantAsync(string companyName)
     {
+        // Create a dedicated schema for this tenant
+        await CreateTenantSchemaAsync(companyName);
+        
+        // Create the tenant record
         var tenant = await _tenantRepository.InsertAsync(new Tenant { CompanyName = companyName });
+        
         return true;
+    }
+
+    private async Task CreateTenantSchemaAsync(string companyName)
+    {
+        // Sanitize the company name to create a valid PostgreSQL schema name
+        var schemaName = SanitizeSchemaName(companyName);
+        
+        // Create the schema using EF Core
+        var sql = $"CREATE SCHEMA IF NOT EXISTS \"{schemaName}\"";
+        await _context.Database.ExecuteSqlRawAsync(sql);
+        
+        // Create tenant-specific tables in the new schema
+        await CreateTenantTablesAsync(schemaName);
+    }
+
+    private async Task CreateTenantTablesAsync(string schemaName)
+    {
+        var createTableCommands = new[]
+        {
+            // Workers table (base for all staff)
+            $@"CREATE TABLE IF NOT EXISTS ""{schemaName}"".""workers"" (
+                ""ID"" character varying(50) NOT NULL,
+                ""FirstName"" character varying(100) NOT NULL,
+                ""LastName"" character varying(100) NOT NULL,
+                ""PhoneNumber"" character varying(20) NOT NULL,
+                ""PasswordHash"" text NOT NULL,
+                ""IsActive"" boolean NOT NULL DEFAULT true,
+                ""Role"" integer NOT NULL,
+                ""DateOfBirth"" date NOT NULL,
+                CONSTRAINT ""PK_workers_{schemaName}"" PRIMARY KEY (""ID"")
+            )",
+
+            // Shift Leaders table (inherits from workers)
+            $@"CREATE TABLE IF NOT EXISTS ""{schemaName}"".""shift_leaders"" (
+                ""ID"" character varying(50) NOT NULL,
+                ""Tenant"" character varying(100) NOT NULL,
+                CONSTRAINT ""PK_shift_leaders_{schemaName}"" PRIMARY KEY (""ID""),
+                CONSTRAINT ""FK_shift_leaders_workers_{schemaName}"" 
+                    FOREIGN KEY (""ID"") REFERENCES ""{schemaName}"".""workers"" (""ID"") ON DELETE CASCADE
+            )",
+
+            // Stuff Bookings table (assignments)
+            $@"CREATE TABLE IF NOT EXISTS ""{schemaName}"".""stuff_bookings"" (
+                ""ID"" character varying(50) NOT NULL DEFAULT gen_random_uuid()::text,
+                ""WorkerId"" character varying(50) NOT NULL,
+                ""ShiftLeaderId"" character varying(50) NOT NULL,
+                ""Tenant"" character varying(100) NOT NULL,
+                ""PeriodStart"" date NOT NULL,
+                ""PeriodEnd"" date,
+                ""ReassignmentScheduledDate"" date,
+                ""Notes"" character varying(1000),
+                ""IsActive"" boolean NOT NULL DEFAULT true,
+                CONSTRAINT ""PK_stuff_bookings_{schemaName}"" PRIMARY KEY (""ID"")
+            )",
+
+            // Create indexes for performance
+            $@"CREATE INDEX IF NOT EXISTS ""IX_stuff_bookings_WorkerId_IsActive_{schemaName}"" 
+                ON ""{schemaName}"".""stuff_bookings"" (""WorkerId"", ""IsActive"")",
+            
+            $@"CREATE INDEX IF NOT EXISTS ""IX_stuff_bookings_ShiftLeaderId_IsActive_{schemaName}"" 
+                ON ""{schemaName}"".""stuff_bookings"" (""ShiftLeaderId"", ""IsActive"")",
+            
+            $@"CREATE INDEX IF NOT EXISTS ""IX_stuff_bookings_ReassignmentScheduledDate_{schemaName}"" 
+                ON ""{schemaName}"".""stuff_bookings"" (""ReassignmentScheduledDate"") 
+                WHERE ""ReassignmentScheduledDate"" IS NOT NULL"
+        };
+
+        // Execute each command
+        foreach (var command in createTableCommands)
+        {
+            await _context.Database.ExecuteSqlRawAsync(command);
+        }
+    }
+
+    private static string SanitizeSchemaName(string value)
+    {
+        var cleaned = value
+            .ToLowerInvariant()
+            .Replace(" ", "_")
+            .Replace("-", "_")
+            .Replace(".", "_")
+            .Where(c => char.IsLetterOrDigit(c) || c == '_')
+            .Aggregate("", (current, c) => current + c);
+
+        // PostgreSQL identifiers must not start with a digit
+        if (string.IsNullOrEmpty(cleaned) || (!char.IsLetter(cleaned[0]) && cleaned[0] != '_'))
+        {
+            cleaned = "_" + cleaned;
+        }
+
+        return cleaned;
     }
 
     public async Task<AllTenantsResponse> GetAllTenantsAsync()

@@ -195,6 +195,7 @@ public class ClientSender
 
             HttpResponseMessage response = null;
 //https://localhost:7083/api/v1/Auth/register-boss-tenant'
+//http://localhost:7083/api/v1/Auth/register-boss-tenant
             response = await client.PostAsync(url, content);
 
             return await EnsureSuccess<TResponse>(response) ?? throw new Exception($"Failed Populate in {url}");

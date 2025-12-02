@@ -29,10 +29,10 @@ public class TenantService : ITenantService
     {
         // Create a dedicated schema for this tenant
         await CreateTenantSchemaAsync(companyName);
-        
+
         // Create the tenant record
         var tenant = await _tenantRepository.InsertAsync(new Tenant { CompanyName = companyName });
-        
+
         return true;
     }
 
@@ -40,72 +40,46 @@ public class TenantService : ITenantService
     {
         // Sanitize the company name to create a valid PostgreSQL schema name
         var schemaName = SanitizeSchemaName(companyName);
-        
+
         // Create the schema using EF Core
         var sql = $"CREATE SCHEMA IF NOT EXISTS \"{schemaName}\"";
         await _context.Database.ExecuteSqlRawAsync(sql);
-        
+
         // Create tenant-specific tables in the new schema
         await CreateTenantTablesAsync(schemaName);
     }
 
     private async Task CreateTenantTablesAsync(string schemaName)
     {
-        var createTableCommands = new[]
+        // Create a temporary DbContext configured for the tenant schema
+        var connectionString = _context.Database.GetConnectionString();
+        var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseNpgsql(connectionString);
+
+        // Create a temporary tenant provider that returns the target schema
+        var tempTenantProvider = new TempTenantProvider(schemaName);
+
+        using var tenantContext = new ApplicationDbContext(optionsBuilder.Options, tempTenantProvider);
+
+        // Use EF Core's migration capabilities to create the schema and all tables
+        await tenantContext.Database.EnsureCreatedAsync();
+        
+        // EnsureCreatedAsync will handle creating all tables, relationships, and indexes
+        // If it succeeds, all tables are created properly
+    }
+
+    // Temporary tenant provider for schema creation
+    private class TempTenantProvider : ITenantProvider
+    {
+        private readonly string _schemaName;
+
+        public TempTenantProvider(string schemaName)
         {
-            // Workers table (base for all staff)
-            $@"CREATE TABLE IF NOT EXISTS ""{schemaName}"".""workers"" (
-                ""ID"" character varying(50) NOT NULL,
-                ""FirstName"" character varying(100) NOT NULL,
-                ""LastName"" character varying(100) NOT NULL,
-                ""PhoneNumber"" character varying(20) NOT NULL,
-                ""PasswordHash"" text NOT NULL,
-                ""IsActive"" boolean NOT NULL DEFAULT true,
-                ""Role"" integer NOT NULL,
-                ""DateOfBirth"" date NOT NULL,
-                CONSTRAINT ""PK_workers_{schemaName}"" PRIMARY KEY (""ID"")
-            )",
-
-            // Shift Leaders table (inherits from workers)
-            $@"CREATE TABLE IF NOT EXISTS ""{schemaName}"".""shift_leaders"" (
-                ""ID"" character varying(50) NOT NULL,
-                ""Tenant"" character varying(100) NOT NULL,
-                CONSTRAINT ""PK_shift_leaders_{schemaName}"" PRIMARY KEY (""ID""),
-                CONSTRAINT ""FK_shift_leaders_workers_{schemaName}"" 
-                    FOREIGN KEY (""ID"") REFERENCES ""{schemaName}"".""workers"" (""ID"") ON DELETE CASCADE
-            )",
-
-            // Stuff Bookings table (assignments)
-            $@"CREATE TABLE IF NOT EXISTS ""{schemaName}"".""stuff_bookings"" (
-                ""ID"" character varying(50) NOT NULL DEFAULT gen_random_uuid()::text,
-                ""WorkerId"" character varying(50) NOT NULL,
-                ""ShiftLeaderId"" character varying(50) NOT NULL,
-                ""Tenant"" character varying(100) NOT NULL,
-                ""PeriodStart"" date NOT NULL,
-                ""PeriodEnd"" date,
-                ""ReassignmentScheduledDate"" date,
-                ""Notes"" character varying(1000),
-                ""IsActive"" boolean NOT NULL DEFAULT true,
-                CONSTRAINT ""PK_stuff_bookings_{schemaName}"" PRIMARY KEY (""ID"")
-            )",
-
-            // Create indexes for performance
-            $@"CREATE INDEX IF NOT EXISTS ""IX_stuff_bookings_WorkerId_IsActive_{schemaName}"" 
-                ON ""{schemaName}"".""stuff_bookings"" (""WorkerId"", ""IsActive"")",
-            
-            $@"CREATE INDEX IF NOT EXISTS ""IX_stuff_bookings_ShiftLeaderId_IsActive_{schemaName}"" 
-                ON ""{schemaName}"".""stuff_bookings"" (""ShiftLeaderId"", ""IsActive"")",
-            
-            $@"CREATE INDEX IF NOT EXISTS ""IX_stuff_bookings_ReassignmentScheduledDate_{schemaName}"" 
-                ON ""{schemaName}"".""stuff_bookings"" (""ReassignmentScheduledDate"") 
-                WHERE ""ReassignmentScheduledDate"" IS NOT NULL"
-        };
-
-        // Execute each command
-        foreach (var command in createTableCommands)
-        {
-            await _context.Database.ExecuteSqlRawAsync(command);
+            _schemaName = schemaName;
         }
+
+        public string TenantId => _schemaName;
+        public string TenantSchema => _schemaName;
     }
 
     private static string SanitizeSchemaName(string value)
@@ -132,7 +106,7 @@ public class TenantService : ITenantService
         var result = new AllTenantsResponse();
         var tenants = await _tenantRepository.GetAllAsync();
 
-        if(tenants.IsEmpty())
+        if (tenants.IsEmpty())
         {
             return result;
         }

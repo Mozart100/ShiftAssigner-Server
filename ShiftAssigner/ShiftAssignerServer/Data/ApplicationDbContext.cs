@@ -27,7 +27,7 @@ public class PureApplicationDbContext : DbContext
     /// </summary>
 
     public PureApplicationDbContext(
-        DbContextOptions<ApplicationDbContext> options)
+        DbContextOptions options)
         : base(options)
     {
     }
@@ -36,7 +36,7 @@ public class PureApplicationDbContext : DbContext
     // ---------------------------------------------------------------------------------------------------------------
     // ---------------------------------------------------------------------------------------------------------------
 
-    public string TenantSchema { get; set;}
+    public string TenantSchema { get; set;} ="Anatoliy";
 
 // ---------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------

@@ -51,35 +51,89 @@ public class TenantService : ITenantService
 
     private async Task CreateTenantTablesAsync(string schemaName)
     {
-        // Create a temporary DbContext configured for the tenant schema
-        var connectionString = _context.Database.GetConnectionString();
-        var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseNpgsql(connectionString);
+        try
+        {
+            // Create a DbContext using PureApplicationDbContext with the tenant schema
+            var connectionString = _context.Database.GetConnectionString();
+            var optionsBuilder = new DbContextOptionsBuilder()
+                .UseNpgsql(connectionString);
 
-        // Create a temporary tenant provider that returns the target schema
-        var tempTenantProvider = new TempTenantProvider(schemaName);
+            using var tenantContext = new PureApplicationDbContext(optionsBuilder.Options)
+            {
+                TenantSchema = schemaName
+            };
 
-        using var tenantContext = new ApplicationDbContext(optionsBuilder.Options, tempTenantProvider);
-
-        // Use EF Core's migration capabilities to create the schema and all tables
-        await tenantContext.Database.EnsureCreatedAsync();
-        
-        // EnsureCreatedAsync will handle creating all tables, relationships, and indexes
-        // If it succeeds, all tables are created properly
+            // Force the database to be created with the tenant schema
+            await tenantContext.Database.EnsureCreatedAsync();
+            
+            // If EnsureCreatedAsync doesn't work, let's manually create the tables
+            await CreateTablesManually(tenantContext, schemaName);
+        }
+        catch (Exception ex)
+        {
+            var message = ex.Message;
+            // Re-throw to see the actual error
+            throw;
+        }
     }
 
-    // Temporary tenant provider for schema creation
-    private class TempTenantProvider : ITenantProvider
+    private async Task CreateTablesManually(PureApplicationDbContext context, string schemaName)
     {
-        private readonly string _schemaName;
-
-        public TempTenantProvider(string schemaName)
+        var tableCreationCommands = new[]
         {
-            _schemaName = schemaName;
-        }
+            $@"CREATE TABLE IF NOT EXISTS ""{schemaName}"".""workers"" (
+                ""ID"" character varying(50) NOT NULL,
+                ""FirstName"" character varying(100) NOT NULL,
+                ""LastName"" character varying(100) NOT NULL,
+                ""PhoneNumber"" character varying(20) NOT NULL,
+                ""PasswordHash"" text NOT NULL,
+                ""IsActive"" boolean NOT NULL DEFAULT true,
+                ""Role"" integer NOT NULL,
+                ""DateOfBirth"" date NOT NULL,
+                CONSTRAINT ""PK_workers"" PRIMARY KEY (""ID"")
+            )",
+            
+            $@"CREATE TABLE IF NOT EXISTS ""{schemaName}"".""shift_leaders"" (
+                ""ID"" character varying(50) NOT NULL,
+                ""Tenant"" character varying(100) NOT NULL,
+                CONSTRAINT ""PK_shift_leaders"" PRIMARY KEY (""ID""),
+                CONSTRAINT ""FK_shift_leaders_workers"" FOREIGN KEY (""ID"") 
+                    REFERENCES ""{schemaName}"".""workers"" (""ID"") ON DELETE CASCADE
+            )",
+            
+            $@"CREATE TABLE IF NOT EXISTS ""{schemaName}"".""stuff_bookings"" (
+                ""ID"" character varying(50) NOT NULL,
+                ""WorkerId"" character varying(50) NOT NULL,
+                ""ShiftLeaderId"" character varying(50) NOT NULL,
+                ""Tenant"" character varying(100) NOT NULL,
+                ""PeriodStart"" date NOT NULL,
+                ""PeriodEnd"" date,
+                ""ReassignmentScheduledDate"" date,
+                ""Notes"" character varying(1000),
+                ""IsActive"" boolean NOT NULL DEFAULT true,
+                CONSTRAINT ""PK_stuff_bookings"" PRIMARY KEY (""ID"")
+            )",
+            
+            $@"CREATE TABLE IF NOT EXISTS ""{schemaName}"".""tenants"" (
+                ""CompanyName"" character varying(100) NOT NULL,
+                ""IsActive"" boolean NOT NULL DEFAULT true,
+                CONSTRAINT ""PK_tenants"" PRIMARY KEY (""CompanyName"")
+            )",
+            
+            // Create indexes
+            $@"CREATE INDEX IF NOT EXISTS ""IX_stuff_bookings_WorkerId_IsActive"" 
+                ON ""{schemaName}"".""stuff_bookings"" (""WorkerId"", ""IsActive"")",
+            $@"CREATE INDEX IF NOT EXISTS ""IX_stuff_bookings_ShiftLeaderId_IsActive"" 
+                ON ""{schemaName}"".""stuff_bookings"" (""ShiftLeaderId"", ""IsActive"")",
+            $@"CREATE INDEX IF NOT EXISTS ""IX_stuff_bookings_ReassignmentScheduledDate"" 
+                ON ""{schemaName}"".""stuff_bookings"" (""ReassignmentScheduledDate"") 
+                WHERE ""ReassignmentScheduledDate"" IS NOT NULL"
+        };
 
-        public string TenantId => _schemaName;
-        public string TenantSchema => _schemaName;
+        foreach (var command in tableCreationCommands)
+        {
+            await context.Database.ExecuteSqlRawAsync(command);
+        }
     }
 
     private static string SanitizeSchemaName(string value)

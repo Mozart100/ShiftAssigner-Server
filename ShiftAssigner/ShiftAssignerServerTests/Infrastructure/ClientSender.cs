@@ -182,20 +182,23 @@ public class ClientSender
         }
     }
 
-    public async Task<TResponse> PostCommandAsync<TRequest, TResponse>( string relativePath,TRequest request)
+    public async Task<TResponse> PostCommandAsync<TRequest, TResponse>(string relativePath, TRequest request, string? token = null)
     {
         var url = PathLocator.Combine(_baseUrl, relativePath);
 
         using (HttpClient client = new HttpClient())
         {
+            if (token.IsNotEmpty())
+            {
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
+            
             var sendOptions = new JsonSerializerOptions();
             //sendOptions.Converters.Add(_dateOnlyConverter);
 
             var content = new StringContent(JsonSerializer.Serialize(request, sendOptions), System.Text.Encoding.UTF8, "application/json");
 
             HttpResponseMessage response = null;
-//https://localhost:7083/api/v1/Auth/register-boss-tenant'
-//http://localhost:7083/api/v1/Auth/register-boss-tenant
             response = await client.PostAsync(url, content);
 
             return await EnsureSuccess<TResponse>(response) ?? throw new Exception($"Failed Populate in {url}");

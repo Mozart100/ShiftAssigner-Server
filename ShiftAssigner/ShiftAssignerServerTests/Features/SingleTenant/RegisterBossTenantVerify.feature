@@ -8,8 +8,6 @@ Feature: Register Tenant Boss and verify tenant exists
   Given I have a tenant boss registration payload
   When Tenant registration "1"
   Then the response should contain a JWT token
-    When I GET the tenants list
-    Then the tenants list should contain the tenant
     When I create a shift leader with id "leader-1"
     Then the response should contain a JWT token
   When I GET the shiftleaders

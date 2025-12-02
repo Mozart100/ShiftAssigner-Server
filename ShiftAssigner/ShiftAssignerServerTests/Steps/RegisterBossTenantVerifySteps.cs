@@ -33,16 +33,17 @@ public class RegisterBossTenantVerifySteps : SingleTenantStep
     public async Task WhenTenantRegistration(string tenantId)
     {
         var payload = CreateDefaultTenantRegistration(tenantId);
-        var tenantInfo = new TenantSenderInfo{
+        var tenantInfo = new TenantSenderInfo
+        {
             Request = payload
         };
 
-        _scenarioContext[Tenant_Registration_Data_Context] = tenantInfo;
+        // _scenarioContext[Tenant_Registration_Data_Context] = tenantInfo;
 
-        var response = await _serverSender.PostCommandAsync<TenantRegisterRequest,TenantRegisterResponse>("/api/v1/Auth/register-boss-tenant", payload);
+        var response = await _serverSender.PostCommandAsync<TenantRegisterRequest, TenantRegisterResponse>("/api/v1/Auth/register-boss-tenant", payload);
         tenantInfo.Response = response;
 
-        _scenarioContext[Tenant_Registration_Response_Context] = tenantInfo;
+        _scenarioContext.Set<TenantSenderInfo>(tenantInfo, Tenant_Registration_Response_Context);
     }
 
     public class TenantSenderInfo
@@ -56,42 +57,23 @@ public class RegisterBossTenantVerifySteps : SingleTenantStep
     [Then(@"the response should contain a JWT token")]
     public void ThenTheResponseShouldContainAJWTToken()
     {
-        var response = _scenarioContext.Get<TenantRegisterResponse>(Tenant_Registration_Response_Context);
-        
-        Assert.NotNull(response);
-        Assert.NotNull(response.Token);
-        Assert.NotEmpty(response.Token);
+        var response = _scenarioContext.Get<TenantSenderInfo>(Tenant_Registration_Response_Context);
 
-        _scenarioContext["JwtToken"] = response.Token;
+        Assert.NotNull(response.Response);
+        Assert.NotNull(response.JwtToken);
     }
 
-    [When(@"I GET the tenants list")]
-    public async Task WhenIGETTheTenantsListAsync()
-    {
-        // var response = await _serverSender.GetAsync<AllTenantsResponse>("/api/v1/Tenants");
-        // _scenarioContext[All_Tenants_Context] = response;
-    }
-
-    [Then(@"the tenants list should contain the tenant")]
-    public void ThenTheTenantsListShouldContainTheTenant()
-    {
-        // var response = _scenarioContext.Get<AllTenantsResponse>(All_Tenants_Context);
-        // var tenantPayload = _scenarioContext.Get<TenantRegisterRequest>(Tenant_Registration_Data_Context);
-
-        // Assert.NotNull(response);
-        // Assert.NotNull(response.Tenants);
-        // Assert.Contains(tenantPayload.Tenant, response.Tenants);
-    }
 
     [When(@"I create a shift leader with id ""(.*)""")]
     public async Task WhenICreateAShiftLeaderWithId(string leaderId)
     {
-        // var tenantPayload = _scenarioContext.Get<TenantRegisterRequest>(Tenant_Registration_Data_Context);
-        // var leaderPayload = CreateDefaultShiftLeaderRegistration(leaderId, tenantPayload.Tenant);
-        
-        // var response = await _serverSender.PostAsync<RegisterResponse>($"/api/v1/Auth/register-shift-leader?tenant={tenantPayload.Tenant}", leaderPayload);
-        // _scenarioContext[Tenant_Registration_Response_Context] = response;
-        // _scenarioContext[CurrentLeaderId_Context] = leaderId;
+        var tenantPayload = _scenarioContext.Get<TenantSenderInfo>(Tenant_Registration_Response_Context);
+        var leaderPayload = CreateDefaultShiftLeaderRegistration(leaderId, tenantPayload.Response.Tenant);
+
+        var response = await _serverSender.PostCommandAsync<RegisterRequest,RegisterResponse>($"/api/v1/Auth/register-shift-leader?tenant={tenantPayload.Response.Tenant}",
+        leaderPayload, tenantPayload.JwtToken);
+        _scenarioContext[Tenant_Registration_Response_Context] = response;
+        _scenarioContext[CurrentLeaderId_Context] = leaderId;
 
         // if (response?.Token != null)
         // {
@@ -128,10 +110,10 @@ public class RegisterBossTenantVerifySteps : SingleTenantStep
         // {
         //     var workerId = $"worker-{i}";
         //     var workerPayload = CreateDefaultWorkerRegistration(workerId, leaderId);
-            
+
         //     var response = await _serverSender.PostAsync<RegisterResponse>("/api/v1/Auth/register-worker", workerPayload);
         //     workerResponses.Add(response);
-            
+
         //     if (response != null)
         //     {
         //         createdWorkers.Add(workerId);
@@ -158,9 +140,9 @@ public class RegisterBossTenantVerifySteps : SingleTenantStep
 
         // Assert.NotNull(response);
         // Assert.NotNull(response.Workers);
-        
+
         // var workerIds = response.Workers.Select(w => w.ID).ToList();
-        
+
         // foreach (var createdWorkerId in createdWorkers)
         // {
         //     Assert.Contains(createdWorkerId, workerIds);

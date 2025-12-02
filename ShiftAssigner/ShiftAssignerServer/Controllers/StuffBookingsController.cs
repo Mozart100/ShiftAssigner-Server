@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ShiftAssignerServer.Requests;
 using ShiftAssignerServer.Services;
@@ -8,6 +9,7 @@ using ShiftAssignerServer.Models.Stuff;
 
 namespace ShiftAssignerServer.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/v1/[controller]")]
 public class StuffBookingsController : ControllerBase

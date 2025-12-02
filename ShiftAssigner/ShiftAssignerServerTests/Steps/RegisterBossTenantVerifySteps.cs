@@ -36,12 +36,19 @@ public class RegisterBossTenantVerifySteps : SingleTenantStep
         _scenarioContext[Tenant_Registration_Data_Context] = payload;
 
         var response = await _serverSender.PostCommandAsync<TenantRegisterRequest,TenantRegisterResponse>("/api/v1/Auth/register-boss-tenant", payload);
+
         _scenarioContext[Tenant_Registration_Response_Context] = response;
 
         if (response?.Token != null)
         {
             _scenarioContext["JwtToken"] = response.Token;
         }
+    }
+
+    public class TenantSenderInfo
+    {
+        public TenantRegisterRequest Request { get; set; }
+        public TenantRegisterResponse Response { get; set; }
     }
 
     [Then(@"the response should contain a JWT token")]

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ShiftAssignerServer.Models.Stuff;
 using ShiftAssignerServer.Requests;
@@ -8,6 +9,7 @@ using ShiftAssignerServer.Repositories;
 
 namespace ShiftAssignerServer.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/v1/[controller]")]
 public class WorkersController : ControllerBase

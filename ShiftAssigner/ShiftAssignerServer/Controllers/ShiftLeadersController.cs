@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ShiftAssignerServer.Models.Stuff;
 using ShiftAssignerServer.Requests;
@@ -7,6 +8,7 @@ using ShiftAssignerServer.Services;
 
 namespace ShiftAssignerServer.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/v1/[controller]")]
 public class ShiftLeadersController : ControllerBase

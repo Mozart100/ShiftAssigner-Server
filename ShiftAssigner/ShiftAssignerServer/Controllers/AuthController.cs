@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ShiftAssignerServer.Models;
 using ShiftAssignerServer.Models.Stuff;
@@ -48,6 +49,7 @@ namespace ShiftAssignerServer.Controllers
             _validationService = validationService;
         }
 
+        [Authorize]
         [HttpPost("register-worker")]
         public async Task<ActionResult<RegisterResponse>> RegisterWorker([FromBody] RegisterRequest dto)
         {
@@ -89,6 +91,7 @@ namespace ShiftAssignerServer.Controllers
             return Ok(new RegisterResponse { Token = token });
         }
 
+        [Authorize]
         [HttpPost("register-shift-leader")]
         public async Task<ActionResult<RegisterResponse>> RegisterShiftLeader([FromBody] RegisterRequest dto, [FromQuery] string tenant = "")
         {
@@ -106,6 +109,7 @@ namespace ShiftAssignerServer.Controllers
             return Ok(new RegisterResponse { Token = token });
         }
 
+        [AllowAnonymous]
         [HttpPost(Register_Tenant)]
         public async Task<ActionResult<TenantRegisterResponse>> RegisterBossTenant([FromBody] TenantRegisterRequest dto)
         {

@@ -2,6 +2,33 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "start-postgres-and-build",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "start-postgres",
+        "build"
+      ]
+    },
+    {
+      "label": "start-postgres",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-Command",
+        "docker stop postgres14 2>$null; docker rm postgres14 2>$null; docker run --name postgres14 -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=shiftassigner -p 5432:5432 -d postgres:14"
+      ],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "build",
       "command": "dotnet",
       "type": "process",

@@ -19,26 +19,28 @@ public sealed class TenantModelCacheKeyFactory : IModelCacheKeyFactory
     }
 }
 
-
-public class ApplicationDbContext : DbContext
+public class PureApplicationDbContext : DbContext
 {
-    private readonly ITenantProvider _tenantProvider;
-
-    /// <summary>
+     /// <summary>
     /// Current tenant schema for this DbContext instance.
     /// Used to map tenant-specific tables to the correct PostgreSQL schema.
     /// </summary>
-    public string TenantSchema { get; }
 
-    public ApplicationDbContext(
-        DbContextOptions<ApplicationDbContext> options,
-        ITenantProvider tenantProvider)
+    public PureApplicationDbContext(
+        DbContextOptions<ApplicationDbContext> options)
         : base(options)
     {
-        _tenantProvider = tenantProvider;
-        TenantSchema = tenantProvider.TenantSchema; // already sanitized
     }
 
+    // ---------------------------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------------------------
+
+    public string TenantSchema { get; set;}
+
+// ---------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------
     // DbSets for all entities
     public DbSet<Worker> Workers { get; set; } = null!;
     public DbSet<ShiftLeader> ShiftLeaders { get; set; } = null!;
@@ -104,4 +106,21 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.IsActive).IsRequired();
         });
     }
+}
+
+
+public class ApplicationDbContext : PureApplicationDbContext
+{
+    private readonly ITenantProvider _tenantProvider;
+
+
+    public ApplicationDbContext(
+        DbContextOptions<ApplicationDbContext> options,
+        ITenantProvider tenantProvider)
+        : base(options)
+    {
+        _tenantProvider = tenantProvider;
+        TenantSchema = tenantProvider.TenantSchema; // already sanitized
+    }
+
 }

@@ -90,22 +90,22 @@ namespace ShiftAssignerServer.Controllers
             return Ok(new RegisterResponse { Token = token });
         }
 
-        [Authorize]
-        [HttpPost("register-shift-leader")]
-        public async Task<ActionResult<RegisterResponse>> RegisterShiftLeader([FromBody] RegisterRequest dto, [FromQuery] string tenant = "")
-        {
-            // Debugger.Break();
-            var leader = _mapper.Map<ShiftLeader>(dto);
-            leader.Role = RoleState.ShiftLeader;
-            // If tenant provided as query param, use it; otherwise leader.Tenant remains as mapped (empty)
-            if (!string.IsNullOrWhiteSpace(tenant)) leader.Tenant = tenant;
+        // [Authorize]
+        // [HttpPost("register-shift-leader")]
+        // public async Task<ActionResult<ShiftLeaderRegisterResponse>> RegisterShiftLeader([FromBody] ShiftLeaderRegisterRequest dto, [FromQuery] string tenant = "")
+        // {
+        //     // Debugger.Break();
+        //     var leader = _mapper.Map<ShiftLeader>(dto);
+        //     leader.Role = RoleState.ShiftLeader;
+        //     // If tenant provided as query param, use it; otherwise leader.Tenant remains as mapped (empty)
+        //     if (!string.IsNullOrWhiteSpace(tenant)) leader.Tenant = tenant;
 
-            bool flag = await _shiftLeaderService.AddTenantAsync(leader);
+        //     bool flag = await _shiftLeaderService.AddShiftLeaderAsync(leader);
 
-            var role = leader.Role.ToString(); // "ShiftLeader"
-            var token = _jwt.GenerateToken(leader.ID, role, leader.Tenant);
-            return Ok(new RegisterResponse { Token = token });
-        }
+        //     var role = leader.Role.ToString(); // "ShiftLeader"
+        //     var token = _jwt.GenerateToken(leader.ID, role, leader.Tenant);
+        //     return Ok(new ShiftLeaderRegisterResponse { Token = token });
+        // }
 
         [AllowAnonymous]
         [HttpPost(Register_Tenant)]

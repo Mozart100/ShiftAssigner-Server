@@ -1,9 +1,6 @@
-using ShiftAssignerServer.Models.Stuff;
-
 namespace ShiftAssignerServer.Requests;
 
-
-public class RegisterRequest : IRegistrationMapper
+public class AddingShiftLeaderRequest 
 {
     public string ID { get; set; }
     public string FirstName { get; set; } = string.Empty;
@@ -12,14 +9,10 @@ public class RegisterRequest : IRegistrationMapper
     public DateOnly DateOfBirth { get; set; }
     // Optional: associate this worker to a supervising shift leader at registration
     public string ShiftLeaderId { get; set; } = string.Empty;
-    public string PasswordHash { get; set; } = string.Empty;
 }
 
-
-public class RegisterResponse
+public class AddingShiftLeaderResponse : RegisterResponse
 {
-    /// JWT token string
-    /// </summary>
-    public string Token { get; set; } = string.Empty;
+    public string Tenant { get; set; }
 }
 

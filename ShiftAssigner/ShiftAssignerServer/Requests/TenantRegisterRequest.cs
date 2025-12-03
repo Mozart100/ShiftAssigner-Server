@@ -8,22 +8,14 @@ public interface ITenantRegistrationMapper : IRegistrationMapper
 
 }
 
-public class TenantRegisterRequest : IRegistrationMapper
+public class TenantRegisterRequest : RegisterRequest
 {
-    public string ID { get; set; }
-    public string FirstName { get; set; } = string.Empty;
-    public string LastName { get; set; } = string.Empty;
-    public string PhoneNumber { get; set; } = string.Empty;
-    public DateOnly DateOfBirth { get; set; }
     public string Tenant { get; set; } = string.Empty;
-    public string PasswordHash { get; set; } = string.Empty;
-
-
 }
 
 
-public class TenantRegisterResponse:RegisterResponse
+public class TenantRegisterResponse : RegisterResponse
 {
-    public string Tenant   { get; set; }
+    public string Tenant { get; set; }
 }
 

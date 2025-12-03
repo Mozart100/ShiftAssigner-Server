@@ -12,7 +12,7 @@ namespace ShiftAssignerServer.Tests.Steps;
 /// Handles single tenant registration and verification scenario.
 /// </summary>
 [Binding]
-public class RegisterBossTenantVerifySteps : SingleTenantStep
+public partial class RegisterBossTenantVerifySteps : SingleTenantStep
 {
     public const string Tenant_ID = "Acme ltd";
     private const string CurrentLeaderId_Context = "currentLeaderId";
@@ -46,14 +46,6 @@ public class RegisterBossTenantVerifySteps : SingleTenantStep
         _scenarioContext.Set<TenantSenderInfo>(tenantInfo, Tenant_Registration_Response_Context);
     }
 
-    public class TenantSenderInfo
-    {
-        public TenantRegisterRequest Request { get; set; }
-        public TenantRegisterResponse Response { get; set; }
-
-        public string JwtToken => Response.Token;
-    }
-
     [Then(@"the response should contain a JWT token")]
     public void ThenTheResponseShouldContainAJWTToken()
     {
@@ -68,17 +60,17 @@ public class RegisterBossTenantVerifySteps : SingleTenantStep
     public async Task WhenICreateAShiftLeaderWithId(string leaderId)
     {
         var tenantPayload = _scenarioContext.Get<TenantSenderInfo>(Tenant_Registration_Response_Context);
-        var leaderPayload = CreateDefaultShiftLeaderRegistration(leaderId, tenantPayload.Response.Tenant);
+        var leaderRequest = CreateDefaultShiftLeaderRegistration(leaderId, tenantPayload.Response.Tenant);
 
-        var response = await _serverSender.PostCommandAsync<RegisterRequest,RegisterResponse>($"/api/v1/Auth/register-shift-leader?tenant={tenantPayload.Response.Tenant}",
-        leaderPayload, tenantPayload.JwtToken);
-        _scenarioContext[Tenant_Registration_Response_Context] = response;
-        _scenarioContext[CurrentLeaderId_Context] = leaderId;
+        var leaderResponse = await _serverSender.PostCommandAsync<AddingShiftLeaderRequest,AddingShiftLeaderResponse>($"/api/v1/ShiftLeaders/adding-shift-leader",
+        leaderRequest, tenantPayload.JwtToken);
 
-        // if (response?.Token != null)
-        // {
-        //     _scenarioContext["JwtToken"] = response.Token;
-        // }
+
+        tenantPayload.ShiftLeaderSenderInfo = new ShiftLeaderSenderInfo
+        {
+            Request = leaderRequest,
+            Response = leaderResponse
+        };
     }
 
     [When(@"I GET the shiftleaders")]
@@ -164,16 +156,15 @@ public class RegisterBossTenantVerifySteps : SingleTenantStep
         };
     }
 
-    private RegisterRequest CreateDefaultShiftLeaderRegistration(string leaderId, string tenant)
+    private AddingShiftLeaderRequest CreateDefaultShiftLeaderRegistration(string leaderId, string tenant)
     {
-        return new RegisterRequest
+        return new AddingShiftLeaderRequest
         {
             ID = leaderId,
             FirstName = "Leader",
             LastName = "Test",
             PhoneNumber = "+1-555-0200",
             DateOfBirth = DateOnly.FromDateTime(DateTime.Now.AddYears(-25)),
-            PasswordHash = "TestPassword123"
         };
     }
 

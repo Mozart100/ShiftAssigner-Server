@@ -31,9 +31,11 @@ namespace ShiftAssignerServer.Models.Stuff
         public ShiftLeader()
         {
             IsActive = true;
+            IsPasswordRequired = true;
         }
 
         public string Tenant { get; set; } = string.Empty;
+        public bool IsPasswordRequired { get; set; }
 
         public ShiftLeader(
             string id,
@@ -48,6 +50,8 @@ namespace ShiftAssignerServer.Models.Stuff
         {
             Tenant = tenant;
             IsActive = true;
+            PasswordHash = string.Empty;
+            IsPasswordRequired = true;
         }
     }
 

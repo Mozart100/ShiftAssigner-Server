@@ -6,7 +6,7 @@ namespace ShiftAssignerServer.Services;
 
 public interface IShiftLeaderService
 {
-    Task<bool> AddTenantAsync(ShiftLeader leader);
+    Task<bool> AddShiftLeaderAsync(ShiftLeader leader);
     Task<IEnumerable<PubShiftLeader>> GetAllShiftLeaderAsync(string perTenant);
 }
 
@@ -22,7 +22,7 @@ public class ShiftLeaderService : IShiftLeaderService
     }
 
 
-    public async Task<bool> AddTenantAsync(ShiftLeader shiftLeader)
+    public async Task<bool> AddShiftLeaderAsync(ShiftLeader shiftLeader)
     {
         var model = await _repo.InsertAsync(shiftLeader);
         return true;

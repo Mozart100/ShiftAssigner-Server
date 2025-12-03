@@ -8,7 +8,6 @@ public class AddingShiftLeaderRequest
     public string PhoneNumber { get; set; } = string.Empty;
     public DateOnly DateOfBirth { get; set; }
     // Optional: associate this worker to a supervising shift leader at registration
-    public string ShiftLeaderId { get; set; } = string.Empty;
 }
 
 public class AddingShiftLeaderResponse : RegisterResponse

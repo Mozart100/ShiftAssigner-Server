@@ -57,7 +57,6 @@ namespace ShiftAssignerServer.Controllers
             _validationService.ValidateRegistration(dto, "Worker");
 
             // Create typed Worker instance (constructor expects role and passwordHash)
-            var pwHash = Hash(dto.PasswordHash);
 
             var worker = _mapper.Map<Worker>(dto);
             // var worker = new Worker(dto.ID, dto.FirstName, dto.LastName, dto.PhoneNumber, dto.DateOfBirth, dto.Tenant, RoleState.Worker, pwHash);
@@ -96,7 +95,6 @@ namespace ShiftAssignerServer.Controllers
         public async Task<ActionResult<RegisterResponse>> RegisterShiftLeader([FromBody] RegisterRequest dto, [FromQuery] string tenant = "")
         {
             // Debugger.Break();
-            var pwHash = Hash(dto.PasswordHash);
             var leader = _mapper.Map<ShiftLeader>(dto);
             leader.Role = RoleState.ShiftLeader;
             // If tenant provided as query param, use it; otherwise leader.Tenant remains as mapped (empty)
@@ -114,7 +112,6 @@ namespace ShiftAssignerServer.Controllers
         public async Task<ActionResult<TenantRegisterResponse>> RegisterBossTenant([FromBody] TenantRegisterRequest dto)
         {
             // Debugger.Break();
-            var pwHash = Hash(dto.PasswordHash);
             var tenant = _mapper.Map<BossTenant>(dto);
 
             await _tenantService.AddTenantAsync(tenant.Tenant);

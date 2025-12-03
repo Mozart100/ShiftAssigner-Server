@@ -32,7 +32,7 @@ public class TenantService : ITenantService
         await CreateTenantSchemaAsync(companyName);
 
         // Create the tenant record
-        var tenant = await _tenantRepository.InsertAsync(new Tenant { CompanyName = companyName });
+        var tenant = await _tenantRepository.InsertAsync(new Company { CompanyName = companyName });
         return true;
     }
 

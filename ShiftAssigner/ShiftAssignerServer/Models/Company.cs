@@ -1,6 +1,4 @@
-using System;
 using ShiftAssignerServer.Common;
-using ShiftAssignerServer.Repositories;
 
 namespace ShiftAssignerServer.Models;
 
@@ -8,7 +6,7 @@ namespace ShiftAssignerServer.Models;
 /// Tenant (company) model. Implements <see cref="IAutoMapperEntities"/>
 /// so it can be used with repository and mapping infrastructure.
 /// </summary>
-public class Tenant : IAutoMapperEntities
+public class Company : IAutoMapperEntities
 {
     // public int ID { get; set; }  
 

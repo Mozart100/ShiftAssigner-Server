@@ -45,7 +45,7 @@ public class PureApplicationDbContext : DbContext
     public DbSet<Worker> Workers { get; set; } = null!;
     public DbSet<ShiftLeader> ShiftLeaders { get; set; } = null!;
     public DbSet<StuffBooking> StuffBookings { get; set; } = null!;
-    public DbSet<Tenant> Tenants { get; set; } = null!;
+    public DbSet<Company> Tenants { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -108,9 +108,9 @@ public class PureApplicationDbContext : DbContext
         });
 
         // Configure Tenant entity - always in public schema (master data)
-        modelBuilder.Entity<Tenant>(entity =>
+        modelBuilder.Entity<Company>(entity =>
         {
-            entity.ToTable("tenants", schema);
+            entity.ToTable("companies", schema);
             entity.HasKey(e => e.CompanyName);
             entity.Property(e => e.CompanyName).IsRequired().HasMaxLength(100);
             entity.Property(e => e.IsActive).IsRequired();

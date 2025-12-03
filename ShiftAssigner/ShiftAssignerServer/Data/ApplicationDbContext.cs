@@ -21,7 +21,7 @@ public sealed class TenantModelCacheKeyFactory : IModelCacheKeyFactory
 
 public class PureApplicationDbContext : DbContext
 {
-     /// <summary>
+    /// <summary>
     /// Current tenant schema for this DbContext instance.
     /// Used to map tenant-specific tables to the correct PostgreSQL schema.
     /// </summary>
@@ -36,11 +36,11 @@ public class PureApplicationDbContext : DbContext
     // ---------------------------------------------------------------------------------------------------------------
     // ---------------------------------------------------------------------------------------------------------------
 
-    public string TenantSchema { get; set;} ="Anatoliy";
+    public string TenantSchema { get; set; } = "Anatoliy";
 
-// ---------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------------------------
     // DbSets for all entities
     public DbSet<Worker> Workers { get; set; } = null!;
     public DbSet<ShiftLeader> ShiftLeaders { get; set; } = null!;
@@ -72,7 +72,17 @@ public class PureApplicationDbContext : DbContext
         modelBuilder.Entity<ShiftLeader>(entity =>
         {
             entity.ToTable("shift_leaders", schema);
+            entity.HasKey(e => e.ID);
+            entity.Property(e => e.ID).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.FirstName).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.LastName).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.PhoneNumber).IsRequired().HasMaxLength(20);
+            entity.Property(e => e.DateOfBirth).IsRequired();
+            entity.Property(e => e.PasswordHash).IsRequired();
+            entity.Property(e => e.IsActive).IsRequired();
+            entity.Property(e => e.Role).IsRequired();
             entity.Property(e => e.Tenant).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.IsPasswordRequired).IsRequired();
         });
 
         // Configure StuffBooking entity

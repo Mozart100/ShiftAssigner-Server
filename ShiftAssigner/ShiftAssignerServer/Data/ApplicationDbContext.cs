@@ -44,8 +44,9 @@ public class PureApplicationDbContext : DbContext
     // DbSets for all entities
     public DbSet<Worker> Workers { get; set; } = null!;
     public DbSet<ShiftLeader> ShiftLeaders { get; set; } = null!;
+    public DbSet<BossTenant> BossTenants { get; set; } = null!;
     public DbSet<StuffBooking> StuffBookings { get; set; } = null!;
-    public DbSet<Tenant> Tenants { get; set; } = null!;
+    public DbSet<Company> Companies { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -85,6 +86,26 @@ public class PureApplicationDbContext : DbContext
             entity.Property(e => e.IsPasswordRequired).IsRequired();
         });
 
+        // Configure BossTenant entity (complete table with all properties)
+        modelBuilder.Entity<BossTenant>(entity =>
+        {
+            entity.ToTable("boss_tenants", schema);
+            entity.HasKey(e => e.ID);
+            
+            // All PersonBase properties
+            entity.Property(e => e.ID).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.FirstName).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.LastName).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.PhoneNumber).IsRequired().HasMaxLength(20);
+            entity.Property(e => e.DateOfBirth).IsRequired();
+            entity.Property(e => e.Role).IsRequired();
+            entity.Property(e => e.PasswordHash).IsRequired();
+            entity.Property(e => e.IsActive).IsRequired();
+            
+            // BossTenant specific property
+            entity.Property(e => e.Tenant).IsRequired().HasMaxLength(100);
+        });
+
         // Configure StuffBooking entity
         modelBuilder.Entity<StuffBooking>(entity =>
         {
@@ -108,9 +129,9 @@ public class PureApplicationDbContext : DbContext
         });
 
         // Configure Tenant entity - always in public schema (master data)
-        modelBuilder.Entity<Tenant>(entity =>
+        modelBuilder.Entity<Company>(entity =>
         {
-            entity.ToTable("tenants", schema);
+            entity.ToTable("companies", schema);
             entity.HasKey(e => e.CompanyName);
             entity.Property(e => e.CompanyName).IsRequired().HasMaxLength(100);
             entity.Property(e => e.IsActive).IsRequired();

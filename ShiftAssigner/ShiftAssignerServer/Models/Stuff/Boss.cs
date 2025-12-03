@@ -10,8 +10,10 @@ namespace ShiftAssignerServer.Models.Stuff
     /// <summary>
     /// Boss represents a higher-level person. Inherits from Person directly (bosses may not be "workers").
     /// </summary>
-    public record BossTenant : ShiftLeader,IBossTenantRegistrationMapper
+    public record BossTenant : PersonBase,IBossTenantRegistrationMapper
     {
+        public string Tenant { get; set; } = string.Empty;
+        
         public BossTenant()
         {
             IsActive = true;
@@ -19,9 +21,16 @@ namespace ShiftAssignerServer.Models.Stuff
 
         public BossTenant(string id,string firstName, string lastName, string phone, DateOnly dob, string tenant,  RoleState roleState,
             string passwordHash)
-            : base(id,firstName, lastName, phone, dob, tenant, roleState, passwordHash)
-        
+            : base()
         {
+            ID = id;
+            FirstName = firstName;
+            LastName = lastName;
+            PhoneNumber = phone;
+            DateOfBirth = dob;
+            Role = roleState;
+            PasswordHash = passwordHash;
+            Tenant = tenant;
             IsActive = true;
         }
     }

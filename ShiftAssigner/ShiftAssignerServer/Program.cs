@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Events;
 using ShiftAssignerServer.Data;
+using ShiftAssignerServer.Extensions;
 using ShiftAssignerServer.Repositories;
 using ShiftAssignerServer.Services;
 using ShiftAssignerServer.Services.Validation;
@@ -133,6 +134,9 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
 }
+
+// Add tenant resolution middleware before authentication
+app.UseTenantResolution();
 
 app.UseAuthentication();
 app.UseAuthorization();

@@ -1,18 +1,14 @@
 using Microsoft.AspNetCore.Http;
 using System;
-using System.IO;
 using System.Linq;
-using System.Text.Json;
-using System.Threading.Tasks;
-using ShiftAssignerServer.Controllers;
-using ShiftAssignerServer.Requests;
+using ShiftAssignerServer.Middleware;
 
 namespace ShiftAssignerServer.Data;
 
 public interface ITenantProvider
 {
     /// <summary>
-    /// Raw tenant id as it comes from the X-TenantId header.
+    /// Raw tenant id as resolved by the TenantResolutionMiddleware.
     /// </summary>
     string TenantId { get; }
 
@@ -24,8 +20,7 @@ public interface ITenantProvider
 
 public sealed class TenantProvider : ITenantProvider
 {
-    private const string TenantIdHeaderName = "X-TenantId";
-    private const string Default_Schema = "default";
+    private const string DefaultSchema = "default";
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public TenantProvider(IHttpContextAccessor httpContextAccessor)
@@ -42,35 +37,17 @@ public sealed class TenantProvider : ITenantProvider
             // When running migrations / design-time there is no HttpContext
             if (httpContext is null)
             {
-                // Safe default for design-time – adjust as needed
-                return Default_Schema;
+                return DefaultSchema;
             }
 
-            // Check if request is from AuthController - these endpoints don't require X-TenantId header
-            var requestPath = httpContext.Request.Path.ToString();
-            if (requestPath.StartsWith($"/api/v1/Auth/{AuthController.Register_Tenant}", StringComparison.OrdinalIgnoreCase))
+            // Get tenant ID resolved by TenantResolutionMiddleware
+            if (httpContext.Items.TryGetValue(TenantResolutionMiddleware.TenantContextKey, out var tenantId))
             {
-                // Get the tenant from the request body for tenant registration endpoint
-                var tenantRequest = GetTenantFromRequestBodyAsync(httpContext).GetAwaiter().GetResult();
-                if (tenantRequest != null && !string.IsNullOrEmpty(tenantRequest.Tenant))
-                {
-                    return SanitizeSchemaName(tenantRequest.Tenant);
-                }
-                return Default_Schema;
+                return tenantId?.ToString() ?? DefaultSchema;
             }
 
-            if (!httpContext.Request.Headers.TryGetValue(TenantIdHeaderName, out var values))
-            {
-                throw new UnauthorizedAccessException($"Required header '{TenantIdHeaderName}' is missing.");
-            }
-
-            var tenantId = values.ToString().Trim();
-            if (string.IsNullOrWhiteSpace(tenantId))
-            {
-                throw new ArgumentException($"Header '{TenantIdHeaderName}' cannot be empty or whitespace.");
-            }
-
-            return tenantId;
+            // Fallback to default if middleware hasn't run or didn't resolve tenant
+            return DefaultSchema;
         }
     }
 
@@ -96,43 +73,6 @@ public sealed class TenantProvider : ITenantProvider
         }
 
         return cleaned;
-    }
-
-    private static async Task<TenantRegisterRequest> GetTenantFromRequestBodyAsync(HttpContext httpContext)
-    {
-        try
-        {
-            // Enable buffering to allow reading the request body multiple times
-            httpContext.Request.EnableBuffering();
-            
-            // Reset position to beginning
-            httpContext.Request.Body.Position = 0;
-            
-            using (var reader = new StreamReader(httpContext.Request.Body, leaveOpen: true))
-            {
-                var requestBody = await reader.ReadToEndAsync();
-                
-                // Reset position for the controller to read it again
-                httpContext.Request.Body.Position = 0;
-                
-                if (!string.IsNullOrEmpty(requestBody))
-                {
-                    var options = new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    };
-                    
-                    return JsonSerializer.Deserialize<TenantRegisterRequest>(requestBody, options);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            // If we can't parse the request body, return null and use default schema
-            return null;
-        }
-        
-        return null;
     }
 }
 

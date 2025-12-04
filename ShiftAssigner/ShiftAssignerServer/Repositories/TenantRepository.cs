@@ -9,3 +9,5 @@ public class TenantRepository : BaseRepository<Company>, ITenantRepository
 {
     public TenantRepository(ApplicationDbContext context) : base(context) { }
 }
+
+

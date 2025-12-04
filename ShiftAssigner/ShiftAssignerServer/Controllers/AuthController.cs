@@ -109,12 +109,13 @@ namespace ShiftAssignerServer.Controllers
 
         [AllowAnonymous]
         [HttpPost(Register_Tenant)]
-        public async Task<ActionResult<TenantRegisterResponse>> RegisterBossTenant([FromBody] TenantRegisterRequest dto)
+        public async Task<ActionResult<TenantRegisterResponse>> RegisterBossTenant([FromBody] TenantRegisterRequest request)
         {
             // Debugger.Break();
-            var tenant = _mapper.Map<BossTenant>(dto);
+            var tenant = _mapper.Map<BossTenant>(request);
 
-            await _tenantService.AddTenantAsync(tenant.Tenant);
+            await _tenantService.CreateIfNoxExistedTenantSchemaAsync(tenant.Tenant);
+            bool flag = await _tenantService.AddBossTenantAsync(request);
 
             var role = tenant.Role.ToString(); // "ShiftLeader"
             var token = _jwt.GenerateToken(tenant.ID, role, tenant.Tenant);

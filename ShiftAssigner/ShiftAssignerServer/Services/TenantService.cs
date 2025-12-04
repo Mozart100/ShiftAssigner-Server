@@ -4,35 +4,36 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using ShiftAssignerServer.Data;
 using ShiftAssignerServer.Models;
+using ShiftAssignerServer.Models.Stuff;
 using ShiftAssignerServer.Repositories;
 using ShiftAssignerServer.Requests;
 public interface ITenantService
 {
-    Task<bool> AddTenantAsync(string companyName);
+    Task<bool> AddBossTenantAsync(TenantRegisterRequest request);
+    Task<bool> CreateIfNoxExistedTenantSchemaAsync(string companyName);
     Task<AllTenantsResponse> GetAllTenantsAsync();
 }
 
 
 public class TenantService : ITenantService
 {
-    private readonly ITenantRepository _tenantRepository;
+    private readonly IBossTenantRepository _bossTenantRepository;
     private readonly IMapper _mapper;
     private readonly ApplicationDbContext _context;
 
-    public TenantService(ITenantRepository tenantRepository, IMapper mapper, ApplicationDbContext context)
+    public TenantService(IBossTenantRepository bossTenantRepository, IMapper mapper, ApplicationDbContext context)
     {
-        this._tenantRepository = tenantRepository;
+        this._bossTenantRepository = bossTenantRepository;
         _mapper = mapper;
         _context = context;
     }
 
-    public async Task<bool> AddTenantAsync(string companyName)
+    public async Task<bool> CreateIfNoxExistedTenantSchemaAsync(string companyName)
     {
         // Create a dedicated schema for this tenant
         await CreateTenantSchemaAsync(companyName);
 
         // Create the tenant record
-        var tenant = await _tenantRepository.InsertAsync(new Company { CompanyName = companyName });
         return true;
     }
 
@@ -81,7 +82,7 @@ public class TenantService : ITenantService
     public async Task<AllTenantsResponse> GetAllTenantsAsync()
     {
         var result = new AllTenantsResponse();
-        var tenants = await _tenantRepository.GetAllAsync();
+        var tenants = await _bossTenantRepository.GetAllAsync();
 
         if (tenants.IsEmpty())
         {
@@ -89,12 +90,20 @@ public class TenantService : ITenantService
         }
 
         // Filter only active tenants
-        foreach (var tenant in tenants.Where(t => t.IsActive))
-        {
-            result.Tenants.Add(tenant.CompanyName);
-        }
+        // foreach (var tenant in tenants.Where(t => t.IsActive))
+        // {
+        //     result.Tenants.Add(tenant.CompanyName);
+        // }
 
-        return result;
+        return null;
+    }
+
+    public async Task<bool> AddBossTenantAsync(TenantRegisterRequest request)
+    {
+        var bossTenant = _mapper.Map<BossTenant>(request);
+        var ptr = await _bossTenantRepository.InsertAsync(bossTenant);
+
+        return true;
     }
 }
 

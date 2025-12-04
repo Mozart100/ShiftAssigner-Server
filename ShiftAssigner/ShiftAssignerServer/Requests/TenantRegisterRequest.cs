@@ -8,10 +8,8 @@ public interface ITenantRegistrationMapper : IRegistrationMapper
 
 }
 
-public class     public async Task<bool> AddBossTenantAsync(TenantRegisterRequest request)
-    {
-        var ptr = await _bossTenantRepository.InsertAsync(request);
-    } : RegisterRequest
+public class TenantRegisterRequest : RegisterRequest
+
 {
     public string Tenant { get; set; } = string.Empty;
 }

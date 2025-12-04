@@ -80,6 +80,7 @@ builder.Services.AddSingleton(new JwtService(jwtKey, jwtIssuer, jwtAudience));
 // EF Repositories (tenant-aware)
 builder.Services.AddScoped<IWorkerRepository, WorkerRepository>();
 builder.Services.AddScoped<IShiftLeaderRepository, ShiftLeaderRepository>();
+builder.Services.AddScoped<IBossTenantRepository, BossTenantRepository>();
 builder.Services.AddScoped<IStuffBookingRepository, StuffBookingRepository>();
 builder.Services.AddScoped<ITenantRepository, TenantRepository>();
 

@@ -46,11 +46,6 @@ public class PureApplicationDbContext : DbContext
     public DbSet<ShiftLeader> ShiftLeaders { get; set; } = null!;
     public DbSet<BossTenant> BossTenants { get; set; } = null!;
     public DbSet<StuffBooking> StuffBookings { get; set; } = null!;
-<<<<<<< HEAD
-    public DbSet<Company> Companies { get; set; } = null!;
-=======
-    public DbSet<Company> Tenants { get; set; } = null!;
->>>>>>> d941ce9cbc06d5ec8bea6821f299de76fa8f7039
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -130,15 +125,6 @@ public class PureApplicationDbContext : DbContext
             entity.HasIndex(e => new { e.ShiftLeaderId, e.IsActive });
             entity.HasIndex(e => e.ReassignmentScheduledDate)
                   .HasFilter("\"ReassignmentScheduledDate\" IS NOT NULL");
-        });
-
-        // Configure Tenant entity - always in public schema (master data)
-        modelBuilder.Entity<Company>(entity =>
-        {
-            entity.ToTable("companies", schema);
-            entity.HasKey(e => e.CompanyName);
-            entity.Property(e => e.CompanyName).IsRequired().HasMaxLength(100);
-            entity.Property(e => e.IsActive).IsRequired();
         });
     }
 }

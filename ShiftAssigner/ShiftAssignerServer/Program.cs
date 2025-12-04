@@ -39,6 +39,12 @@ builder.Services.AddDbContext<ApplicationDbContext>((sp, options) =>
     options.ReplaceService<IModelCacheKeyFactory, TenantModelCacheKeyFactory>();
 });
 
+// ---------------- Main Database (global/master data) ----------------
+builder.Services.AddDbContext<MainDbContext>(options =>
+{
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
+
 // ---------------- AutoMapper ----------------
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
@@ -105,17 +111,31 @@ var app = builder.Build();
 // ---------------- Database Migration/Creation ----------------
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    
+    // Create main/global schema first
+    var mainContext = scope.ServiceProvider.GetRequiredService<MainDbContext>();
     try
     {
-        Log.Information("Ensuring database is created...");
-        context.Database.EnsureCreated();
-        Log.Information("Database schema created successfully");
+        Log.Information("Ensuring main database schema is created...");
+        mainContext.EnsureMainSchemaCreated();
+        Log.Information("Main database schema created successfully");
     }
     catch (Exception ex)
     {
-        Log.Error(ex, "Error creating database schema");
+        Log.Error(ex, "Error creating main database schema");
+        throw;
+    }
+    
+    // Create tenant-specific schema (for development/testing)
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    try
+    {
+        Log.Information("Ensuring tenant database schema is created...");
+        context.Database.EnsureCreated();
+        Log.Information("Tenant database schema created successfully");
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Error creating tenant database schema");
         throw;
     }
 }

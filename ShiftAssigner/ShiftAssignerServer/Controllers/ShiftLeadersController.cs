@@ -48,13 +48,12 @@ public class ShiftLeadersController : ControllerBase
         // Get tenant from TenantResolutionMiddleware
         var tenant = HttpContext.Items[TenantResolutionMiddleware.TenantContextKey]?.ToString();
         
-        // If tenant provided from middleware, use it; otherwise leader.Tenant remains as mapped (empty)
-        leader.Tenant = tenant;
+        // Tenant is now handled by the tenant-specific database schema, not as a property
 
         bool flag = await _shiftLeaderService.AddShiftLeaderAsync(leader);
 
         var role = leader.Role.ToString(); // "ShiftLeader"
-        var token = _jwtService.GenerateToken(leader.ID, role, leader.Tenant);
+        var token = _jwtService.GenerateToken(leader.ID, role, tenant ?? string.Empty);
         return Ok(new AddingShiftLeaderResponse { Token = token });
     }
 

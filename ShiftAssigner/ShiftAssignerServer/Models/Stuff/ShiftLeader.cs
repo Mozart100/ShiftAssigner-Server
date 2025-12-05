@@ -17,7 +17,6 @@ namespace ShiftAssignerServer.Models.Stuff
         string LastName { get; set; }
         string PhoneNumber { get; set; }
         DateOnly DateOfBirth { get; set; }
-        string Tenant { get; set; }
     }
 
 
@@ -35,7 +34,6 @@ namespace ShiftAssignerServer.Models.Stuff
             PasswordHash = string.Empty; // No password set initially
         }
 
-        public string Tenant { get; set; } = string.Empty;
         public bool IsPasswordRequired { get; set; }
 
         public ShiftLeader(
@@ -57,7 +55,6 @@ namespace ShiftAssignerServer.Models.Stuff
             Role = roleState;
             PasswordHash = string.Empty; // Initially no password
             IsActive = true;
-            Tenant = tenant;
             IsPasswordRequired = true;   // Must set password on first login
         }
     }
@@ -72,7 +69,6 @@ namespace ShiftAssignerServer.Models.Stuff
         public string LastName { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
         public DateOnly DateOfBirth { get; set; }
-        public string Tenant { get; set; } = string.Empty;
     }
 
 

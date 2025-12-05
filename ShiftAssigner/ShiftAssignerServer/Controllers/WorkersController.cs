@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ShiftAssignerServer.Middleware;
 using ShiftAssignerServer.Models.Stuff;
 using ShiftAssignerServer.Requests;
 using ShiftAssignerServer.Services;
@@ -36,7 +37,7 @@ public class WorkersController : ControllerBase
     // GET: api/v1/Workers/leader/{shiftLeaderId}
     // If a period query parameter is supplied (yyyy-MM-dd) it is used; otherwise the current UTC date is used.
     [HttpGet("leader/{shiftLeaderId}")]
-    public async Task<ActionResult<GetWorkerPerTenantResponse>> GetAllPerLeader(string shiftLeaderId, [FromQuery] string period = "")
+    public async Task<ActionResult<GetWorkerPerTenantResponse>> GetWorkersForLeaderAndPeriod(string shiftLeaderId, string period)
     {
         // Find leader to determine tenant
         var leader = _shiftLeaderRepository.FirstOrDefault(x => x.ID.Equals(shiftLeaderId, StringComparison.InvariantCultureIgnoreCase));
@@ -46,7 +47,9 @@ public class WorkersController : ControllerBase
         if (string.IsNullOrWhiteSpace(period)) periodStart = DateOnly.FromDateTime(DateTime.UtcNow);
         else if (!DateOnly.TryParse(period, out periodStart)) return BadRequest("period must be yyyy-MM-dd");
 
-        var workers = await _assignmentService.GetWorkersForLeaderPeriodAsync(leader.Tenant, shiftLeaderId, periodStart);
+        // Get tenant from middleware since ShiftLeader no longer has Tenant property
+        var tenant = HttpContext.Items[TenantResolutionMiddleware.TenantContextKey]?.ToString() ?? string.Empty;
+        var workers = await _assignmentService.GetWorkersForLeaderPeriodAsync(tenant, shiftLeaderId, periodStart);
         return Ok(new GetWorkerPerTenantResponse { Workers = workers });
     }
 

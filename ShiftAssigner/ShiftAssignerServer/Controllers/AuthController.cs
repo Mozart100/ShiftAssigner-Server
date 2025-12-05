@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ShiftAssignerServer.Middleware;
 using ShiftAssignerServer.Models;
 using ShiftAssignerServer.Models.Stuff;
 using ShiftAssignerServer.Requests;
@@ -71,7 +72,7 @@ namespace ShiftAssignerServer.Controllers
             {
                 // try to find the leader's tenant and set it on the assignment and token
                 var leader = _shiftLeaderRepository.FirstOrDefault(x => x.ID.Equals(dto.ShiftLeaderId, StringComparison.InvariantCultureIgnoreCase));
-                tenantForToken = leader?.Tenant ?? string.Empty;
+                tenantForToken = HttpContext.Items[TenantResolutionMiddleware.TenantContextKey]?.ToString() ?? string.Empty;
 
                 var assignment = new StuffBooking
                 {

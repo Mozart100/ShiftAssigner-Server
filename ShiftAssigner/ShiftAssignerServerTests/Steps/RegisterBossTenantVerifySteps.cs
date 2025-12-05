@@ -63,7 +63,7 @@ public partial class RegisterBossTenantVerifySteps : SingleTenantStep
         var tenantPayload = _scenarioContext.Get<TenantSenderInfo>(Tenant_Registration_Response_Context);
         var leaderRequest = CreateDefaultShiftLeaderRegistration(leaderId, tenantPayload.Response.Tenant);
 
-        var leaderResponse = await _serverSender.PostCommandAsync<RegisteringShiftLeaderRequest,RegisteringShiftLeaderResponse>($"/api/v1/ShiftLeaders/{ShiftLeadersController.Register_EndPoint}",
+        var leaderResponse = await _serverSender.PostCommandAsync<RegisteringShiftLeaderRequest, RegisteringShiftLeaderResponse>($"/api/v1/ShiftLeaders/{ShiftLeadersController.Register_EndPoint}",
         leaderRequest, tenantPayload.JwtToken);
 
 
@@ -106,27 +106,31 @@ public partial class RegisterBossTenantVerifySteps : SingleTenantStep
     {
         var tenantPayload = _scenarioContext.Get<TenantSenderInfo>(Tenant_Registration_Response_Context);
         var shiftLeaderToken = tenantPayload.ShiftLeaderSenderInfo.LoginResponse.Token;
-        
+
         var workerRequest = new RegisteringWorkerRequest
         {
             ID = workerId,
             FirstName = "Test",
             LastName = "Worker",
-            PhoneNumber = "555-0123", 
+            PhoneNumber = "555-0123",
             DateOfBirth = DateOnly.FromDateTime(DateTime.Now.AddYears(-25))
         };
 
         var workerResponse = await _serverSender.PostCommandAsync<RegisteringWorkerRequest, RegisteringWorkerResponse>($"/api/v1/Workers/{WorkersController.Register_EndPoint}",
             workerRequest, shiftLeaderToken);
 
-        tenantPayload.ShiftLeaderSenderInfo.WorkerResponse = workerResponse;
+        tenantPayload.ShiftLeaderSenderInfo.WorkerSenderInfo = new WorkerSenderInfo
+        {
+            WorkerRequest = workerRequest,
+            WorkerResponse = workerResponse
+        };
     }
 
     [Then(@"the worker registration response should contain a JWT token")]
     public void ThenTheWorkerRegistrationResponseShouldContainAJWTToken()
     {
         var tenantPayload = _scenarioContext.Get<TenantSenderInfo>(Tenant_Registration_Response_Context);
-        var workerResponse = tenantPayload.ShiftLeaderSenderInfo.WorkerResponse;
+        var workerResponse = tenantPayload.ShiftLeaderSenderInfo.WorkerSenderInfo.WorkerResponse;
 
         Assert.NotNull(workerResponse);
         Assert.NotNull(workerResponse.Token);
@@ -241,4 +245,36 @@ public partial class RegisterBossTenantVerifySteps : SingleTenantStep
             PasswordHash = "TestPassword123"
         };
     }
+
+
+
+
+    public class TenantSenderInfo
+{
+    public TenantRegisterRequest Request { get; set; }
+    public TenantRegisterResponse Response { get; set; }
+
+    public ShiftLeaderSenderInfo ShiftLeaderSenderInfo { get; set; }    
+
+    public string JwtToken => Response.Token;
+}
+
+
+public class ShiftLeaderSenderInfo
+{
+    public RegisteringShiftLeaderRequest RegisteringRequest { get; set; }
+    public RegisteringShiftLeaderResponse RegisteringResponse { get; set; }
+    public LoginShiftLeaderResponse LoginResponse { get; set; }
+    public WorkerSenderInfo WorkerSenderInfo { get; set; }
+
+    public string JwtToken => LoginResponse.Token;
+}
+
+public class WorkerSenderInfo
+{
+     public RegisteringWorkerRequest WorkerRequest { get; set; }
+    public RegisteringWorkerResponse WorkerResponse { get; set; }
+
+    public string JwtToken => WorkerResponse.Token;
+}
 }

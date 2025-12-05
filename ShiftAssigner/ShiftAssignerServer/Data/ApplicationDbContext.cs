@@ -9,13 +9,12 @@ public sealed class TenantModelCacheKeyFactory : IModelCacheKeyFactory
 {
     public object Create(DbContext context, bool designTime)
     {
-        if (context is ApplicationDbContext appContext)
+        return context switch
         {
-            // Include schema in the cache key so each tenant schema gets its own model
-            return (context.GetType(), appContext.TenantSchema, designTime);
-        }
-
-        return (context.GetType(), designTime);
+            ApplicationDbContext app => (context.GetType(), app.TenantSchema, designTime),
+            PureApplicationDbContext pure => (context.GetType(), pure.TenantSchema, designTime),
+            _ => (context.GetType(), designTime)
+        };
     }
 }
 

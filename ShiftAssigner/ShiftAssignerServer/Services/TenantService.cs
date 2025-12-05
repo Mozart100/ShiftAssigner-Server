@@ -55,7 +55,8 @@ public class TenantService : ITenantService
         // Create a dedicated DbContext for tenant table creation
         var connectionString = _context.Database.GetConnectionString();
         var optionsBuilder = new DbContextOptionsBuilder()
-            .UseNpgsql(connectionString);
+            .UseNpgsql(connectionString)
+            .ReplaceService<IModelCacheKeyFactory, TenantModelCacheKeyFactory>();
 
         using var tenantCreationContext = new TenantCreationDbContext(optionsBuilder.Options, schemaName);
 
@@ -67,8 +68,9 @@ public class TenantService : ITenantService
             var script = tenantCreationContext.Database.GenerateCreateScript();
             if (!string.IsNullOrEmpty(script))
             {
-                // Replace any default schema references with our tenant schema
-                script = script.Replace("CREATE TABLE ", $"CREATE TABLE IF NOT EXISTS ");
+                // The script already contains the correct schema name from TenantCreationDbContext
+                // Just add IF NOT EXISTS for safety
+                script = script.Replace("CREATE TABLE ", "CREATE TABLE IF NOT EXISTS ");
                 await tenantCreationContext.Database.ExecuteSqlRawAsync(script);
             }
             else

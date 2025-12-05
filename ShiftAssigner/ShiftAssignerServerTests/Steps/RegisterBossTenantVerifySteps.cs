@@ -41,7 +41,7 @@ public partial class RegisterBossTenantVerifySteps : SingleTenantStep
 
         // _scenarioContext[Tenant_Registration_Data_Context] = tenantInfo;
 
-        var response = await _serverSender.PostCommandAsync<TenantRegisterRequest, TenantRegisterResponse>("/api/v1/Auth/register-boss-tenant", payload);
+        var response = await _serverSender.PostCommandAsync<TenantRegisterRequest, TenantRegisterResponse>(AUTH_REGISTER_BOSS_TENANT, payload);
         tenantInfo.Response = response;
 
         _scenarioContext.Set<TenantSenderInfo>(tenantInfo, Tenant_Registration_Response_Context);
@@ -63,7 +63,7 @@ public partial class RegisterBossTenantVerifySteps : SingleTenantStep
         var tenantPayload = _scenarioContext.Get<TenantSenderInfo>(Tenant_Registration_Response_Context);
         var leaderRequest = CreateDefaultShiftLeaderRegistration(leaderId, tenantPayload.Response.Tenant);
 
-        var leaderResponse = await _serverSender.PostCommandAsync<RegisteringShiftLeaderRequest,RegisteringShiftLeaderResponse>($"/api/v1/ShiftLeaders/{ShiftLeadersController.Register_EndPoint}",
+        var leaderResponse = await _serverSender.PostCommandAsync<RegisteringShiftLeaderRequest,RegisteringShiftLeaderResponse>(SHIFT_LEADERS_REGISTER,
         leaderRequest, tenantPayload.JwtToken);
 
         tenantPayload.ShiftLeaderSenderInfo = new ShiftLeaderSenderInfo
@@ -94,7 +94,7 @@ public partial class RegisterBossTenantVerifySteps : SingleTenantStep
             Password = "TestPassword123" // Use a default test password
         };
 
-        var loginResponse = await _serverSender.PostCommandAsync<LoginShiftLeaderRequest, LoginShiftLeaderResponse>($"/api/v1/ShiftLeaders/{ShiftLeadersController.Login_EndPoint}",
+        var loginResponse = await _serverSender.PostCommandAsync<LoginShiftLeaderRequest, LoginShiftLeaderResponse>(SHIFT_LEADERS_LOGIN,
             loginRequest, tenantPayload.JwtToken);
 
         tenantPayload.ShiftLeaderSenderInfo.LoginResponse = loginResponse;
@@ -126,7 +126,7 @@ public partial class RegisterBossTenantVerifySteps : SingleTenantStep
             DateOfBirth = DateOnly.FromDateTime(DateTime.Now.AddYears(-25))
         };
 
-        var workerResponse = await _serverSender.PostCommandAsync<RegisteringWorkerRequest, RegisteringWorkerResponse>($"/api/v1/Workers/{WorkersController.Register_EndPoint}",
+        var workerResponse = await _serverSender.PostCommandAsync<RegisteringWorkerRequest, RegisteringWorkerResponse>(WORKERS_REGISTER,
             workerRequest, shiftLeaderToken);
 
         tenantPayload.ShiftLeaderSenderInfo.WorkerSenderInfo = new WorkerSenderInfo
@@ -159,7 +159,7 @@ public partial class RegisterBossTenantVerifySteps : SingleTenantStep
             Password = "WorkerPassword123" // Use a default test password
         };
 
-        var workerLoginResponse = await _serverSender.PostCommandAsync<LoginWorkerRequest, LoginWorkerResponse>($"/api/v1/Workers/{WorkersController.Login_EndPoint}",
+        var workerLoginResponse = await _serverSender.PostCommandAsync<LoginWorkerRequest, LoginWorkerResponse>(WORKERS_LOGIN,
             workerLoginRequest, shiftLeaderToken);
 
         tenantPayload.ShiftLeaderSenderInfo.WorkerSenderInfo.WorkerLoginResponse = workerLoginResponse;

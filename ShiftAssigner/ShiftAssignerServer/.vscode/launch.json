@@ -15,6 +15,35 @@
       }
     },
     {
+      "name": "Launch Server & Run Tests",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "start-postgres-and-build",
+      "program": "${workspaceFolder}/bin/Debug/net8.0/ShiftAssignerServer.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "postDebugTask": "run-tests"
+    },
+    {
+      "name": "Run Tests Only",
+      "type": "coreclr",
+      "request": "launch",
+      "program": "dotnet",
+      "args": [
+        "test",
+        "${workspaceFolder}/../ShiftAssignerServerTests/ShiftAssignerServer.Tests.csproj",
+        "--logger",
+        "console;verbosity=detailed"
+      ],
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      "console": "integratedTerminal"
+    },
+    {
       "name": "Launch (dotnet run)",
       "type": "coreclr",
       "request": "launch",

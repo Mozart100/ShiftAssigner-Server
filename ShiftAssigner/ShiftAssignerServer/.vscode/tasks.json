@@ -43,6 +43,23 @@
         "kind": "build",
         "isDefault": true
       }
+    },
+    {
+      "label": "run-tests",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-Command",
+        "Start-Sleep 3; dotnet test '${workspaceFolder}/../ShiftAssignerServerTests/ShiftAssignerServer.Tests.csproj' --no-build --no-restore --logger 'console;verbosity=detailed'"
+      ],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "new"
+      },
+      "problemMatcher": []
     }
   ]
 }

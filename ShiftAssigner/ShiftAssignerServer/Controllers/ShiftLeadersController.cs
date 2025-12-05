@@ -16,7 +16,8 @@ namespace ShiftAssignerServer.Controllers;
 [Route("api/v1/[controller]")]
 public class ShiftLeadersController : ControllerBase
 {
-    public const string Register_End_Point = "register";
+    public const string Register_EndPoint = "register";
+    public const string Login_EndPoint = "login";
     private readonly IShiftLeaderService _shiftLeaderService;
     private readonly IMapper _mapper;
     private readonly JwtService _jwtService;
@@ -39,7 +40,7 @@ public class ShiftLeadersController : ControllerBase
 
 
     [Authorize]
-    [HttpPost(Register_End_Point)]
+    [HttpPost(Register_EndPoint)]
     public async Task<ActionResult<RegisteringShiftLeaderResponse>> Registering([FromBody] RegisteringShiftLeaderRequest request)
     {
         // Debugger.Break();
@@ -59,17 +60,10 @@ public class ShiftLeadersController : ControllerBase
     }
 
     [Authorize]
-    [HttpPost("login")]
+    [HttpPost(Login_EndPoint)]
     public async Task<ActionResult<LoginShiftLeaderResponse>> Login([FromBody] LoginShiftLeaderRequest request)
     {
-        // Debugger.Break();
-        // var leader = _mapper.Map<ShiftLeader>(dto);
-        // leader.Role = RoleState.ShiftLeader;
-
-        // Get tenant from TenantResolutionMiddleware
         var tenant = HttpContext.Items[TenantResolutionMiddleware.TenantContextKey]?.ToString();
-
-        // Tenant is now handled by the tenant-specific database schema, not as a property
 
         bool flag = await _shiftLeaderService.LoginAsync(request);
 

@@ -63,7 +63,7 @@ public partial class RegisterBossTenantVerifySteps : SingleTenantStep
         var tenantPayload = _scenarioContext.Get<TenantSenderInfo>(Tenant_Registration_Response_Context);
         var leaderRequest = CreateDefaultShiftLeaderRegistration(leaderId, tenantPayload.Response.Tenant);
 
-        var leaderResponse = await _serverSender.PostCommandAsync<RegisteringShiftLeaderRequest,RegisteringShiftLeaderResponse>($"/api/v1/ShiftLeaders/{ShiftLeadersController.Register_End_Point}",
+        var leaderResponse = await _serverSender.PostCommandAsync<RegisteringShiftLeaderRequest,RegisteringShiftLeaderResponse>($"/api/v1/ShiftLeaders/{ShiftLeadersController.Register_EndPoint}",
         leaderRequest, tenantPayload.JwtToken);
 
 
@@ -84,7 +84,7 @@ public partial class RegisterBossTenantVerifySteps : SingleTenantStep
             Password = "TestPassword123" // Use a default test password
         };
 
-        var loginResponse = await _serverSender.PostCommandAsync<LoginShiftLeaderRequest, LoginShiftLeaderResponse>("/api/v1/ShiftLeaders/login",
+        var loginResponse = await _serverSender.PostCommandAsync<LoginShiftLeaderRequest, LoginShiftLeaderResponse>($"/api/v1/ShiftLeaders/{ShiftLeadersController.Login_EndPoint}",
             loginRequest, tenantPayload.JwtToken);
 
         tenantPayload.ShiftLeaderSenderInfo.LoginResponse = loginResponse;

@@ -66,6 +66,7 @@ public class PureApplicationDbContext : DbContext
             entity.Property(e => e.PasswordHash).IsRequired();
             entity.Property(e => e.IsActive).IsRequired();
             entity.Property(e => e.Role).IsRequired();
+            entity.Property(e => e.IsPasswordRequired).IsRequired();
         });
 
         // Configure ShiftLeader entity (separate table for TPT inheritance)

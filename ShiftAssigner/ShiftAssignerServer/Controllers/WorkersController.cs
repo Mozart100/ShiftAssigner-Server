@@ -49,9 +49,28 @@ public class WorkersController : ControllerBase
 
         bool flag = await _workerService.AddWorkerAsync(worker);
 
-        var role = worker.Role.ToString(); // "ShiftLeader"
-        var token = _jwtService.GenerateToken(worker.ID, role, tenant);
+        var role = worker.Role.ToString(); // "Worker"
+        var token = _jwtService.GenerateToken(worker.ID, role, tenant ?? string.Empty);
         return Ok(new RegisteringWorkerResponse { Token = token });
+    }
+
+    [Authorize]
+    [HttpPost(Login_EndPoint)]
+    public async Task<ActionResult<LoginWorkerResponse>> LoginWorker([FromBody] LoginWorkerRequest request)
+    {
+        // Get tenant from TenantResolutionMiddleware
+        var tenant = HttpContext.Items[TenantResolutionMiddleware.TenantContextKey]?.ToString();
+
+        bool success = await _workerService.LoginAsync(request);
+
+        if (!success)
+        {
+            return NotFound("Worker not found");
+        }
+
+        var role = "Worker";
+        var token = _jwtService.GenerateToken(request.ID, role, tenant ?? string.Empty);
+        return Ok(new LoginWorkerResponse { Token = token });
     }
 
 

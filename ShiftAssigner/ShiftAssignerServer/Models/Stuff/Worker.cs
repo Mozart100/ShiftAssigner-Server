@@ -22,10 +22,12 @@ public record Worker : PersonBase, IRegistrationMapper
     // No additional properties for now — keep the Worker as a typed specialization
     // in case we need worker-specific fields later (e.g. skill set, availability).
 
+    public bool IsPasswordRequired { get; set; }
 
     public Worker()
     {
         IsActive = true;
+        IsPasswordRequired = true; // Workers must set password on first login
     }
 
     public Worker(string id, string firstName, string lastName, string phone, DateOnly birthDate, RoleState roleState, string passwordHash)
@@ -38,6 +40,7 @@ public record Worker : PersonBase, IRegistrationMapper
         this.Role = roleState;
         PasswordHash = passwordHash;
         IsActive = true;
+        IsPasswordRequired = true; // Workers must set password on first login
     }
 
 

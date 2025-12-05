@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using ShiftAssignerServer.Models.Stuff;
 using ShiftAssignerServer.Repositories;
+using ShiftAssignerServer.Requests;
 using static ShiftAssignerServer.Models.Stuff.Worker;
 
 namespace ShiftAssignerServer.Services;
@@ -14,6 +15,7 @@ public interface IWorkerService
     Task<bool> AddWorkerAsync(Worker worker);
     Task<IEnumerable<PubWorker>> GetAllActiveWorkersPerShiftLeaderAsync(string perShiftLeader);
     Task<bool> RetireWorkerAsync(string tenant, string workerId);
+    Task<bool> LoginAsync(LoginWorkerRequest request);
 }
 
 public class WorkerService : IWorkerService
@@ -54,6 +56,17 @@ public class WorkerService : IWorkerService
             worker => worker.IsActive = false);
         
         return result;
+    }
+
+    public async Task<bool> LoginAsync(LoginWorkerRequest request)
+    {
+        var updateResult = await _workerRepository.UpdateAsync(x => x.ID == request.ID, worker =>
+        {
+            worker.PasswordHash = request.Password;
+            worker.IsPasswordRequired = false;
+        });
+
+        return updateResult; // Return actual result instead of always true
     }
 
     // Interface implemented above - no explicit fallback required.

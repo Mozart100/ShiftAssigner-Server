@@ -1,14 +1,14 @@
 namespace ShiftAssignerServer.Requests;
 
-public class LoginShiftLeaderRequest 
+public class LoginWorkerRequest
 {
     public string ID { get; set; }
 
-    public string  Password { get; set; }
+    public string Password { get; set; }
 
 }
 
-public class LoginShiftLeaderResponse 
+public class LoginWorkerResponse
 {
     public string Token { get; set; }
 }

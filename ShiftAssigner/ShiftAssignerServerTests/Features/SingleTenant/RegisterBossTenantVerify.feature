@@ -14,6 +14,8 @@ Feature: Register Tenant Boss and verify tenant exists
     Then the login response should contain a JWT token
     When the shift leader registers a worker with id "worker-1"
     Then the worker registration response should contain a JWT token
+    When the worker "worker-1" logs in
+    Then the worker login response should contain a JWT token
   When I GET the shiftleaders
   Then the shiftleaders list should contain id "leader-1"
   When the shift leader creates 2 workers

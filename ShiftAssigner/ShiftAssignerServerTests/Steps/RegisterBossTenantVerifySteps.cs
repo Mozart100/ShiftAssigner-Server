@@ -137,6 +137,35 @@ public partial class RegisterBossTenantVerifySteps : SingleTenantStep
         Assert.NotEmpty(workerResponse.Token);
     }
 
+    [When(@"the worker ""(.*)"" logs in")]
+    public async Task WhenTheWorkerLogsIn(string workerId)
+    {
+        var tenantPayload = _scenarioContext.Get<TenantSenderInfo>(Tenant_Registration_Response_Context);
+        var shiftLeaderToken = tenantPayload.ShiftLeaderSenderInfo.LoginResponse.Token;
+        
+        var workerLoginRequest = new LoginWorkerRequest
+        {
+            ID = workerId,
+            Password = "WorkerPassword123" // Use a default test password
+        };
+
+        var workerLoginResponse = await _serverSender.PostCommandAsync<LoginWorkerRequest, LoginWorkerResponse>($"/api/v1/Workers/{WorkersController.Login_EndPoint}",
+            workerLoginRequest, shiftLeaderToken);
+
+        tenantPayload.ShiftLeaderSenderInfo.WorkerSenderInfo.WorkerLoginResponse = workerLoginResponse;
+    }
+
+    [Then(@"the worker login response should contain a JWT token")]
+    public void ThenTheWorkerLoginResponseShouldContainAJWTToken()
+    {
+        var tenantPayload = _scenarioContext.Get<TenantSenderInfo>(Tenant_Registration_Response_Context);
+        var workerLoginResponse = tenantPayload.ShiftLeaderSenderInfo.WorkerSenderInfo.WorkerLoginResponse;
+
+        Assert.NotNull(workerLoginResponse);
+        Assert.NotNull(workerLoginResponse.Token);
+        Assert.NotEmpty(workerLoginResponse.Token);
+    }
+
     [When(@"I GET the shiftleaders")]
     public async Task WhenIGETTheShiftleaders()
     {
@@ -274,6 +303,7 @@ public class WorkerSenderInfo
 {
      public RegisteringWorkerRequest WorkerRequest { get; set; }
     public RegisteringWorkerResponse WorkerResponse { get; set; }
+    public LoginWorkerResponse WorkerLoginResponse { get; set; }
 
     public string JwtToken => WorkerResponse.Token;
 }

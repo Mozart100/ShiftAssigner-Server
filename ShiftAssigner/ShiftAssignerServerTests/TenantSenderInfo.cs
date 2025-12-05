@@ -25,9 +25,11 @@ public class RegistrationShiftLeaderSenderInfo
 
 public class ShiftLeaderSenderInfo
 {
-    public RegisteringShiftLeaderRequest Request { get; set; }
-    public RegisteringShiftLeaderResponse Response { get; set; }
+    public RegisteringShiftLeaderRequest RegisteringRequest { get; set; }
+    public RegisteringShiftLeaderResponse RegisteringResponse { get; set; }
     public LoginShiftLeaderResponse LoginResponse { get; set; }
+
+    public string JwtToken => LoginResponse.Token;
 
     // public string JwtToken => Response.Token;
 }

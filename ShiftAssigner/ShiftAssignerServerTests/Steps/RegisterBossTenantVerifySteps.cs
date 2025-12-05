@@ -69,8 +69,8 @@ public partial class RegisterBossTenantVerifySteps : SingleTenantStep
 
         tenantPayload.ShiftLeaderSenderInfo = new ShiftLeaderSenderInfo
         {
-            Request = leaderRequest,
-            Response = leaderResponse
+            RegisteringRequest = leaderRequest,
+            RegisteringResponse = leaderResponse
         };
     }
 

@@ -15,7 +15,7 @@
       "command": "powershell",
       "args": [
         "-Command",
-        "docker stop postgres14 2>$null; docker rm postgres14 2>$null; docker run --name postgres14 -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=shiftassigner -p 5432:5432 -d postgres:14"
+        "Write-Host '🐘 Starting PostgreSQL Database...' -ForegroundColor Cyan; Write-Host '📋 Stopping existing postgres14 container...' -ForegroundColor Yellow; docker stop postgres14 2>$null; Write-Host '🗑️  Removing existing postgres14 container...' -ForegroundColor Yellow; docker rm postgres14 2>$null; Write-Host '🚀 Creating new PostgreSQL container...' -ForegroundColor Green; docker run --name postgres14 -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=shiftassigner -p 5432:5432 -d postgres:14; Write-Host '✅ PostgreSQL is ready on port 5432!' -ForegroundColor Green"
       ],
       "group": "build",
       "presentation": {

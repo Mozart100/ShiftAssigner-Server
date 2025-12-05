@@ -11,7 +11,7 @@ namespace ShiftAssignerServer.Services;
 
 public interface IWorkerService
 {
-    Task<bool> AddWorker(Worker worker);
+    Task<bool> AddWorkerAsync(Worker worker);
     Task<IEnumerable<PubWorker>> GetAllActiveWorkersPerShiftLeaderAsync(string perShiftLeader);
     Task<bool> RetireWorkerAsync(string tenant, string workerId);
 }
@@ -27,7 +27,7 @@ public class WorkerService : IWorkerService
         _mapper = mapper;
     }
 
-    public async Task<bool> AddWorker(Worker worker)
+    public async Task<bool> AddWorkerAsync(Worker worker)
     {
         var ptr = await _workerRepository.InsertAsync(worker);
         return true;

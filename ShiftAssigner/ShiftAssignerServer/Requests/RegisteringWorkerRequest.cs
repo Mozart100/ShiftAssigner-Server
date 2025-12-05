@@ -1,7 +1,6 @@
 namespace ShiftAssignerServer.Requests;
 
-
-public class RegisteringShiftLeaderRequest 
+public class RegisteringWorkerRequest
 {
     public string ID { get; set; }
     public string FirstName { get; set; } = string.Empty;
@@ -10,8 +9,7 @@ public class RegisteringShiftLeaderRequest
     public DateOnly DateOfBirth { get; set; }
 }
 
-public class RegisteringShiftLeaderResponse : RegisterResponse
+public class RegisteringWorkerResponse : RegisterResponse
 {
-    public string Tenant { get; set; }
+    public string Token { get; set; }
 }
-

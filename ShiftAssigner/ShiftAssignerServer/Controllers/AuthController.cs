@@ -62,7 +62,7 @@ namespace ShiftAssignerServer.Controllers
             var worker = _mapper.Map<Worker>(dto);
             // var worker = new Worker(dto.ID, dto.FirstName, dto.LastName, dto.PhoneNumber, dto.DateOfBirth, dto.Tenant, RoleState.Worker, pwHash);
             // _store.Add(worker, pwHash);
-            bool flag = await _workerService.AddWorker(worker);
+            bool flag = await _workerService.AddWorkerAsync(worker);
             var role = worker.Role.ToString(); // "Worker"
 
             // Determine tenant for the token. Workers no longer carry tenant; if the DTO included a ShiftLeaderId

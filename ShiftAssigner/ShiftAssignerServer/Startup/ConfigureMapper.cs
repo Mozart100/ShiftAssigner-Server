@@ -18,6 +18,10 @@ public class ConfigureMapper : Profile
 
         CreateMap<TenantRegisterRequest, BossTenant>();
         CreateMap<LoginShiftLeaderRequest, ShiftLeader>();
+        CreateMap<RegisteringShiftLeaderRequest, ShiftLeader>();
+
+
+        
 
     }
 }

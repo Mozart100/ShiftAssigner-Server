@@ -181,18 +181,24 @@ namespace ShiftAssignerServer.Tests.Features.SingleTenant
     await testRunner.ThenAsync("the login response should contain a JWT token", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
 #line 15
-  await testRunner.WhenAsync("I GET the shiftleaders", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+    await testRunner.WhenAsync("the shift leader registers a worker with id \"worker-1\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 16
-  await testRunner.ThenAsync("the shiftleaders list should contain id \"leader-1\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+    await testRunner.ThenAsync("the worker registration response should contain a JWT token", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
 #line 17
-  await testRunner.WhenAsync("the shift leader creates 2 workers", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+  await testRunner.WhenAsync("I GET the shiftleaders", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 18
-  await testRunner.WhenAsync("I GET the workers", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+  await testRunner.ThenAsync("the shiftleaders list should contain id \"leader-1\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
 #line 19
+  await testRunner.WhenAsync("the shift leader creates 2 workers", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 20
+  await testRunner.WhenAsync("I GET the workers", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 21
   await testRunner.ThenAsync("the workers list should contain the created workers", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }

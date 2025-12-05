@@ -101,6 +101,38 @@ public partial class RegisterBossTenantVerifySteps : SingleTenantStep
         Assert.NotEmpty(loginResponse.Token);
     }
 
+    [When(@"the shift leader registers a worker with id ""(.*)""")]
+    public async Task WhenTheShiftLeaderRegistersAWorkerWithId(string workerId)
+    {
+        var tenantPayload = _scenarioContext.Get<TenantSenderInfo>(Tenant_Registration_Response_Context);
+        var shiftLeaderToken = tenantPayload.ShiftLeaderSenderInfo.LoginResponse.Token;
+        
+        var workerRequest = new RegisteringWorkerRequest
+        {
+            ID = workerId,
+            FirstName = "Test",
+            LastName = "Worker",
+            PhoneNumber = "555-0123", 
+            DateOfBirth = DateOnly.FromDateTime(DateTime.Now.AddYears(-25))
+        };
+
+        var workerResponse = await _serverSender.PostCommandAsync<RegisteringWorkerRequest, RegisteringWorkerResponse>($"/api/v1/Workers/{WorkersController.Register_EndPoint}",
+            workerRequest, shiftLeaderToken);
+
+        tenantPayload.ShiftLeaderSenderInfo.WorkerResponse = workerResponse;
+    }
+
+    [Then(@"the worker registration response should contain a JWT token")]
+    public void ThenTheWorkerRegistrationResponseShouldContainAJWTToken()
+    {
+        var tenantPayload = _scenarioContext.Get<TenantSenderInfo>(Tenant_Registration_Response_Context);
+        var workerResponse = tenantPayload.ShiftLeaderSenderInfo.WorkerResponse;
+
+        Assert.NotNull(workerResponse);
+        Assert.NotNull(workerResponse.Token);
+        Assert.NotEmpty(workerResponse.Token);
+    }
+
     [When(@"I GET the shiftleaders")]
     public async Task WhenIGETTheShiftleaders()
     {

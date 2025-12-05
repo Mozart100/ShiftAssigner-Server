@@ -28,6 +28,7 @@ public class ShiftLeaderSenderInfo
     public RegisteringShiftLeaderRequest RegisteringRequest { get; set; }
     public RegisteringShiftLeaderResponse RegisteringResponse { get; set; }
     public LoginShiftLeaderResponse LoginResponse { get; set; }
+    public RegisteringWorkerResponse WorkerResponse { get; set; }
 
     public string JwtToken => LoginResponse.Token;
 

@@ -15,6 +15,7 @@ public class ConfigureMapper : Profile
         CreateMap<Models.Company, AllTenantsResponse>();
         CreateMap<ShiftLeader, PubShiftLeader>();
         CreateMap<Worker, PubWorker>();
+        CreateMap<RegisteringWorkerRequest,Worker>();
 
         CreateMap<TenantRegisterRequest, BossTenant>();
         CreateMap<LoginShiftLeaderRequest, ShiftLeader>();

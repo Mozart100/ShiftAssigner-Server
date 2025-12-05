@@ -51,7 +51,7 @@ public class WorkersController : ControllerBase
 
         var role = worker.Role.ToString(); // "ShiftLeader"
         var token = _jwtService.GenerateToken(worker.ID, role, tenant);
-        return Ok(new RegisteringShiftLeaderResponse { Token = token });
+        return Ok(new RegisteringWorkerResponse { Token = token });
     }
 
 

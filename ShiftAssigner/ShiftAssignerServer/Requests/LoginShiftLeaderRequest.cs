@@ -8,7 +8,7 @@ public class LoginShiftLeaderRequest
 
 }
 
-public class LoginShiftLeaderResponse : RegisterResponse
+public class LoginShiftLeaderResponse 
 {
     public string Token { get; set; }
 }

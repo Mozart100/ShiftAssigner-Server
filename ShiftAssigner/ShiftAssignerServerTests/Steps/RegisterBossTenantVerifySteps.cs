@@ -57,7 +57,7 @@ public partial class RegisterBossTenantVerifySteps : SingleTenantStep
     }
 
 
-    [When(@"I create a shift leader with id ""(.*)""")]
+    [When(@"I registering shiftleader with id ""(.*)""")]
     public async Task WhenICreateAShiftLeaderWithId(string leaderId)
     {
         var tenantPayload = _scenarioContext.Get<TenantSenderInfo>(Tenant_Registration_Response_Context);
@@ -72,6 +72,33 @@ public partial class RegisterBossTenantVerifySteps : SingleTenantStep
             Request = leaderRequest,
             Response = leaderResponse
         };
+    }
+
+    [When(@"the shift leader ""(.*)"" logs in")]
+    public async Task WhenTheShiftLeaderLogsIn(string leaderId)
+    {
+        var tenantPayload = _scenarioContext.Get<TenantSenderInfo>(Tenant_Registration_Response_Context);
+        var loginRequest = new LoginShiftLeaderRequest
+        {
+            ID = leaderId,
+            Password = "TestPassword123" // Use a default test password
+        };
+
+        var loginResponse = await _serverSender.PostCommandAsync<LoginShiftLeaderRequest, LoginShiftLeaderResponse>("/api/v1/ShiftLeaders/login",
+            loginRequest, tenantPayload.JwtToken);
+
+        tenantPayload.ShiftLeaderSenderInfo.LoginResponse = loginResponse;
+    }
+
+    [Then(@"the login response should contain a JWT token")]
+    public void ThenTheLoginResponseShouldContainAJWTToken()
+    {
+        var tenantPayload = _scenarioContext.Get<TenantSenderInfo>(Tenant_Registration_Response_Context);
+        var loginResponse = tenantPayload.ShiftLeaderSenderInfo.LoginResponse;
+
+        Assert.NotNull(loginResponse);
+        Assert.NotNull(loginResponse.Token);
+        Assert.NotEmpty(loginResponse.Token);
     }
 
     [When(@"I GET the shiftleaders")]

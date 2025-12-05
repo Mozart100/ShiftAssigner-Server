@@ -12,25 +12,25 @@ public interface IShiftLeaderService
 
 public class ShiftLeaderService : IShiftLeaderService
 {
-    private readonly IShiftLeaderRepository _repo;
+    private readonly ITenantUnitOfWork _tenantUnitOfWork;
     private readonly IMapper _shiftLeaderRepository;
 
-    public ShiftLeaderService(IShiftLeaderRepository repo, IMapper mapper)
+    public ShiftLeaderService(ITenantUnitOfWork tenantUnitOfWork, IMapper mapper)
     {
-        _repo = repo;
+        _tenantUnitOfWork = tenantUnitOfWork;
         _shiftLeaderRepository = mapper;
     }
 
 
     public async Task<bool> AddShiftLeaderAsync(ShiftLeader shiftLeader)
     {
-        var model = await _repo.InsertAsync(shiftLeader);
+        var model = await _tenantUnitOfWork.ShiftLeaders.InsertAsync(shiftLeader);
         return true;
     }
 
     public async Task<IEnumerable<PubShiftLeader>> GetAllShiftLeaderAsync(string perTenant)
     {
-        var leaders = await _repo.GetAllAsync(x => x.IsActive && x.Tenant.Equals(perTenant, StringComparison.CurrentCultureIgnoreCase)  );
+        var leaders = await _tenantUnitOfWork.ShiftLeaders.GetAllAsync(x => x.IsActive && x.Tenant.Equals(perTenant, StringComparison.CurrentCultureIgnoreCase)  );
 
         if (leaders.IsEmpty())
         {

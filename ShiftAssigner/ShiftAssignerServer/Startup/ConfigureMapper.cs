@@ -11,12 +11,13 @@ public class ConfigureMapper : Profile
     {
         CreateMap<RegisterRequest, Worker>();
         CreateMap<RegisterRequest, ShiftLeader>();
-        CreateMap<TenantRegisterRequest, BossTenant>();
+
         CreateMap<Models.Company, AllTenantsResponse>();
         CreateMap<ShiftLeader, PubShiftLeader>();
         CreateMap<Worker, PubWorker>();
 
-        // CreateMap<Chat, ChatDto>();
-        //      //.ForMember(dest => dest.Messages, opt => opt.MapFrom(src => src.UserMessages));
+        CreateMap<TenantRegisterRequest, BossTenant>();
+        CreateMap<AddingShiftLeaderRequest, ShiftLeader>();
+
     }
 }

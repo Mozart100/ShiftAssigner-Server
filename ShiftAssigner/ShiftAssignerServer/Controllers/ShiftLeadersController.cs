@@ -3,6 +3,7 @@ using System.Linq;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ShiftAssignerServer.Middleware;
 using ShiftAssignerServer.Models;
 using ShiftAssignerServer.Models.Stuff;
 using ShiftAssignerServer.Requests;
@@ -38,13 +39,17 @@ public class ShiftLeadersController : ControllerBase
 
     [Authorize]
     [HttpPost("adding-shift-leader")]
-    public async Task<ActionResult<AddingShiftLeaderResponse>> RegisterShiftLeader([FromBody] AddingShiftLeaderRequest dto, [FromQuery] string tenant = "")
+    public async Task<ActionResult<AddingShiftLeaderResponse>> RegisterShiftLeader([FromBody] AddingShiftLeaderRequest dto)
     {
         // Debugger.Break();
         var leader = _mapper.Map<ShiftLeader>(dto);
         leader.Role = RoleState.ShiftLeader;
-        // If tenant provided as query param, use it; otherwise leader.Tenant remains as mapped (empty)
-        if (!string.IsNullOrWhiteSpace(tenant)) leader.Tenant = tenant;
+
+        // Get tenant from TenantResolutionMiddleware
+        var tenant = HttpContext.Items[TenantResolutionMiddleware.TenantContextKey]?.ToString();
+        
+        // If tenant provided from middleware, use it; otherwise leader.Tenant remains as mapped (empty)
+        leader.Tenant = tenant;
 
         bool flag = await _shiftLeaderService.AddShiftLeaderAsync(leader);
 

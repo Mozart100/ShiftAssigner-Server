@@ -17,13 +17,13 @@ public interface ITenantService
 
 public class TenantService : ITenantService
 {
-    private readonly IBossTenantRepository _bossTenantRepository;
+    private readonly ITenantUnitOfWork _tenantUnitOfWork;
     private readonly IMapper _mapper;
     private readonly ApplicationDbContext _context;
 
-    public TenantService(IBossTenantRepository bossTenantRepository, IMapper mapper, ApplicationDbContext context)
+    public TenantService(ITenantUnitOfWork tenantUnitOfWork, IMapper mapper, ApplicationDbContext context)
     {
-        this._bossTenantRepository = bossTenantRepository;
+        _tenantUnitOfWork = tenantUnitOfWork;
         _mapper = mapper;
         _context = context;
     }
@@ -58,7 +58,7 @@ public class TenantService : ITenantService
             .UseNpgsql(connectionString);
 
         using var tenantCreationContext = new TenantCreationDbContext(optionsBuilder.Options, schemaName);
-        
+
         // Check if database exists and force table creation
         var canConnect = await tenantCreationContext.Database.CanConnectAsync();
         if (canConnect)
@@ -82,7 +82,7 @@ public class TenantService : ITenantService
     public async Task<AllTenantsResponse> GetAllTenantsAsync()
     {
         var result = new AllTenantsResponse();
-        var tenants = await _bossTenantRepository.GetAllAsync();
+        var tenants = await _tenantUnitOfWork.BossTenantRepository.GetAllAsync();
 
         if (tenants.IsEmpty())
         {
@@ -101,7 +101,9 @@ public class TenantService : ITenantService
     public async Task<bool> AddBossTenantAsync(TenantRegisterRequest request)
     {
         var bossTenant = _mapper.Map<BossTenant>(request);
-        var ptr = await _bossTenantRepository.InsertAsync(bossTenant);
+
+        var ptr = await _tenantUnitOfWork.BossTenantRepository.InsertAsync(bossTenant);
+
 
         return true;
     }

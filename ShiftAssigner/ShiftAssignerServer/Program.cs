@@ -8,6 +8,7 @@ using Serilog;
 using Serilog.Events;
 using ShiftAssignerServer.Data;
 using ShiftAssignerServer.Extensions;
+using ShiftAssignerServer.Middleware;
 using ShiftAssignerServer.Repositories;
 using ShiftAssignerServer.Services;
 using ShiftAssignerServer.Services.Validation;
@@ -85,7 +86,7 @@ builder.Services.AddScoped<IStuffBookingRepository, StuffBookingRepository>();
 builder.Services.AddScoped<ITenantRepository, TenantRepository>();
 
 // Unit of Work (recommended)
-builder.Services.AddScoped<ShiftAssignerServer.Repositories.IUnitOfWork, ShiftAssignerServer.Repositories.UnitOfWork>();
+builder.Services.AddScoped<ITenantUnitOfWork, TenantUnitOfWork>();
 
 // Business Services
 builder.Services.AddScoped<IWorkerService, WorkerService>();
@@ -158,6 +159,9 @@ if (!app.Environment.IsDevelopment())
 
 // Add tenant resolution middleware before authentication
 app.UseTenantResolution();
+
+// Add auto-save middleware after tenant resolution
+app.UseAutoSave();
 
 app.UseAuthentication();
 app.UseAuthorization();

@@ -25,6 +25,8 @@ public interface IRepositoryBase<T> where T : class
     Task<bool> UpdateAsync(Expression<Func<T, bool>> predicate, Action<T> update, CancellationToken cancellationToken = default);
     bool Update(Expression<Func<T, bool>> predicate, Action<T> update);
 
+    bool HasDataBaseChanged{get;}
+
     // DELETE
     // Task<bool> DeleteAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
     // bool Delete(Expression<Func<T, bool>> predicate);
@@ -34,6 +36,9 @@ public abstract class BaseRepository<T> : IRepositoryBase<T> where T : class
 {
     protected readonly ApplicationDbContext Context;
     protected DbSet<T> DbSet => Context.Set<T>();
+    private bool _hasDataBaseChanged = false;
+
+    public bool HasDataBaseChanged => _hasDataBaseChanged;
 
     protected BaseRepository(ApplicationDbContext context)
     {
@@ -45,7 +50,7 @@ public abstract class BaseRepository<T> : IRepositoryBase<T> where T : class
     {
         ArgumentNullException.ThrowIfNull(entity);
         await DbSet.AddAsync(entity, cancellationToken);
-        await Context.SaveChangesAsync(cancellationToken);
+        _hasDataBaseChanged = true;
         return entity;
     }
 
@@ -53,7 +58,7 @@ public abstract class BaseRepository<T> : IRepositoryBase<T> where T : class
     {
         ArgumentNullException.ThrowIfNull(entity);
         DbSet.Add(entity);
-        Context.SaveChanges();
+        _hasDataBaseChanged = true;
         return entity;
     }
 
@@ -106,7 +111,7 @@ public abstract class BaseRepository<T> : IRepositoryBase<T> where T : class
             return false;
 
         update(entity);
-        await Context.SaveChangesAsync(cancellationToken);
+        _hasDataBaseChanged = true;
         return true;
     }
 
@@ -120,7 +125,7 @@ public abstract class BaseRepository<T> : IRepositoryBase<T> where T : class
             return false;
 
         update(entity);
-        Context.SaveChanges();
+        _hasDataBaseChanged = true;
         return true;
     }
 

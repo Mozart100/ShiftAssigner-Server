@@ -160,52 +160,37 @@ namespace ShiftAssignerServer.Tests.Features.SingleTenant
             {
                 await this.ScenarioStartAsync();
 #line 8
-  await testRunner.GivenAsync("I have a tenant boss registration payload", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+  await testRunner.GivenAsync("I have a tenant boss registration payload for basic flow", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
 #line 9
-  await testRunner.WhenAsync("Tenant registration \"1\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+  await testRunner.WhenAsync("Tenant registration \"1\" for basic flow", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 10
-  await testRunner.ThenAsync("the response should contain a JWT token", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+  await testRunner.ThenAsync("the tenant registration response should contain a JWT token", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
 #line 11
-    await testRunner.WhenAsync("I registering shiftleader with id \"leader-1\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+    await testRunner.WhenAsync("I register a shiftleader with id \"leader-1\" for basic flow", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 12
-    await testRunner.ThenAsync("the response should contain a JWT token", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+    await testRunner.ThenAsync("the shiftleader registration response should contain a JWT token", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
 #line 13
-    await testRunner.WhenAsync("the shift leader \"leader-1\" logs in", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+    await testRunner.WhenAsync("the shift leader \"leader-1\" logs in for basic flow", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 14
-    await testRunner.ThenAsync("the login response should contain a JWT token", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+    await testRunner.ThenAsync("the shiftleader login response should contain a JWT token", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
 #line 15
-    await testRunner.WhenAsync("the shift leader registers a worker with id \"worker-1\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+    await testRunner.WhenAsync("the shift leader registers a worker with id \"worker-1\" for basic flow", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 16
     await testRunner.ThenAsync("the worker registration response should contain a JWT token", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
 #line 17
-    await testRunner.WhenAsync("the worker \"worker-1\" logs in", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+    await testRunner.WhenAsync("the worker \"worker-1\" logs in for basic flow", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 18
     await testRunner.ThenAsync("the worker login response should contain a JWT token", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
-#line hidden
-#line 19
-  await testRunner.WhenAsync("I GET the shiftleaders", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
-#line 20
-  await testRunner.ThenAsync("the shiftleaders list should contain id \"leader-1\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
-#line hidden
-#line 21
-  await testRunner.WhenAsync("the shift leader creates 2 workers", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
-#line 22
-  await testRunner.WhenAsync("I GET the workers", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
-#line 23
-  await testRunner.ThenAsync("the workers list should contain the created workers", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

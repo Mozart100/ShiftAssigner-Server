@@ -23,14 +23,14 @@ public partial class RegisterBossTenantVerifySteps : SingleTenantStep
     {
     }
 
-    [Given(@"I have a tenant boss registration payload")]
+    [Given(@"I have a tenant boss registration payload for basic flow")]
     public void GivenIHaveATenantBossRegistrationPayload()
     {
         var payload = CreateDefaultTenantRegistration();
         _scenarioContext[Tenant_Registration_Data_Context] = payload;
     }
 
-    [When(@"Tenant registration ""(.*)""")]
+    [When(@"Tenant registration ""(.*)"" for basic flow")]
     public async Task WhenTenantRegistration(string tenantId)
     {
         var payload = CreateDefaultTenantRegistration(tenantId);
@@ -47,7 +47,7 @@ public partial class RegisterBossTenantVerifySteps : SingleTenantStep
         _scenarioContext.Set<TenantSenderInfo>(tenantInfo, Tenant_Registration_Response_Context);
     }
 
-    [Then(@"the response should contain a JWT token")]
+    [Then(@"the tenant registration response should contain a JWT token")]
     public void ThenTheResponseShouldContainAJWTToken()
     {
         var response = _scenarioContext.Get<TenantSenderInfo>(Tenant_Registration_Response_Context);
@@ -57,15 +57,14 @@ public partial class RegisterBossTenantVerifySteps : SingleTenantStep
     }
 
 
-    [When(@"I registering shiftleader with id ""(.*)""")]
-    public async Task WhenICreateAShiftLeaderWithId(string leaderId)
+    [When(@"I register a shiftleader with id ""(.*)"" for basic flow")]
+    public async Task WhenIRegisterAShiftLeaderWithId(string leaderId)
     {
         var tenantPayload = _scenarioContext.Get<TenantSenderInfo>(Tenant_Registration_Response_Context);
         var leaderRequest = CreateDefaultShiftLeaderRegistration(leaderId, tenantPayload.Response.Tenant);
 
-        var leaderResponse = await _serverSender.PostCommandAsync<RegisteringShiftLeaderRequest, RegisteringShiftLeaderResponse>($"/api/v1/ShiftLeaders/{ShiftLeadersController.Register_EndPoint}",
+        var leaderResponse = await _serverSender.PostCommandAsync<RegisteringShiftLeaderRequest,RegisteringShiftLeaderResponse>($"/api/v1/ShiftLeaders/{ShiftLeadersController.Register_EndPoint}",
         leaderRequest, tenantPayload.JwtToken);
-
 
         tenantPayload.ShiftLeaderSenderInfo = new ShiftLeaderSenderInfo
         {
@@ -74,7 +73,18 @@ public partial class RegisterBossTenantVerifySteps : SingleTenantStep
         };
     }
 
-    [When(@"the shift leader ""(.*)"" logs in")]
+    [Then(@"the shiftleader registration response should contain a JWT token")]
+    public void ThenTheShiftLeaderRegistrationResponseShouldContainAJWTToken()
+    {
+        var tenantPayload = _scenarioContext.Get<TenantSenderInfo>(Tenant_Registration_Response_Context);
+        var response = tenantPayload.ShiftLeaderSenderInfo.RegisteringResponse;
+
+        Assert.NotNull(response);
+        Assert.NotNull(response.Token);
+        Assert.NotEmpty(response.Token);
+    }
+
+    [When(@"the shift leader ""(.*)"" logs in for basic flow")]
     public async Task WhenTheShiftLeaderLogsIn(string leaderId)
     {
         var tenantPayload = _scenarioContext.Get<TenantSenderInfo>(Tenant_Registration_Response_Context);
@@ -90,7 +100,7 @@ public partial class RegisterBossTenantVerifySteps : SingleTenantStep
         tenantPayload.ShiftLeaderSenderInfo.LoginResponse = loginResponse;
     }
 
-    [Then(@"the login response should contain a JWT token")]
+    [Then(@"the shiftleader login response should contain a JWT token")]
     public void ThenTheLoginResponseShouldContainAJWTToken()
     {
         var tenantPayload = _scenarioContext.Get<TenantSenderInfo>(Tenant_Registration_Response_Context);
@@ -101,7 +111,7 @@ public partial class RegisterBossTenantVerifySteps : SingleTenantStep
         Assert.NotEmpty(loginResponse.Token);
     }
 
-    [When(@"the shift leader registers a worker with id ""(.*)""")]
+    [When(@"the shift leader registers a worker with id ""(.*)"" for basic flow")]
     public async Task WhenTheShiftLeaderRegistersAWorkerWithId(string workerId)
     {
         var tenantPayload = _scenarioContext.Get<TenantSenderInfo>(Tenant_Registration_Response_Context);
@@ -137,7 +147,7 @@ public partial class RegisterBossTenantVerifySteps : SingleTenantStep
         Assert.NotEmpty(workerResponse.Token);
     }
 
-    [When(@"the worker ""(.*)"" logs in")]
+    [When(@"the worker ""(.*)"" logs in for basic flow")]
     public async Task WhenTheWorkerLogsIn(string workerId)
     {
         var tenantPayload = _scenarioContext.Get<TenantSenderInfo>(Tenant_Registration_Response_Context);
@@ -164,74 +174,6 @@ public partial class RegisterBossTenantVerifySteps : SingleTenantStep
         Assert.NotNull(workerLoginResponse);
         Assert.NotNull(workerLoginResponse.Token);
         Assert.NotEmpty(workerLoginResponse.Token);
-    }
-
-    [When(@"I GET the shiftleaders")]
-    public async Task WhenIGETTheShiftleaders()
-    {
-        // var tenantPayload = _scenarioContext.Get<TenantRegisterRequest>(Tenant_Registration_Data_Context);
-        // var response = await _serverSender.GetAsync<GetShiftLeaderPerTenantResponse>($"/api/v1/ShiftLeaders/{tenantPayload.Tenant}");
-        // _scenarioContext[All_ShiftLeaders_Context] = response;
-    }
-
-    [Then(@"the shiftleaders list should contain id ""(.*)""")]
-    public void ThenTheShiftleadersListShouldContainId(string leaderId)
-    {
-        // var response = _scenarioContext.Get<GetShiftLeaderPerTenantResponse>(All_ShiftLeaders_Context);
-
-        // Assert.NotNull(response);
-        // Assert.NotNull(response.ShifLeaders);
-        // Assert.Contains(response.ShifLeaders, leader => leader.ID == leaderId);
-    }
-
-    [When(@"the shift leader creates (.*) workers")]
-    public async Task WhenTheShiftLeaderCreatesWorkers(int workerCount)
-    {
-        // var leaderId = _scenarioContext.Get<string>(CurrentLeaderId_Context);
-        // var createdWorkers = new List<string>();
-        // var workerResponses = new List<RegisterResponse>();
-
-        // for (int i = 1; i <= workerCount; i++)
-        // {
-        //     var workerId = $"worker-{i}";
-        //     var workerPayload = CreateDefaultWorkerRegistration(workerId, leaderId);
-
-        //     var response = await _serverSender.PostAsync<RegisterResponse>("/api/v1/Auth/register-worker", workerPayload);
-        //     workerResponses.Add(response);
-
-        //     if (response != null)
-        //     {
-        //         createdWorkers.Add(workerId);
-        //     }
-        // }
-
-        // _scenarioContext[Workers_Registration_Data_Context] = createdWorkers;
-        // _scenarioContext[Workers_Registration_Responses_Context] = workerResponses;
-    }
-
-    [When(@"I GET the workers")]
-    public async Task WhenIGETTheWorkers()
-    {
-        // var tenantPayload = _scenarioContext.Get<TenantRegisterRequest>(Tenant_Registration_Data_Context);
-        // var response = await _serverSender.GetAsync<GetWorkerPerTenantResponse>($"/api/v1/Workers/{tenantPayload.Tenant}");
-        // _scenarioContext[All_Workers_Context] = response;
-    }
-
-    [Then(@"the workers list should contain the created workers")]
-    public void ThenTheWorkersListShouldContainTheCreatedWorkers()
-    {
-        // var response = _scenarioContext.Get<GetWorkerPerTenantResponse>(All_Workers_Context);
-        // var createdWorkers = _scenarioContext.Get<List<string>>(Workers_Registration_Data_Context);
-
-        // Assert.NotNull(response);
-        // Assert.NotNull(response.Workers);
-
-        // var workerIds = response.Workers.Select(w => w.ID).ToList();
-
-        // foreach (var createdWorkerId in createdWorkers)
-        // {
-        //     Assert.Contains(createdWorkerId, workerIds);
-        // }
     }
 
     // Helper methods for creating test data

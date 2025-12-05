@@ -1,17 +1,16 @@
 namespace ShiftAssignerServer.Requests;
 
-public class AddingShiftLeaderRequest 
+
+public class RegisteringShiftLeaderRequest 
 {
     public string ID { get; set; }
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
     public string PhoneNumber { get; set; } = string.Empty;
     public DateOnly DateOfBirth { get; set; }
-    // Optional: associate this worker to a supervising shift leader at registration
 }
 
-public class AddingShiftLeaderResponse : RegisterResponse
+public class RegisteringShiftLeaderResponse : RegisterResponse
 {
     public string Tenant { get; set; }
 }
-

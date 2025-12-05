@@ -62,7 +62,7 @@ public partial class RegisterBossTenantVerifySteps : SingleTenantStep
         var tenantPayload = _scenarioContext.Get<TenantSenderInfo>(Tenant_Registration_Response_Context);
         var leaderRequest = CreateDefaultShiftLeaderRegistration(leaderId, tenantPayload.Response.Tenant);
 
-        var leaderResponse = await _serverSender.PostCommandAsync<AddingShiftLeaderRequest,AddingShiftLeaderResponse>($"/api/v1/ShiftLeaders/adding-shift-leader",
+        var leaderResponse = await _serverSender.PostCommandAsync<LoginShiftLeaderRequest,LoginShiftLeaderResponse>($"/api/v1/ShiftLeaders/adding-shift-leader",
         leaderRequest, tenantPayload.JwtToken);
 
 
@@ -156,9 +156,9 @@ public partial class RegisterBossTenantVerifySteps : SingleTenantStep
         };
     }
 
-    private AddingShiftLeaderRequest CreateDefaultShiftLeaderRegistration(string leaderId, string tenant)
+    private LoginShiftLeaderRequest CreateDefaultShiftLeaderRegistration(string leaderId, string tenant)
     {
-        return new AddingShiftLeaderRequest
+        return new LoginShiftLeaderRequest
         {
             ID = leaderId,
             FirstName = "Leader",

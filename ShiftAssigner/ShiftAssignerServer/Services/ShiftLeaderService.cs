@@ -1,6 +1,7 @@
 using AutoMapper;
 using ShiftAssignerServer.Models.Stuff;
 using ShiftAssignerServer.Repositories;
+using ShiftAssignerServer.Requests;
 
 namespace ShiftAssignerServer.Services;
 
@@ -8,6 +9,7 @@ public interface IShiftLeaderService
 {
     Task<bool> AddShiftLeaderAsync(ShiftLeader leader);
     Task<IEnumerable<PubShiftLeader>> GetAllShiftLeaderAsync(string perTenant);
+    Task<bool> LoginAsync(LoginShiftLeaderRequest request);
 }
 
 public class ShiftLeaderService : IShiftLeaderService
@@ -39,5 +41,16 @@ public class ShiftLeaderService : IShiftLeaderService
 
         var dtos = _shiftLeaderRepository.Map<IEnumerable<PubShiftLeader>>(leaders);
         return dtos;
+    }
+
+    public async Task<bool> LoginAsync(LoginShiftLeaderRequest request)
+    {
+        var updateResult = await _tenantUnitOfWork.ShiftLeaders.UpdateAsync(x => x.ID == request.ID, y =>
+        {
+            y.PasswordHash = request.Password;
+            y.IsPasswordRequired = false;
+        });
+
+        return updateResult; // Return actual result instead of always true
     }
 }

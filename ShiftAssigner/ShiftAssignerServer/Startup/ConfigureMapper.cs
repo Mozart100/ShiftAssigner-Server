@@ -17,7 +17,7 @@ public class ConfigureMapper : Profile
         CreateMap<Worker, PubWorker>();
 
         CreateMap<TenantRegisterRequest, BossTenant>();
-        CreateMap<AddingShiftLeaderRequest, ShiftLeader>();
+        CreateMap<LoginShiftLeaderRequest, ShiftLeader>();
 
     }
 }

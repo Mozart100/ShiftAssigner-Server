@@ -49,7 +49,6 @@ public class StuffBookingsController : ControllerBase
         {
             WorkerId = request.WorkerId,
             ShiftLeaderId = request.ShiftLeaderId,
-            Tenant = request.Tenant,
             PeriodStart = periodStart,
             PeriodEnd = periodEnd,
             Notes = request.Notes
@@ -73,12 +72,11 @@ public class StuffBookingsController : ControllerBase
             return BadRequest("periodStart must be an ISO date: yyyy-MM-dd");
         }
 
-        await _service.ReassignAsync(request.Tenant, request.WorkerId, request.ShiftLeaderId, periodStart, null, request.Notes);
+        // await _service.ReassignAsync(request.Tenant, request.WorkerId, request.ShiftLeaderId, periodStart, null, request.Notes);
         
         var response = new ReassignWorkerResponse
         {
             ShiftLeaderId = request.ShiftLeaderId,
-            Tenant = request.Tenant,
             PeriodStart = request.PeriodStart,
             Notes = request.Notes
         };
@@ -88,26 +86,26 @@ public class StuffBookingsController : ControllerBase
 
 
     // GET: api/v1/StuffBookings/leader/{leaderId}?period=yyyy-MM-dd
-    [HttpGet("leader/{leaderId}")]
-    public async Task<IActionResult> GetWorkersForLeader(string leaderId, [FromQuery] string period, [FromQuery] string tenant, [FromQuery] string periodEnd = "")
-    {
-        if (string.IsNullOrWhiteSpace(tenant)) return BadRequest("tenant query parameter is required");
-
-        if (!DateOnly.TryParse(period, out var periodStart))
-        {
-            return BadRequest("period must be an ISO date: yyyy-MM-dd");
-        }
-
-        DateOnly? pe = null;
-        if (!string.IsNullOrWhiteSpace(periodEnd))
-        {
-            if (!DateOnly.TryParse(periodEnd, out var parsed)) return BadRequest("periodEnd must be an ISO date: yyyy-MM-dd");
-            pe = parsed;
-        }
-
-        var workers = await _service.GetWorkersForLeaderPeriodAsync(tenant, leaderId, periodStart, pe);
-        return Ok(new GetWorkerPerTenantResponse { Workers = workers });
-    }
+    // [HttpGet("leader/{leaderId}")]
+    // public async Task<IActionResult> GetWorkersForLeader(string leaderId, [FromQuery] string period, [FromQuery] string tenant, [FromQuery] string periodEnd = "")
+    // {
+    //     if (string.IsNullOrWhiteSpace(tenant)) return BadRequest("tenant query parameter is required");
+    //
+    //     if (!DateOnly.TryParse(period, out var periodStart))
+    //     {
+    //         return BadRequest("period must be an ISO date: yyyy-MM-dd");
+    //     }
+    //
+    //     DateOnly? pe = null;
+    //     if (!string.IsNullOrWhiteSpace(periodEnd))
+    //     {
+    //         if (!DateOnly.TryParse(periodEnd, out var parsed)) return BadRequest("periodEnd must be an ISO date: yyyy-MM-dd");
+    //         pe = parsed;
+    //     }
+    //
+    //     var workers = await _service.GetWorkersForLeaderPeriodAsync(tenant, leaderId, periodStart, pe);
+    //     return Ok(new GetWorkerPerTenantResponse { Workers = workers });
+    // }
 
     
     // POST: api/v1/StuffBookings/reassign-bulk

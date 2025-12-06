@@ -112,7 +112,6 @@ public class PureApplicationDbContext : DbContext
             entity.Property(e => e.ID).IsRequired().HasMaxLength(50);
             entity.Property(e => e.WorkerId).IsRequired().HasMaxLength(50);
             entity.Property(e => e.ShiftLeaderId).IsRequired().HasMaxLength(50);
-            entity.Property(e => e.Tenant).IsRequired().HasMaxLength(100);
             entity.Property(e => e.PeriodStart).IsRequired();
             entity.Property(e => e.PeriodEnd);
             entity.Property(e => e.ReassignmentScheduledDate);

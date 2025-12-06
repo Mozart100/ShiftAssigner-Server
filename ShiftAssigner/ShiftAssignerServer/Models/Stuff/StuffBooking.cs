@@ -19,9 +19,6 @@ public partial class StuffBooking : IAutoMapperEntities
     // Supervising shift leader for the given period
     public string ShiftLeaderId { get; set; } = string.Empty;
 
-    // Tenant (company) this booking belongs to - enforces tenant isolation
-    public string Tenant { get; set; } = string.Empty;
-
     // Period start date (use DateOnly to represent a day/period boundary). Interpret as week-start or period identifier.
     public DateOnly PeriodStart { get; set; }
 

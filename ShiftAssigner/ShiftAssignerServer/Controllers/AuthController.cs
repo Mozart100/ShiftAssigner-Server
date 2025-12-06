@@ -78,7 +78,6 @@ namespace ShiftAssignerServer.Controllers
                 {
                     WorkerId = worker.ID,
                     ShiftLeaderId = dto.ShiftLeaderId,
-                    Tenant = tenantForToken,
                     PeriodStart = DateOnly.FromDateTime(DateTime.UtcNow),
                     PeriodEnd = null,
                     Notes = "Assigned on registration"

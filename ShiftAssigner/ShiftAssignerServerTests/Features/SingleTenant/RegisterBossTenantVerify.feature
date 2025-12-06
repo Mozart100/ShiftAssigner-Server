@@ -22,21 +22,30 @@ Feature: Register Tenant Boss and verify tenant exists
   Given I have tenant boss registration payloads for multi tenant flow
   When I register tenant "1" for multi tenant flow
   Then the tenant "1" registration response should contain a JWT token
+
   When I register tenant "2" for multi tenant flow  
   Then the tenant "2" registration response should contain a JWT token
+  
   When I register shiftleader "leader-1" for tenant "1" in multi tenant flow
   Then the shiftleader registration for tenant "1" should contain a JWT token
+  
   When I register shiftleader "leader-2" for tenant "2" in multi tenant flow
   Then the shiftleader registration for tenant "2" should contain a JWT token
+  
   When shiftleader "leader-1" logs in for tenant "1" in multi tenant flow
   Then the shiftleader login for tenant "1" should contain a JWT token
+  
   When shiftleader "leader-2" logs in for tenant "2" in multi tenant flow
   Then the shiftleader login for tenant "2" should contain a JWT token
+  
   When shiftleader "leader-1" registers worker "worker-1" for tenant "1" in multi tenant flow
   Then the worker registration for tenant "1" should contain a JWT token
+  
   When shiftleader "leader-2" registers worker "worker-2" for tenant "2" in multi tenant flow
   Then the worker registration for tenant "2" should contain a JWT token
+  
   When worker "worker-1" logs in for tenant "1" in multi tenant flow
   Then the worker login for tenant "1" should contain a JWT token
+  
   When worker "worker-2" logs in for tenant "2" in multi tenant flow
   Then the worker login for tenant "2" should contain a JWT token

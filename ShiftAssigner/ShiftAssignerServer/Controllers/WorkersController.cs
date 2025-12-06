@@ -15,7 +15,7 @@ namespace ShiftAssignerServer.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/v1/[controller]")]
-public class WorkersController : ControllerBase
+public class WorkersController : BaseController
 {
     public const string Register_EndPoint = "register";
     public const string Login_EndPoint = "login";
@@ -23,14 +23,13 @@ public class WorkersController : ControllerBase
     private readonly IWorkerService _workerService;
     private readonly IStuffBookingService _assignmentService;
     private readonly IMapper _mapper;
-    private readonly JwtService _jwtService;
 
     public WorkersController(IWorkerService service, IStuffBookingService assignmentService,IMapper mapper, JwtService jwtService)
+        : base(jwtService)
     {
         _workerService = service;
         _assignmentService = assignmentService;
         _mapper = mapper;
-        _jwtService = jwtService;
     }
 
 
@@ -42,15 +41,15 @@ public class WorkersController : ControllerBase
         var worker = _mapper.Map<Worker>(request);
         worker.Role = RoleState.Worker;
 
-        // Get tenant from TenantResolutionMiddleware
-        var tenant = HttpContext.Items[TenantResolutionMiddleware.TenantContextKey]?.ToString();
+        // Get tenant from TenantResolutionMiddleware via base controller
+        var tenant = GetTenant();
 
         // Tenant is now handled by the tenant-specific database schema, not as a property
 
         bool flag = await _workerService.AddWorkerAsync(worker);
 
         var role = worker.Role.ToString(); // "Worker"
-        var token = _jwtService.GenerateToken(worker.ID, role, tenant ?? string.Empty);
+        var token = _jwtService.GenerateToken(worker.ID, role, GetTenantOrEmpty());
         return Ok(new RegisteringWorkerResponse { Token = token });
     }
 
@@ -58,8 +57,8 @@ public class WorkersController : ControllerBase
     [HttpPost(Login_EndPoint)]
     public async Task<ActionResult<LoginWorkerResponse>> LoginWorker([FromBody] LoginWorkerRequest request)
     {
-        // Get tenant from TenantResolutionMiddleware
-        var tenant = HttpContext.Items[TenantResolutionMiddleware.TenantContextKey]?.ToString();
+        // Get tenant from TenantResolutionMiddleware via base controller
+        var tenant = GetTenant();
 
         bool success = await _workerService.LoginAsync(request);
 
@@ -69,7 +68,7 @@ public class WorkersController : ControllerBase
         }
 
         var role = "Worker";
-        var token = _jwtService.GenerateToken(request.ID, role, tenant ?? string.Empty);
+        var token = _jwtService.GenerateToken(request.ID, role, GetTenantOrEmpty());
         return Ok(new LoginWorkerResponse { Token = token });
     }
 

@@ -18,7 +18,7 @@ namespace ShiftAssignerServer.Controllers
 {
     [ApiController]
     [Route("api/v1/[controller]")]
-    public class AuthController : ControllerBase
+    public class AuthController : BaseController
     {
         public const string Register_Tenant = "register-boss-tenant";
 
@@ -39,6 +39,7 @@ namespace ShiftAssignerServer.Controllers
             IStuffBookingService shiftAssignmentService,
             IShiftLeaderRepository shiftLeaderRepository,
             IRegistrationValidationService validationService)
+            : base(jwt)
         {
             _jwt = jwt;
             _mapper = mapper;
@@ -72,7 +73,7 @@ namespace ShiftAssignerServer.Controllers
             {
                 // try to find the leader's tenant and set it on the assignment and token
                 var leader = _shiftLeaderRepository.FirstOrDefault(x => x.ID.Equals(dto.ShiftLeaderId, StringComparison.InvariantCultureIgnoreCase));
-                tenantForToken = HttpContext.Items[TenantResolutionMiddleware.TenantContextKey]?.ToString() ?? string.Empty;
+                tenantForToken = GetTenantOrEmpty();
 
                 var assignment = new StuffBooking
                 {

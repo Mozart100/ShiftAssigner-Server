@@ -14,19 +14,18 @@ namespace ShiftAssignerServer.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/v1/[controller]")]
-public class ShiftLeadersController : ControllerBase
+public class ShiftLeadersController : BaseController
 {
     public const string Register_EndPoint = "register";
     public const string Login_EndPoint = "login";
     private readonly IShiftLeaderService _shiftLeaderService;
     private readonly IMapper _mapper;
-    private readonly JwtService _jwtService;
 
     public ShiftLeadersController(IShiftLeaderService service, IMapper mapper, JwtService jwtService)
+        : base(jwtService)
     {
         _shiftLeaderService = service;
         _mapper = mapper;
-        _jwtService = jwtService;
     }
 
     // GET: api/v1/ShiftLeaders/{tenant}
@@ -47,15 +46,15 @@ public class ShiftLeadersController : ControllerBase
         var leader = _mapper.Map<ShiftLeader>(request);
         leader.Role = RoleState.ShiftLeader;
 
-        // Get tenant from TenantResolutionMiddleware
-        var tenant = HttpContext.Items[TenantResolutionMiddleware.TenantContextKey]?.ToString();
+        // Get tenant from TenantResolutionMiddleware via base controller
+        var tenant = GetTenant();
 
         // Tenant is now handled by the tenant-specific database schema, not as a property
 
         bool flag = await _shiftLeaderService.AddShiftLeaderAsync(leader);
 
         var role = leader.Role.ToString(); // "ShiftLeader"
-        var token = _jwtService.GenerateToken(leader.ID, role, tenant );
+        var token = _jwtService.GenerateToken(leader.ID, role, GetTenantOrEmpty());
         return Ok(new RegisteringShiftLeaderResponse { Token = token });
     }
 
@@ -63,12 +62,12 @@ public class ShiftLeadersController : ControllerBase
     [HttpPost(Login_EndPoint)]
     public async Task<ActionResult<LoginShiftLeaderResponse>> Login([FromBody] LoginShiftLeaderRequest request)
     {
-        var tenant = HttpContext.Items[TenantResolutionMiddleware.TenantContextKey]?.ToString();
+        var tenant = GetTenant();
 
         bool flag = await _shiftLeaderService.LoginAsync(request);
 
         var role =  RoleState.ShiftLeader.ToString(); // "ShiftLeader"
-        var token = _jwtService.GenerateToken(request.ID,role, tenant);
+        var token = _jwtService.GenerateToken(request.ID,role, GetTenantOrEmpty());
         return Ok(new LoginShiftLeaderResponse { Token = token });
     }
 

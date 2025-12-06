@@ -44,12 +44,44 @@ public class WorkersController : BaseController
         // Get tenant from TenantResolutionMiddleware via base controller
         var tenant = GetTenant();
 
-        // Tenant is now handled by the tenant-specific database schema, not as a property
+        // Extract shift leader info from JWT token using base controller
+        if (!TryGetShiftLeaderInfo(out string? shiftLeaderId, out RoleState? role))
+        {
+            return Unauthorized("Valid shift leader authentication required");
+        }
 
-        bool flag = await _workerService.AddWorkerAsync(worker);
+        // Verify that the requesting user is a shift leader
+        if (role != RoleState.ShiftLeader)
+        {
+            return Forbid("Only shift leaders can register workers");
+        }
 
-        var role = worker.Role.ToString(); // "Worker"
-        var token = _jwtService.GenerateToken(worker.ID, role, GetTenantOrEmpty());
+        // Register the worker
+        bool workerAdded = await _workerService.AddWorkerAsync(worker);
+        if (!workerAdded)
+        {
+            return BadRequest("Failed to register worker");
+        }
+
+        // Create a booking to assign the worker to the shift leader
+        var booking = new StuffBooking
+        {
+            WorkerId = worker.ID,
+            ShiftLeaderId = shiftLeaderId,
+            PeriodStart = DateOnly.FromDateTime(DateTime.UtcNow),
+            PeriodEnd = null, // Open-ended assignment
+            Notes = "Initial assignment during worker registration",
+            IsActive = true
+        };
+
+        bool bookingAdded = await _assignmentService.AssignAsync(booking);
+        if (!bookingAdded)
+        {
+            return BadRequest("Worker registered but failed to assign to shift leader");
+        }
+
+        var workerRole = worker.Role.ToString(); // "Worker"
+        var token = _jwtService.GenerateToken(worker.ID, workerRole, GetTenantOrEmpty());
         return Ok(new RegisteringWorkerResponse { Token = token });
     }
 

@@ -8,14 +8,14 @@ namespace ShiftAssignerServer.Data;
 /// This context handles cross-tenant data like company registry, system configuration, etc.
 /// The schema is automatically created when the application starts.
 /// </summary>
-public class MainDbContext : DbContext
+public class MainSchemaDbContext : DbContext
 {
-    public MainDbContext(DbContextOptions<MainDbContext> options) : base(options)
+    public MainSchemaDbContext(DbContextOptions<MainSchemaDbContext> options) : base(options)
     {
     }
 
     // Master/Global data - exists in default schema
-    public DbSet<Company> Companies { get; set; } = null!;
+    public DbSet<Schema> Schemas { get; set; } = null!;
 
     /// <summary>
     /// Ensures the main database schema is created when the application starts.
@@ -39,10 +39,10 @@ public class MainDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        // Configure Company entity - in default/public schema (master data)
-        modelBuilder.Entity<Company>(entity =>
+        // Configure Schema entity - in default/public schema (master data)
+        modelBuilder.Entity<Schema>(entity =>
         {
-            entity.ToTable("companies"); // No schema specified = default/public schema
+            entity.ToTable("schemas"); // Creates "schemas" table in public schema
             entity.HasKey(e => e.CompanyName);
             entity.Property(e => e.CompanyName).IsRequired().HasMaxLength(100);
             entity.Property(e => e.IsActive).IsRequired();

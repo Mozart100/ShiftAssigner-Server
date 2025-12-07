@@ -41,7 +41,7 @@ builder.Services.AddDbContext<ApplicationDbContext>((sp, options) =>
 });
 
 // ---------------- Main Database (global/master data) ----------------
-builder.Services.AddDbContext<MainDbContext>(options =>
+builder.Services.AddDbContext<MainSchemaDbContext>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
@@ -83,7 +83,7 @@ builder.Services.AddScoped<IWorkerRepository, WorkerRepository>();
 builder.Services.AddScoped<IShiftLeaderRepository, ShiftLeaderRepository>();
 builder.Services.AddScoped<IBossTenantRepository, BossTenantRepository>();
 builder.Services.AddScoped<IStuffBookingRepository, StuffBookingRepository>();
-builder.Services.AddScoped<ITenantRepository, TenantRepository>();
+builder.Services.AddScoped<IMainSchemaRepository, MainSchemaRepository>();
 
 // Unit of Work (recommended)
 builder.Services.AddScoped<ITenantUnitOfWork, TenantUnitOfWork>();
@@ -93,6 +93,7 @@ builder.Services.AddScoped<IWorkerService, WorkerService>();
 builder.Services.AddScoped<IShiftLeaderService, ShiftLeaderService>();
 builder.Services.AddScoped<IStuffBookingService, StuffBookingService>();
 builder.Services.AddScoped<ITenantService, TenantService>();
+builder.Services.AddScoped<IMainSchemaService, MainSchemaService>();
 
 // ---------------- FluentValidation ----------------
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
@@ -114,7 +115,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     // Create main/global schema first
-    var mainContext = scope.ServiceProvider.GetRequiredService<MainDbContext>();
+    var mainContext = scope.ServiceProvider.GetRequiredService<MainSchemaDbContext>();
     try
     {
         Log.Information("Ensuring main database schema is created...");

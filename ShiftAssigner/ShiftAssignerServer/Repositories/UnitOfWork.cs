@@ -7,7 +7,7 @@ public interface ITenantUnitOfWork
     IWorkerRepository Workers { get; }
     IShiftLeaderRepository ShiftLeaders { get; }
     IStuffBookingRepository StuffBookings { get; }
-    ITenantRepository Tenants { get; }
+    IMainSchemaRepository Tenants { get; }
     IBossTenantRepository BossTenantRepository { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
@@ -27,7 +27,7 @@ public sealed class TenantUnitOfWork : ITenantUnitOfWork
     public IWorkerRepository Workers { get; }
     public IShiftLeaderRepository ShiftLeaders { get; }
     public IStuffBookingRepository StuffBookings { get; }
-    public ITenantRepository Tenants { get; }
+    public IMainSchemaRepository Tenants { get; }
     public IBossTenantRepository BossTenantRepository { get; }
 
     public TenantUnitOfWork(
@@ -35,7 +35,7 @@ public sealed class TenantUnitOfWork : ITenantUnitOfWork
         IWorkerRepository workers,
         IShiftLeaderRepository shiftLeaders,
         IStuffBookingRepository stuffBookings,
-        ITenantRepository tenants,
+        IMainSchemaRepository tenants,
         IBossTenantRepository bossTenantRepository)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));

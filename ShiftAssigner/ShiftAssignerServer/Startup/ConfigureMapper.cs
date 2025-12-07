@@ -12,7 +12,7 @@ public class ConfigureMapper : Profile
         CreateMap<RegisterRequest, Worker>();
         CreateMap<RegisterRequest, ShiftLeader>();
 
-        CreateMap<Models.Company, AllTenantsResponse>();
+        CreateMap<Models.Schema, AllTenantsResponse>();
         CreateMap<ShiftLeader, PubShiftLeader>();
         CreateMap<Worker, PubWorker>();
         CreateMap<RegisteringWorkerRequest,Worker>();

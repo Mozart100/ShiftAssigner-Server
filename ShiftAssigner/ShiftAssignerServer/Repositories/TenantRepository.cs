@@ -3,11 +3,11 @@ using ShiftAssignerServer.Models;
 
 namespace ShiftAssignerServer.Repositories;
 
-public interface ITenantRepository : IRepositoryBase<Company> { }
+public interface IMainSchemaRepository : IRepositoryBase<Schema> { }
 
-public class TenantRepository : BaseRepository<Company>, ITenantRepository
+public class MainSchemaRepository : BaseRepository<Schema>, IMainSchemaRepository
 {
-    public TenantRepository(ApplicationDbContext context) : base(context) { }
+    public MainSchemaRepository(ApplicationDbContext context) : base(context) { }
 }
 
 

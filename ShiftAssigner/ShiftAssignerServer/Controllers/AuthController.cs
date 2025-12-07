@@ -25,6 +25,7 @@ namespace ShiftAssignerServer.Controllers
         private readonly JwtService _jwt;
         private readonly IMapper _mapper;
         private readonly ITenantService _tenantService;
+        private readonly IMainSchemaService _mainSchemaService;
         private readonly IShiftLeaderService _shiftLeaderService;
         private readonly IWorkerService _workerService;
         private readonly IStuffBookingService _shiftAssignmentService;
@@ -34,6 +35,7 @@ namespace ShiftAssignerServer.Controllers
         public AuthController(JwtService jwt,
             IMapper mapper,
             ITenantService tenantService,
+            IMainSchemaService mainSchemaService,
             IShiftLeaderService shiftLeaderService,
             IWorkerService workerService,
             IStuffBookingService shiftAssignmentService,
@@ -44,6 +46,7 @@ namespace ShiftAssignerServer.Controllers
             _jwt = jwt;
             _mapper = mapper;
             _tenantService = tenantService;
+            _mainSchemaService = mainSchemaService;
             _shiftLeaderService = shiftLeaderService;
             _workerService = workerService;
             _shiftAssignmentService = shiftAssignmentService;
@@ -91,22 +94,6 @@ namespace ShiftAssignerServer.Controllers
             return Ok(new RegisterResponse { Token = token });
         }
 
-        // [Authorize]
-        // [HttpPost("register-shift-leader")]
-        // public async Task<ActionResult<ShiftLeaderRegisterResponse>> RegisterShiftLeader([FromBody] ShiftLeaderRegisterRequest dto, [FromQuery] string tenant = "")
-        // {
-        //     // Debugger.Break();
-        //     var leader = _mapper.Map<ShiftLeader>(dto);
-        //     leader.Role = RoleState.ShiftLeader;
-        //     // If tenant provided as query param, use it; otherwise leader.Tenant remains as mapped (empty)
-        //     if (!string.IsNullOrWhiteSpace(tenant)) leader.Tenant = tenant;
-
-        //     bool flag = await _shiftLeaderService.AddShiftLeaderAsync(leader);
-
-        //     var role = leader.Role.ToString(); // "ShiftLeader"
-        //     var token = _jwt.GenerateToken(leader.ID, role, leader.Tenant);
-        //     return Ok(new ShiftLeaderRegisterResponse { Token = token });
-        // }
 
         [AllowAnonymous]
         [HttpPost(Register_Tenant)]
@@ -115,12 +102,18 @@ namespace ShiftAssignerServer.Controllers
             // Debugger.Break();
             var tenant = _mapper.Map<BossTenant>(request);
 
+            // Create tenant schema in the database
             await _tenantService.CreateIfNoxExistedTenantSchemaAsync(tenant.Tenant);
+            
+            // Register the boss tenant in the tenant-specific schema
             bool flag = await _tenantService.AddBossTenantAsync(request);
+            
+            // Add schema entry to the main schema registry
+            await _mainSchemaService.AddTenantSchemaAsync(tenant.Tenant);
 
             var role = tenant.Role.ToString(); // "ShiftLeader"
             var token = _jwt.GenerateToken(tenant.ID, role, tenant.Tenant);
-            return Ok(new TenantRegisterResponse { Token = token  , Tenant  = tenant.Tenant});
+            return Ok(new TenantRegisterResponse { Token = token, Tenant = tenant.Tenant });
         }
 
         // ---------------------------------------------------------------------------------------------------------------

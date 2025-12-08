@@ -186,7 +186,7 @@ public partial class RegisterBossTenantVerifySteps : SingleTenantStep
             LastName = "TestUser",
             PhoneNumber = "+1-555-0100",
             DateOfBirth = DateOnly.FromDateTime(DateTime.Now.AddYears(-30)),
-            Tenant = $"TestCompany-{tenantId}",
+            Tenant = $"SingleTenant_Company{tenantId}",
             PasswordHash = "TestPassword123"
         };
     }

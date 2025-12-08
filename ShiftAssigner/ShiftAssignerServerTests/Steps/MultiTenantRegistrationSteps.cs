@@ -194,7 +194,7 @@ public class MultiTenantRegistrationSteps : FeatureStepBase
             LastName = $"Tenant{tenantId}",
             PhoneNumber = $"+1-555-010{tenantId}",
             DateOfBirth = DateOnly.FromDateTime(DateTime.Now.AddYears(-30)),
-            Tenant = $"TestCompany-{tenantId}",
+            Tenant = $"MultiTenant_Company{tenantId}",
             PasswordHash = "BossPassword123"
         };
     }

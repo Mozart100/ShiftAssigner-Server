@@ -139,11 +139,13 @@ namespace ShiftAssignerServer.Tests.Features.SingleTenant
         [global::Xunit.TraitAttribute("Description", "Register boss and verify tenant appears in tenants list")]
         [global::Xunit.TraitAttribute("Category", "integration")]
         [global::Xunit.TraitAttribute("Category", "registration")]
+        [global::Xunit.TraitAttribute("Category", "single-tenant")]
         public async global::System.Threading.Tasks.Task RegisterBossAndVerifyTenantAppearsInTenantsList()
         {
             string[] tagsOfScenario = new string[] {
                     "integration",
-                    "registration"};
+                    "registration",
+                    "single-tenant"};
             global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
             string pickleIndex = "0";
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Register boss and verify tenant appears in tenants list", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);

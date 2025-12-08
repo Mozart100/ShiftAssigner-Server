@@ -3,7 +3,7 @@ Feature: Register Tenant Boss and verify tenant exists
   As a client of the API
   I want to register a tenant boss and then GET the tenants list to verify the company exists
 
-  @integration @registration
+  @integration @registration @single-tenant
   Scenario: Register boss and verify tenant appears in tenants list
   Given I have a tenant boss registration payload for basic flow
   When Tenant registration "1" for basic flow

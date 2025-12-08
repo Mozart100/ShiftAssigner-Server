@@ -29,23 +29,35 @@ Feature: Register Tenant Boss and verify tenant exists
   When I register shiftleader "leader-1" for tenant "1" in multi tenant flow
   Then the shiftleader registration for tenant "1" should contain a JWT token
   
-  When I register shiftleader "leader-2" for tenant "2" in multi tenant flow
+  When I register shiftleader "leader-2" for tenant "1" in multi tenant flow
+  Then the shiftleader registration for tenant "1" should contain a JWT token
+  
+  When I register shiftleader "leader-3" for tenant "2" in multi tenant flow
   Then the shiftleader registration for tenant "2" should contain a JWT token
   
   When shiftleader "leader-1" logs in for tenant "1" in multi tenant flow
   Then the shiftleader login for tenant "1" should contain a JWT token
   
-  When shiftleader "leader-2" logs in for tenant "2" in multi tenant flow
+  When shiftleader "leader-2" logs in for tenant "1" in multi tenant flow
+  Then the shiftleader login for tenant "1" should contain a JWT token
+  
+  When shiftleader "leader-3" logs in for tenant "2" in multi tenant flow
   Then the shiftleader login for tenant "2" should contain a JWT token
   
   When shiftleader "leader-1" registers worker "worker-1" for tenant "1" in multi tenant flow
   Then the worker registration for tenant "1" should contain a JWT token
   
-  When shiftleader "leader-2" registers worker "worker-2" for tenant "2" in multi tenant flow
+  When shiftleader "leader-2" registers worker "worker-2" for tenant "1" in multi tenant flow
+  Then the worker registration for tenant "1" should contain a JWT token
+  
+  When shiftleader "leader-3" registers worker "worker-3" for tenant "2" in multi tenant flow
   Then the worker registration for tenant "2" should contain a JWT token
   
   When worker "worker-1" logs in for tenant "1" in multi tenant flow
   Then the worker login for tenant "1" should contain a JWT token
   
-  When worker "worker-2" logs in for tenant "2" in multi tenant flow
+  When worker "worker-2" logs in for tenant "1" in multi tenant flow
+  Then the worker login for tenant "1" should contain a JWT token
+  
+  When worker "worker-3" logs in for tenant "2" in multi tenant flow
   Then the worker login for tenant "2" should contain a JWT token

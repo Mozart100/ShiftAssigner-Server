@@ -47,6 +47,12 @@ Feature: Register Tenant Boss and verify tenant exists
   When shiftleader "leader-1" registers worker "worker-1" for tenant "1" in multi tenant flow
   Then the worker registration for tenant "1" should contain a JWT token
   
+  When shiftleader "leader-1" registers worker "worker-4" for tenant "1" in multi tenant flow
+  Then the worker registration for tenant "1" should contain a JWT token
+  
+  When shiftleader "leader-1" registers worker "worker-5" for tenant "1" in multi tenant flow
+  Then the worker registration for tenant "1" should contain a JWT token
+  
   When shiftleader "leader-2" registers worker "worker-2" for tenant "1" in multi tenant flow
   Then the worker registration for tenant "1" should contain a JWT token
   
@@ -61,3 +67,9 @@ Feature: Register Tenant Boss and verify tenant exists
   
   When worker "worker-3" logs in for tenant "2" in multi tenant flow
   Then the worker login for tenant "2" should contain a JWT token
+  
+  When worker "worker-4" logs in for tenant "1" in multi tenant flow
+  Then the worker login for tenant "1" should contain a JWT token
+  
+  When worker "worker-5" logs in for tenant "1" in multi tenant flow
+  Then the worker login for tenant "1" should contain a JWT token

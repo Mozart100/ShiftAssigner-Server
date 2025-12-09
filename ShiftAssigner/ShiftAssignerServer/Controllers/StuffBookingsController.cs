@@ -68,5 +68,38 @@ public class StuffBookingsController : BaseController
         return Ok(response);
     }
 
+    // GET: api/v1/StuffBookings/shiftleader/{shiftLeaderId}/workers
+    [HttpGet("shiftleader/{shiftLeaderId}/workers")]
+    public async Task<ActionResult<GetWorkerPerShiftLeaderResponse.ShiftLeader>> GetShiftLeaderWithWorkers(string shiftLeaderId)
+    {
+        // Extract shift leader info from JWT token to verify authorization
+        if (!TryGetShiftLeaderInfo(out string? currentShiftLeaderId, out RoleState? role))
+        {
+            return Unauthorized("Valid shift leader authentication required");
+        }
+
+        // Verify that the requesting user is a shift leader
+        if (role != RoleState.ShiftLeader)
+        {
+            return Forbid("Only shift leaders can access this information");
+        }
+
+        // Optional: Allow shift leaders to only view their own workers
+        // Uncomment the following lines if you want to restrict access
+        // if (currentShiftLeaderId != shiftLeaderId)
+        // {
+        //     return Forbid("You can only view your own workers");
+        // }
+
+        var shiftLeaderWithWorkers = await _service.GetShiftLeaderWithWorkersAsync(shiftLeaderId);
+        
+        if (shiftLeaderWithWorkers == null)
+        {
+            return NotFound($"Shift leader with ID '{shiftLeaderId}' not found");
+        }
+
+        return Ok(shiftLeaderWithWorkers);
+    }
+
 
 }

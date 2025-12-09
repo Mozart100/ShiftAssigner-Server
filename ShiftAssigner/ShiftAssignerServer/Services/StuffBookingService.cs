@@ -9,18 +9,21 @@ public interface IStuffBookingService
 {
     Task<bool> AssignAsync(StuffBooking booking);
     Task<bool> ReassignAsync(ReassignWorkerRequest reassignWorkerRequest);
+    Task<GetWorkerPerShiftLeaderResponse.ShiftLeader?> GetShiftLeaderWithWorkersAsync(string shiftLeaderId);
 }
 
 public class StuffBookingService : IStuffBookingService
 {
     private readonly IStuffBookingRepository _stuffBookingRepository;
-    private readonly IWorkerRepository _workerRepo;
+    private readonly IWorkerRepository _workerRepository;
+    private readonly IShiftLeaderRepository _shiftLeaderRepo;
     private readonly IMapper _mapper;
 
-    public StuffBookingService(IStuffBookingRepository stuffBookingRepository, IWorkerRepository workerRepo, IMapper mapper)
+    public StuffBookingService(IStuffBookingRepository stuffBookingRepository, IWorkerRepository workerRepo, IShiftLeaderRepository shiftLeaderRepo, IMapper mapper)
     {
         _stuffBookingRepository = stuffBookingRepository;
-        _workerRepo = workerRepo;
+        _workerRepository = workerRepo;
+        _shiftLeaderRepo = shiftLeaderRepo;
         _mapper = mapper;
     }
 
@@ -32,9 +35,9 @@ public class StuffBookingService : IStuffBookingService
 
     public async Task<bool> ReassignAsync(ReassignWorkerRequest reassignRequest)
     {
-        if (reassignRequest == null || 
-            reassignRequest.WorkerIds == null || 
-            !reassignRequest.WorkerIds.Any() || 
+        if (reassignRequest == null ||
+            reassignRequest.WorkerIds == null ||
+            !reassignRequest.WorkerIds.Any() ||
             string.IsNullOrWhiteSpace(reassignRequest.ReassignToShiftLeaderId))
         {
             return false;
@@ -43,14 +46,14 @@ public class StuffBookingService : IStuffBookingService
         try
         {
             var today = DateOnly.FromDateTime(DateTime.UtcNow);
-            
+
             foreach (var workerId in reassignRequest.WorkerIds)
             {
                 // Find current active assignment for this worker
-                var currentAssignment = await _stuffBookingRepository.FirstOrDefaultAsync(x => 
-                    x.WorkerId == workerId && 
-                    x.IsActive && 
-                    x.PeriodEnd == null );
+                var currentAssignment = await _stuffBookingRepository.FirstOrDefaultAsync(x =>
+                    x.WorkerId == workerId &&
+                    x.IsActive &&
+                    x.PeriodEnd == null);
 
                 if (currentAssignment != null)
                 {
@@ -86,5 +89,40 @@ public class StuffBookingService : IStuffBookingService
             // Log exception in real application
             return false;
         }
+    }
+
+    public async Task<GetWorkerPerShiftLeaderResponse.ShiftLeader?> GetShiftLeaderWithWorkersAsync(string shiftLeaderId)
+    {
+        // Get the shift leader
+        var shiftLeader = await _shiftLeaderRepo.FirstOrDefaultAsync(sl => sl.ID == shiftLeaderId);
+
+        // Get current active assignments for this shift leader
+        var activeAssignments = await _stuffBookingRepository.GetAllAsync(sb =>
+            sb.ShiftLeaderId == shiftLeaderId &&
+            sb.IsActive);
+
+        // Get workers for these assignments
+        var workerIds = activeAssignments.Select(a => a.WorkerId).ToList();
+        var workers = new List<GetWorkerPerShiftLeaderResponse.Worker>();
+
+        foreach (var activeAssignment in activeAssignments)
+        {
+            var worker = await _workerRepository.FirstOrDefaultAsync(w => w.ID == activeAssignment.WorkerId);
+            workers.Add(new GetWorkerPerShiftLeaderResponse.Worker
+            {
+                ID = worker.ID,
+                FirstName = worker.FirstName,
+                LastName = worker.LastName
+            });
+        }
+
+        // Create the response
+        return new GetWorkerPerShiftLeaderResponse.ShiftLeader
+        {
+            ID = shiftLeader.ID,
+            FirstName = shiftLeader.FirstName,
+            LastName = shiftLeader.LastName,
+            Workers = workers
+        };
     }
 }

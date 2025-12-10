@@ -9,7 +9,7 @@ public interface IStuffBookingService
 {
     Task<bool> AssignAsync(StuffBooking booking);
     Task<bool> ReassignAsync(ReassignWorkerRequest reassignWorkerRequest);
-    Task<GetWorkerPerShiftLeaderResponse.ShiftLeader?> GetShiftLeaderWithWorkersAsync(string shiftLeaderId);
+    Task<GetWorkerPerShiftLeaderResponse?> GetShiftLeaderWithWorkersAsync(string shiftLeaderId);
 }
 
 public class StuffBookingService : IStuffBookingService
@@ -91,7 +91,7 @@ public class StuffBookingService : IStuffBookingService
         }
     }
 
-    public async Task<GetWorkerPerShiftLeaderResponse.ShiftLeader?> GetShiftLeaderWithWorkersAsync(string shiftLeaderId)
+    public async Task<GetWorkerPerShiftLeaderResponse?> GetShiftLeaderWithWorkersAsync(string shiftLeaderId)
     {
         // Get the shift leader
         var shiftLeader = await _shiftLeaderRepo.FirstOrDefaultAsync(sl => sl.ID == shiftLeaderId);
@@ -117,11 +117,11 @@ public class StuffBookingService : IStuffBookingService
         }
 
         // Create the response
-        return new GetWorkerPerShiftLeaderResponse.ShiftLeader
+        return new GetWorkerPerShiftLeaderResponse
         {
-            ID = shiftLeader.ID,
-            FirstName = shiftLeader.FirstName,
-            LastName = shiftLeader.LastName,
+            ShiftLeaderID = shiftLeader.ID,
+            ShiftLeaderFirstName = shiftLeader.FirstName,
+            ShiftLeaderLastName = shiftLeader.LastName,
             Workers = workers
         };
     }

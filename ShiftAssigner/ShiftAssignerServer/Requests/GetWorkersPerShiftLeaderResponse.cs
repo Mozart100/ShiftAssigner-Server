@@ -1,4 +1,4 @@
-using static ShiftAssignerServer.Models.Stuff.Worker;
+using System.Collections.Generic;
 
 namespace ShiftAssignerServer.Requests;
 
@@ -6,20 +6,17 @@ namespace ShiftAssignerServer.Requests;
 
 public class GetWorkerPerShiftLeaderResponse
 {
-    public class Person
+    public class Worker
     {
         public string ID { get; set; }
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
     }
 
-    public class Worker : Person
-    {
-    }
+    public string ShiftLeaderID { get; set; }
+    public string ShiftLeaderFirstName { get; set; } = string.Empty;
+    public string ShiftLeaderLastName { get; set; } = string.Empty;
 
-    public class ShiftLeader : Person
-    {
-        public List<Worker> Workers { get; set; }
-    }
+    public List<Worker> Workers { get; set; }
 
 }

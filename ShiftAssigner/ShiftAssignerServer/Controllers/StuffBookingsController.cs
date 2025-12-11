@@ -70,7 +70,7 @@ public class StuffBookingsController : BaseController
 
     // GET: api/v1/StuffBookings/shiftleader/{shiftLeaderId}/workers
     [HttpGet("shiftleader/{shiftLeaderId}/workers")]
-    public async Task<ActionResult<GetWorkerPerShiftLeaderResponse.ShiftLeader>> GetShiftLeaderWithWorkers(string shiftLeaderId)
+    public async Task<ActionResult<GetWorkerPerShiftLeaderResponse>> GetShiftLeaderWithWorkers(string shiftLeaderId)
     {
         // Extract shift leader info from JWT token to verify authorization
         if (!TryGetShiftLeaderInfo(out string? currentShiftLeaderId, out RoleState? role))

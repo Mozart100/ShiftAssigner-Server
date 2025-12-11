@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Reqnroll;
 using ShiftAssignerServer.Controllers;
@@ -18,7 +19,7 @@ public class MultiTenantRegistrationSteps : FeatureStepBase
 {
     // Context keys for scenario data
     private const string MultiTenant_Data_Context = "MultiTenantData";
-    
+
     public MultiTenantRegistrationSteps(ScenarioContext scenarioContext) : base(scenarioContext)
     {
     }
@@ -65,14 +66,14 @@ public class MultiTenantRegistrationSteps : FeatureStepBase
     {
         var multiTenantData = _scenarioContext.Get<MultiTenantTestData>(MultiTenant_Data_Context);
         var tenantInfo = multiTenantData.Tenants[tenantId];
-        
+
         var leaderRequest = CreateShiftLeaderRegistration(leaderId, tenantInfo.TenantRequest.Tenant);
 
         var leaderResponse = await _serverSender.PostCommandAsync<RegisteringShiftLeaderRequest, RegisteringShiftLeaderResponse>(
             SHIFT_LEADERS_REGISTER,
             leaderRequest, tenantInfo.TenantResponse.Token);
 
-        tenantInfo.ShiftLeaderInfo = new ShiftLeaderInfo
+        tenantInfo.ShiftLeaders[leaderId] = new ShiftLeaderInfo
         {
             LeaderId = leaderId,
             LeaderRequest = leaderRequest,
@@ -80,16 +81,18 @@ public class MultiTenantRegistrationSteps : FeatureStepBase
         };
     }
 
-    [Then(@"the shiftleader registration for tenant ""(.*)"" should contain a JWT token")]
-    public void ThenTheShiftleaderRegistrationForTenantShouldContainAJWTToken(string tenantId)
+    [Then(@"the shiftleader ""(.*)"" registration for tenant ""(.*)"" should contain a JWT token")]
+    public void ThenTheShiftleaderRegistrationForTenantShouldContainAJWTToken(string leaderId, string tenantId)
     {
         var multiTenantData = _scenarioContext.Get<MultiTenantTestData>(MultiTenant_Data_Context);
         var tenantInfo = multiTenantData.Tenants[tenantId];
 
-        Assert.NotNull(tenantInfo.ShiftLeaderInfo);
-        Assert.NotNull(tenantInfo.ShiftLeaderInfo.LeaderResponse);
-        Assert.NotNull(tenantInfo.ShiftLeaderInfo.LeaderResponse.Token);
-        Assert.NotEmpty(tenantInfo.ShiftLeaderInfo.LeaderResponse.Token);
+        // Get the specific shift leader's registration response
+        var shiftLeader = tenantInfo.ShiftLeaders[leaderId];
+        Assert.NotNull(shiftLeader);
+        Assert.NotNull(shiftLeader.LeaderResponse);
+        Assert.NotNull(shiftLeader.LeaderResponse.Token);
+        Assert.NotEmpty(shiftLeader.LeaderResponse.Token);
     }
 
     [When(@"shiftleader ""(.*)"" logs in for tenant ""(.*)"" in multi tenant flow")]
@@ -108,18 +111,19 @@ public class MultiTenantRegistrationSteps : FeatureStepBase
             SHIFT_LEADERS_LOGIN,
             loginRequest, tenantInfo.TenantResponse.Token);
 
-        tenantInfo.ShiftLeaderInfo.LeaderLoginResponse = loginResponse;
+        tenantInfo.ShiftLeaders[leaderId].LeaderLoginResponse = loginResponse;
     }
 
-    [Then(@"the shiftleader login for tenant ""(.*)"" should contain a JWT token")]
-    public void ThenTheShiftleaderLoginForTenantShouldContainAJWTToken(string tenantId)
+    [Then(@"the shiftleader ""(.*)"" login for tenant ""(.*)"" should contain a JWT token")]
+    public void ThenTheShiftleaderLoginForTenantShouldContainAJWTToken(string leaderId, string tenantId)
     {
         var multiTenantData = _scenarioContext.Get<MultiTenantTestData>(MultiTenant_Data_Context);
         var tenantInfo = multiTenantData.Tenants[tenantId];
 
-        Assert.NotNull(tenantInfo.ShiftLeaderInfo.LeaderLoginResponse);
-        Assert.NotNull(tenantInfo.ShiftLeaderInfo.LeaderLoginResponse.Token);
-        Assert.NotEmpty(tenantInfo.ShiftLeaderInfo.LeaderLoginResponse.Token);
+        // Get the specific shift leader's login response
+        var shiftLeader = tenantInfo.ShiftLeaders[leaderId];
+        Assert.NotNull(shiftLeader);
+        Assert.NotEmpty(shiftLeader.ShiftLeaderToken);
     }
 
     [When(@"shiftleader ""(.*)"" registers worker ""(.*)"" for tenant ""(.*)"" in multi tenant flow")]
@@ -130,16 +134,76 @@ public class MultiTenantRegistrationSteps : FeatureStepBase
 
         var workerRequest = CreateWorkerRegistration(workerId);
 
+        // Use the specific shift leader's token for worker registration
+        var shiftLeader = tenantInfo.ShiftLeaders[leaderId];
         var workerResponse = await _serverSender.PostCommandAsync<RegisteringWorkerRequest, RegisteringWorkerResponse>(
             WORKERS_REGISTER,
-            workerRequest, tenantInfo.ShiftLeaderInfo.LeaderLoginResponse.Token);
+            workerRequest, shiftLeader.LeaderLoginResponse.Token);
 
-        tenantInfo.WorkerInfo = new WorkerInfo
+        tenantInfo.Workers[workerId] = new WorkerInfo
         {
             WorkerId = workerId,
             WorkerRequest = workerRequest,
-            WorkerResponse = workerResponse
+            WorkerResponse = workerResponse,
+            AssignedToShiftLeaderId = leaderId  // Track which shift leader registered this worker
         };
+
+        // Automatically verify worker assignment after registration
+        // await VerifyWorkerAssignment(leaderId, workerId, tenantId);
+    }
+
+    // private async Task VerifyWorkerAssignment(string leaderId, string workerId, string tenantId)
+    // {
+    //     var multiTenantData = _scenarioContext.Get<MultiTenantTestData>(MultiTenant_Data_Context);
+    //     var tenantInfo = multiTenantData.Tenants[tenantId];
+
+    //     try
+    //     {
+    //         var endpoint = string.Format(STUFF_BOOKINGS_SHIFTLEADER_WORKERS, leaderId);
+
+    //         // Use the specific shift leader's token for verification
+    //         var shiftLeader = tenantInfo.ShiftLeaders[leaderId];
+    //         var shiftLeaderWithWorkers = await _serverSender.GetAsync<GetWorkerPerShiftLeaderResponse>(
+    //             endpoint, shiftLeader.LeaderLoginResponse.Token);
+
+    //         Assert.NotNull(shiftLeaderWithWorkers);
+    //         Assert.Equal(leaderId, shiftLeaderWithWorkers.ShiftLeaderID);
+    //         Assert.NotEmpty(shiftLeaderWithWorkers.Workers);
+
+    //         var assignedWorker = shiftLeaderWithWorkers.Workers.FirstOrDefault(w => w.ID == workerId);
+    //         Assert.NotNull(assignedWorker);
+    //         Assert.Equal(workerId, assignedWorker.ID);
+
+    //         // Log successful verification
+    //         Console.WriteLine($"✅ Verified: Worker {workerId} is correctly assigned to shift leader {leaderId} in tenant {tenantId}");
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         // Log the verification attempt but don't fail the test - this is additional verification
+    //         Console.WriteLine($"⚠️  Worker assignment verification failed for {workerId} -> {leaderId} in tenant {tenantId}: {ex.Message}");
+    //     }
+    // }
+
+    [Then(@"I verify that shiftleader ""(.*)"" has worker ""(.*)"" assigned for tenant ""(.*)""")]
+    public async Task ThenIVerifyThatShiftleaderHasWorkerAssignedForTenant(string leaderId, string workerId, string tenantId)
+    {
+        var multiTenantData = _scenarioContext.Get<MultiTenantTestData>(MultiTenant_Data_Context);
+        var tenantInfo = multiTenantData.Tenants[tenantId];
+
+        var endpoint = string.Format(STUFF_BOOKINGS_SHIFTLEADER_WORKERS, leaderId);
+
+        // Use the specific shift leader's token for verification
+        var shiftLeader = tenantInfo.ShiftLeaders[leaderId];
+        var shiftLeaderWithWorkers = await _serverSender.GetAsync<GetWorkerPerShiftLeaderResponse>(
+            endpoint, shiftLeader.LeaderLoginResponse.Token);
+
+        Assert.NotNull(shiftLeaderWithWorkers);
+        Assert.Equal(leaderId, shiftLeaderWithWorkers.ShiftLeaderID);
+        Assert.NotNull(shiftLeaderWithWorkers.Workers);
+
+        var assignedWorker = shiftLeaderWithWorkers.Workers.FirstOrDefault(w => w.ID == workerId);
+        Assert.NotNull(assignedWorker);
+        Assert.Equal(workerId, assignedWorker.ID);
     }
 
     [Then(@"the worker registration for tenant ""(.*)"" should contain a JWT token")]
@@ -148,10 +212,12 @@ public class MultiTenantRegistrationSteps : FeatureStepBase
         var multiTenantData = _scenarioContext.Get<MultiTenantTestData>(MultiTenant_Data_Context);
         var tenantInfo = multiTenantData.Tenants[tenantId];
 
-        Assert.NotNull(tenantInfo.WorkerInfo);
-        Assert.NotNull(tenantInfo.WorkerInfo.WorkerResponse);
-        Assert.NotNull(tenantInfo.WorkerInfo.WorkerResponse.Token);
-        Assert.NotEmpty(tenantInfo.WorkerInfo.WorkerResponse.Token);
+        // Get the most recently added worker
+        var latestWorker = tenantInfo.Workers.Values.LastOrDefault();
+        Assert.NotNull(latestWorker);
+        Assert.NotNull(latestWorker.WorkerResponse);
+        Assert.NotNull(latestWorker.WorkerResponse.Token);
+        Assert.NotEmpty(latestWorker.WorkerResponse.Token);
     }
 
     [When(@"worker ""(.*)"" logs in for tenant ""(.*)"" in multi tenant flow")]
@@ -166,22 +232,29 @@ public class MultiTenantRegistrationSteps : FeatureStepBase
             Password = "WorkerPassword123"
         };
 
+        // Use the shift leader token who registered this worker
+        var worker = tenantInfo.Workers[workerId];
+        var assignedShiftLeader = tenantInfo.ShiftLeaders[worker.AssignedToShiftLeaderId];
+
         var workerLoginResponse = await _serverSender.PostCommandAsync<LoginWorkerRequest, LoginWorkerResponse>(
             WORKERS_LOGIN,
-            workerLoginRequest, tenantInfo.ShiftLeaderInfo.LeaderLoginResponse.Token);
+            workerLoginRequest, assignedShiftLeader.LeaderLoginResponse.Token);
 
-        tenantInfo.WorkerInfo.WorkerLoginResponse = workerLoginResponse;
+        worker.WorkerLoginResponse = workerLoginResponse;
     }
 
-    [Then(@"the worker login for tenant ""(.*)"" should contain a JWT token")]
-    public void ThenTheWorkerLoginForTenantShouldContainAJWTToken(string tenantId)
+    [Then(@"the worker ""(.*)"" login for tenant ""(.*)"" should contain a JWT token")]
+    public void ThenTheWorkerLoginForTenantShouldContainAJWTToken(string workerId, string tenantId)
     {
         var multiTenantData = _scenarioContext.Get<MultiTenantTestData>(MultiTenant_Data_Context);
         var tenantInfo = multiTenantData.Tenants[tenantId];
 
-        Assert.NotNull(tenantInfo.WorkerInfo.WorkerLoginResponse);
-        Assert.NotNull(tenantInfo.WorkerInfo.WorkerLoginResponse.Token);
-        Assert.NotEmpty(tenantInfo.WorkerInfo.WorkerLoginResponse.Token);
+        // Get the specific worker's login response
+        var worker = tenantInfo.Workers[workerId];
+        Assert.NotNull(worker);
+        Assert.NotNull(worker.WorkerLoginResponse);
+        Assert.NotNull(worker.WorkerLoginResponse.Token);
+        Assert.NotEmpty(worker.WorkerLoginResponse.Token);
     }
 
     // Helper methods for creating test data
@@ -235,8 +308,9 @@ public class TenantInfo
     public string TenantId { get; set; } = string.Empty;
     public TenantRegisterRequest TenantRequest { get; set; } = new TenantRegisterRequest();
     public TenantRegisterResponse TenantResponse { get; set; } = new TenantRegisterResponse();
-    public ShiftLeaderInfo ShiftLeaderInfo { get; set; } = new ShiftLeaderInfo();
-    public WorkerInfo WorkerInfo { get; set; } = new WorkerInfo();
+    public Dictionary<string, ShiftLeaderInfo> ShiftLeaders { get; set; } = new Dictionary<string, ShiftLeaderInfo>();
+    public Dictionary<string, WorkerInfo> Workers { get; set; } = new Dictionary<string, WorkerInfo>();
+    public string TenantToken => TenantResponse.Token;
 }
 
 public class ShiftLeaderInfo
@@ -245,11 +319,14 @@ public class ShiftLeaderInfo
     public RegisteringShiftLeaderRequest LeaderRequest { get; set; } = new RegisteringShiftLeaderRequest();
     public RegisteringShiftLeaderResponse LeaderResponse { get; set; } = new RegisteringShiftLeaderResponse();
     public LoginShiftLeaderResponse LeaderLoginResponse { get; set; } = new LoginShiftLeaderResponse();
+
+    public string ShiftLeaderToken => LeaderLoginResponse.Token;
 }
 
 public class WorkerInfo
 {
     public string WorkerId { get; set; } = string.Empty;
+    public string AssignedToShiftLeaderId { get; set; } = string.Empty;
     public RegisteringWorkerRequest WorkerRequest { get; set; } = new RegisteringWorkerRequest();
     public RegisteringWorkerResponse WorkerResponse { get; set; } = new RegisteringWorkerResponse();
     public LoginWorkerResponse WorkerLoginResponse { get; set; } = new LoginWorkerResponse();

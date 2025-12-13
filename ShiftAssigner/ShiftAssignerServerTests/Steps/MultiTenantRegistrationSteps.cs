@@ -257,6 +257,57 @@ public class MultiTenantRegistrationSteps : FeatureStepBase
         Assert.NotEmpty(worker.WorkerLoginResponse.Token);
     }
 
+    [When(@"shift leader ""(.*)"" reassigns worker ""(.*)"" to shift leader ""(.*)"" for tenant ""(.*)"" in multi tenant flow")]
+    public async Task WhenShiftLeaderReassignsWorkerToShiftLeaderForTenantInMultiTenantFlow(string fromLeaderId, string workerId, string toLeaderId, string tenantId)
+    {
+        var multiTenantData = _scenarioContext.Get<MultiTenantTestData>(MultiTenant_Data_Context);
+        var tenantInfo = multiTenantData.Tenants[tenantId];
+
+        var reassignRequest = new ReassignWorkerRequest
+        {
+            WorkerIds = new List<string> { workerId },
+            ReassignToShiftLeaderId = toLeaderId,
+            Notes = $"Reassigning {workerId} from {fromLeaderId} to {toLeaderId} for testing"
+        };
+
+        // Use the fromLeader's token to perform the reassignment
+        var fromShiftLeader = tenantInfo.ShiftLeaders[fromLeaderId];
+
+        var reassignResponse = await _serverSender.PostCommandAsync<ReassignWorkerRequest, ReassignWorkerResponse>(
+            "/api/v1/StuffBookings/reassign",
+            reassignRequest, fromShiftLeader.ShiftLeaderToken);
+
+        // Update the worker's assigned shift leader in our test data
+        var worker = tenantInfo.Workers[workerId];
+        worker.AssignedToShiftLeaderId = toLeaderId;
+
+        // Store the reassign response if needed for future assertions
+        _scenarioContext["LastReassignResponse"] = reassignResponse;
+    }
+
+    [Then(@"shift leader ""(.*)"" should have ""(.*)"" workers assigned for tenant ""(.*)""")]
+    public async Task ThenShiftLeaderShouldHaveWorkersAssignedForTenant(string leaderId, string expectedWorkerCount, string tenantId)
+    {
+        var multiTenantData = _scenarioContext.Get<MultiTenantTestData>(MultiTenant_Data_Context);
+        var tenantInfo = multiTenantData.Tenants[tenantId];
+
+        var endpoint = string.Format(STUFF_BOOKINGS_SHIFTLEADER_WORKERS, leaderId);
+
+        // Use the shift leader's token for verification
+        var shiftLeader = tenantInfo.ShiftLeaders[leaderId];
+        var shiftLeaderWithWorkers = await _serverSender.GetAsync<GetWorkerPerShiftLeaderResponse>(
+            endpoint, shiftLeader.ShiftLeaderToken);
+
+        Assert.NotNull(shiftLeaderWithWorkers);
+        Assert.Equal(leaderId, shiftLeaderWithWorkers.ShiftLeaderID);
+        Assert.NotNull(shiftLeaderWithWorkers.Workers);
+        
+        var actualWorkerCount = shiftLeaderWithWorkers.Workers.Count();
+        var expected = int.Parse(expectedWorkerCount);
+        
+        Assert.Equal(expected, actualWorkerCount);
+    }
+
     // Helper methods for creating test data
     private TenantRegisterRequest CreateTenantRegistration(string tenantId)
     {

@@ -79,3 +79,8 @@ Feature: Register Tenant Boss and verify tenant exists
   
   When worker "worker-5" logs in for tenant "1" in multi tenant flow
   Then the worker "worker-5" login for tenant "1" should contain a JWT token
+  
+  # Test worker reassignment in multi-tenant environment
+  When shift leader "leader-1" reassigns worker "worker-1" to shift leader "leader-2" for tenant "1" in multi tenant flow
+  Then shift leader "leader-1" should have "2" workers assigned for tenant "1"
+  Then shift leader "leader-2" should have "2" workers assigned for tenant "1"

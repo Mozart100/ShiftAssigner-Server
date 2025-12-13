@@ -364,6 +364,16 @@ namespace ShiftAssignerServer.Tests.Features.SingleTenant
 #line 81
   await testRunner.ThenAsync("the worker \"worker-5\" login for tenant \"1\" should contain a JWT token", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
+#line 84
+  await testRunner.WhenAsync("shift leader \"leader-1\" reassigns worker \"worker-1\" to shift leader \"leader-2\" fo" +
+                        "r tenant \"1\" in multi tenant flow", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 85
+  await testRunner.ThenAsync("shift leader \"leader-1\" should have \"2\" workers assigned for tenant \"1\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 86
+  await testRunner.ThenAsync("shift leader \"leader-2\" should have \"2\" workers assigned for tenant \"1\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
             }
             await this.ScenarioCleanupAsync();
         }

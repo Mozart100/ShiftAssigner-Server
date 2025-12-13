@@ -136,7 +136,7 @@ public class MultiTenantRegistrationSteps : FeatureStepBase
 
         // Use the specific shift leader's token for worker registration
         var shiftLeader = tenantInfo.ShiftLeaders[leaderId];
-        var workerResponse = await _serverSender.PostCommandAsync<RegisteringWorkerRequest, RegisteringWorkerResponse>(
+        var workerResponse = await _serverSender.PostCommandAsync<WorkerRegisteringRequest, RegisteringWorkerResponse>(
             WORKERS_REGISTER,
             workerRequest, shiftLeader.LeaderLoginResponse.Token);
 
@@ -335,9 +335,9 @@ public class MultiTenantRegistrationSteps : FeatureStepBase
         };
     }
 
-    private RegisteringWorkerRequest CreateWorkerRegistration(string workerId)
+    private WorkerRegisteringRequest CreateWorkerRegistration(string workerId)
     {
-        return new RegisteringWorkerRequest
+        return new WorkerRegisteringRequest
         {
             ID = workerId,
             FirstName = "Test",
@@ -378,7 +378,7 @@ public class WorkerInfo
 {
     public string WorkerId { get; set; } = string.Empty;
     public string AssignedToShiftLeaderId { get; set; } = string.Empty;
-    public RegisteringWorkerRequest WorkerRequest { get; set; } = new RegisteringWorkerRequest();
+    public WorkerRegisteringRequest WorkerRequest { get; set; } = new WorkerRegisteringRequest();
     public RegisteringWorkerResponse WorkerResponse { get; set; } = new RegisteringWorkerResponse();
     public LoginWorkerResponse WorkerLoginResponse { get; set; } = new LoginWorkerResponse();
 }

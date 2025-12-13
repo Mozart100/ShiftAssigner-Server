@@ -1,6 +1,6 @@
 namespace ShiftAssignerServer.Requests;
 
-public class RegisteringWorkerRequest
+public class WorkerRegisteringRequest
 {
     public string ID { get; set; }
     public string FirstName { get; set; } = string.Empty;

@@ -117,7 +117,7 @@ public partial class RegisterBossTenantVerifySteps : SingleTenantStep
         var tenantPayload = _scenarioContext.Get<TenantSenderInfo>(Tenant_Registration_Response_Context);
         var shiftLeaderToken = tenantPayload.ShiftLeaderSenderInfo.LoginResponse.Token;
 
-        var workerRequest = new RegisteringWorkerRequest
+        var workerRequest = new WorkerRegisteringRequest
         {
             ID = workerId,
             FirstName = "Test",
@@ -126,7 +126,7 @@ public partial class RegisterBossTenantVerifySteps : SingleTenantStep
             DateOfBirth = DateOnly.FromDateTime(DateTime.Now.AddYears(-25))
         };
 
-        var workerResponse = await _serverSender.PostCommandAsync<RegisteringWorkerRequest, RegisteringWorkerResponse>(WORKERS_REGISTER,
+        var workerResponse = await _serverSender.PostCommandAsync<WorkerRegisteringRequest, RegisteringWorkerResponse>(WORKERS_REGISTER,
             workerRequest, shiftLeaderToken);
 
         tenantPayload.ShiftLeaderSenderInfo.WorkerSenderInfo = new WorkerSenderInfo
@@ -243,7 +243,7 @@ public class ShiftLeaderSenderInfo
 
 public class WorkerSenderInfo
 {
-     public RegisteringWorkerRequest WorkerRequest { get; set; }
+     public WorkerRegisteringRequest WorkerRequest { get; set; }
     public RegisteringWorkerResponse WorkerResponse { get; set; }
     public LoginWorkerResponse WorkerLoginResponse { get; set; }
 

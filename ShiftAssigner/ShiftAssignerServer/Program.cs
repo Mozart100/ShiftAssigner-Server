@@ -98,6 +98,7 @@ builder.Services.AddScoped<IMainSchemaService, MainSchemaService>();
 // ---------------- FluentValidation ----------------
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddTransient<IRegistrationValidationService, RegistrationValidationService>();
+builder.Services.AddTransient<IWorkersServiceValidation, WorkersServiceValidation>();
 
 // ---------------- Serilog ----------------
 Log.Logger = new LoggerConfiguration()

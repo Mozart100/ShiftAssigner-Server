@@ -9,6 +9,7 @@ using ShiftAssignerServer.Services;
 using ShiftAssignerServer.Repositories;
 using AutoMapper;
 using ShiftAssignerServer.Models;
+using ShiftAssignerServer.Services.Validation;
 
 namespace ShiftAssignerServer.Controllers;
 
@@ -21,13 +22,17 @@ public class WorkersController : BaseController
     public const string Login_EndPoint = "login";
 
     private readonly IWorkerService _workerService;
+    private readonly IWorkersServiceValidation _workersServiceValidation;
     private readonly IStuffBookingService _assignmentService;
     private readonly IMapper _mapper;
 
-    public WorkersController(IWorkerService service, IStuffBookingService assignmentService,IMapper mapper, JwtService jwtService)
+    public WorkersController(IWorkerService service, 
+    IWorkersServiceValidation workersServiceValidation,
+    IStuffBookingService assignmentService,IMapper mapper, JwtService jwtService)
         : base(jwtService)
     {
         _workerService = service;
+        _workersServiceValidation = workersServiceValidation;
         _assignmentService = assignmentService;
         _mapper = mapper;
     }
@@ -35,7 +40,7 @@ public class WorkersController : BaseController
 
     [Authorize]
     [HttpPost(Register_EndPoint)]
-    public async Task<ActionResult<RegisteringWorkerResponse>> Registering([FromBody] RegisteringWorkerRequest request)
+    public async Task<ActionResult<RegisteringWorkerResponse>> Registering([FromBody] WorkerRegisteringRequest request)
     {
         // Debugger.Break();
         var worker = _mapper.Map<Worker>(request);

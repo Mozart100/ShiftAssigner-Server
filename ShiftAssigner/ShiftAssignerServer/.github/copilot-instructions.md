@@ -19,6 +19,7 @@ You are helping me implement a **C# backend** for a **multi-company shift-assign
 * Each company has its own **separate shift data**.
 * Workers schedule preferred shifts (**Morning / Day / Evening**) for the **upcoming week only**.
 * Each day must show all shift slots and indicate **available vs filled** slots.
+* **TenantBoss registration requires ShiftConfig** - When registering a new tenant/company, the boss must provide initial shift configuration defining available shifts, worker requirements, and scheduling rules.
 
 ---
 
@@ -154,20 +155,40 @@ public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
 }
 ```
 
-### 5. Repository Pattern
+### 5. Repository Pattern & UnitOfWork
 
-Using **in-memory HashSet repositories**. No EF Core DbContext currently.
+Using **Entity Framework repositories with UnitOfWork pattern**:
 
-- `IRepositoryBase<TModel>` interface with CRUD operations
-- `RepositoryBase<TModel>` implementation using `HashSet<TModel>`
-- Singleton lifetime for repositories (in-memory persistence)
-- All repositories registered in `Program.cs`
+- `IRepositoryBase<TModel>` interface with CRUD operations  
+- `BaseRepository<TModel>` EF implementation
+- `ITenantUnitOfWork` aggregates all repositories
+- Scoped lifetime for repositories and UnitOfWork
 
-Example:
+**CRITICAL SaveChanges Rule:**
+- **NEVER call `SaveChanges()` or `SaveChangesAsync()` in services**
+- **AutoSaveMiddleware automatically saves all pending changes** at the end of each request
+- Services should only call repository methods (`InsertAsync`, `UpdateAsync`, etc.)
+- UnitOfWork SaveChanges is **only** used by AutoSaveMiddleware
+
+✅ **Correct pattern:**
+```csharp
+// In service - NO SaveChanges
+await _unitOfWork.Workers.InsertAsync(worker);
+// AutoSaveMiddleware will save automatically
+```
+
+❌ **Incorrect pattern:**
+```csharp
+// NEVER do this in services
+await _unitOfWork.Workers.InsertAsync(worker);
+await _unitOfWork.SaveChangesAsync(); // ❌ WRONG!
+```
+
+Example repository:
 
 ```csharp
 public interface IWorkerRepository : IRepositoryBase<Worker> { }
-public class WorkerRepository : RepositoryBase<Worker>, IWorkerRepository { }
+public class WorkerRepository : BaseRepository<Worker>, IWorkerRepository { }
 ```
 
 ### 6. BDD Step Organization Rule
@@ -238,16 +259,17 @@ public async Task WhenIRegisterAWorkerWithValidData(Table table) // → WorkerRe
 - **BossTenant**: Company admin, creates shift leaders
 - **Tenant**: Company/organization
 - **StuffBooking**: Worker-to-ShiftLeader assignment for periods
+- **ShiftConfig**: Defines company's shift patterns, worker requirements, and scheduling rules
 
 ## Services
 - **WorkerService**: Worker management and retirement
 - **ShiftLeaderService**: Shift leader operations
-- **TenantService**: Tenant management
+- **TenantService**: Tenant management and ShiftConfig creation during registration
 - **StuffBookingService**: Worker assignments and reassignments
 - **RegistrationValidationService**: Registration request validation
 
 ## Controllers
-- **AuthController**: Registration endpoints (worker, shift leader, tenant)
+- **AuthController**: Registration endpoints (worker, shift leader, tenant with ShiftConfig - only tenant registration includes ShiftConfig)
 - **WorkersController**: Worker queries and retirement
 - **ShiftLeadersController**: Shift leader operations
 - **TenantsController**: Tenant operations
@@ -262,3 +284,4 @@ public async Task WhenIRegisterAWorkerWithValidData(Table table) // → WorkerRe
 - ✅ Comprehensive BDD test coverage
 - ✅ JWT authentication
 - ✅ Error handling middleware
+- ✅ **TenantBoss registration with mandatory ShiftConfig**

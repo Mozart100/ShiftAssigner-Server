@@ -46,6 +46,7 @@ public class PureApplicationDbContext : DbContext
     public DbSet<BossTenant> BossTenants { get; set; } = null!;
     public DbSet<StuffBooking> StuffBookings { get; set; } = null!;
     public DbSet<TenantShiftConfig> ShiftConfigs { get; set; } = null!;
+    public DbSet<ShiftPeriodConfig> ShiftPeriodConfigs { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -143,6 +144,27 @@ public class PureApplicationDbContext : DbContext
                   
             // Index on JSONB for query performance
             entity.HasIndex(e => e.Shifts).HasMethod("gin");
+        });
+
+        // Configure ShiftPeriodConfig entity
+        modelBuilder.Entity<ShiftPeriodConfig>(entity =>
+        {
+            entity.ToTable("shift_period_configs", schema);
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).IsRequired();
+            entity.Property(e => e.StartFrom).IsRequired();
+            entity.Property(e => e.IsActive).IsRequired();
+            
+            // Store the Period list as JSONB
+            entity.Property(e => e.Period)
+                  .HasColumnType("jsonb")
+                  .HasConversion(
+                      v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
+                      v => System.Text.Json.JsonSerializer.Deserialize<List<ShiftPeriodConfig.Day>>(v, (System.Text.Json.JsonSerializerOptions?)null) ?? new List<ShiftPeriodConfig.Day>()
+                  );
+                  
+            // Index on JSONB for query performance
+            entity.HasIndex(e => e.Period).HasMethod("gin");
         });
     }
 }

@@ -45,7 +45,7 @@ public class PureApplicationDbContext : DbContext
     public DbSet<ShiftLeader> ShiftLeaders { get; set; } = null!;
     public DbSet<BossTenant> BossTenants { get; set; } = null!;
     public DbSet<StuffBooking> StuffBookings { get; set; } = null!;
-    public DbSet<ShiftConfig> ShiftConfigs { get; set; } = null!;
+    public DbSet<TenantShiftConfig> ShiftConfigs { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -127,9 +127,9 @@ public class PureApplicationDbContext : DbContext
         });
 
         // Configure ShiftConfig entity
-        modelBuilder.Entity<ShiftConfig>(entity =>
+        modelBuilder.Entity<TenantShiftConfig>(entity =>
         {
-            entity.ToTable("shift_configs", schema);
+            entity.ToTable("TenantShiftConfig", schema);
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Id).IsRequired();
             
@@ -138,7 +138,7 @@ public class PureApplicationDbContext : DbContext
                   .HasColumnType("jsonb")
                   .HasConversion(
                       v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
-                      v => System.Text.Json.JsonSerializer.Deserialize<List<ShiftConfig.ShiftInfo>>(v, (System.Text.Json.JsonSerializerOptions?)null) ?? new List<ShiftConfig.ShiftInfo>()
+                      v => System.Text.Json.JsonSerializer.Deserialize<List<TenantShiftConfig.ShiftInfo>>(v, (System.Text.Json.JsonSerializerOptions?)null) ?? new List<TenantShiftConfig.ShiftInfo>()
                   );
                   
             // Index on JSONB for query performance

@@ -2,7 +2,7 @@ using System;
 
 namespace ShiftAssignerServer.Models.Stuff;
 
-public class ShiftConfig
+public class TenantShiftConfig
 {
     public int Id { get; set; }
     public List<ShiftInfo> Shifts { get; set; } = new List<ShiftInfo>();

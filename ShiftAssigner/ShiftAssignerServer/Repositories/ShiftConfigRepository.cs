@@ -3,26 +3,26 @@ using ShiftAssignerServer.Models.Stuff;
 
 namespace ShiftAssignerServer.Repositories;
 
-public interface IShiftConfigRepository : IRepositoryBase<ShiftConfig> 
+public interface IShiftConfigRepository : IRepositoryBase<TenantShiftConfig> 
 {
-    Task<IEnumerable<ShiftConfig>> GetActiveConfigsAsync();
-    Task<ShiftConfig?> GetByIdAsync(int id);
+    Task<IEnumerable<TenantShiftConfig>> GetActiveConfigsAsync();
+    Task<TenantShiftConfig?> GetByIdAsync(int id);
 }
 
-public sealed class ShiftConfigRepository : BaseRepository<ShiftConfig>, IShiftConfigRepository
+public sealed class ShiftConfigRepository : BaseRepository<TenantShiftConfig>, IShiftConfigRepository
 {
     public ShiftConfigRepository(ApplicationDbContext context) : base(context)
     {
     }
 
-    public async Task<IEnumerable<ShiftConfig>> GetActiveConfigsAsync()
+    public async Task<IEnumerable<TenantShiftConfig>> GetActiveConfigsAsync()
     {
         return await FirstOrDefaultAsync(sc => sc.IsActive) != null 
             ? await GetAllAsync()
-            : Enumerable.Empty<ShiftConfig>();
+            : Enumerable.Empty<TenantShiftConfig>();
     }
 
-    public async Task<ShiftConfig?> GetByIdAsync(int id)
+    public async Task<TenantShiftConfig?> GetByIdAsync(int id)
     {
         return await FirstOrDefaultAsync(sc => sc.Id == id);
     }

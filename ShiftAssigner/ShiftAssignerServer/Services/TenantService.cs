@@ -112,7 +112,7 @@ public class TenantService : ITenantService
         return true;
     }
 
-    private async Task SaveShiftConfigAsync(ShiftConfig shiftConfig)
+    private async Task SaveShiftConfigAsync(TenantShiftConfig shiftConfig)
     {
         // Set properties
         shiftConfig.IsActive = true;

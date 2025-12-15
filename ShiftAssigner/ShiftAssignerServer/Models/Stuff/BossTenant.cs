@@ -13,16 +13,17 @@ namespace ShiftAssignerServer.Models.Stuff
     public record BossTenant : PersonBase,IBossTenantRegistrationMapper
     {
         public string Tenant { get; set; } = string.Empty;
-        
+        public ShiftConfig ShiftConfig { get; set; } = null;
         public BossTenant()
         {
             IsActive = true;
         }
 
         public BossTenant(string id,string firstName, string lastName, string phone, DateOnly dob, string tenant,  RoleState roleState,
-            string passwordHash)
+            string passwordHash,ShiftConfig shiftConfig)
             : base()
         {
+
             ID = id;
             FirstName = firstName;
             LastName = lastName;
@@ -32,6 +33,8 @@ namespace ShiftAssignerServer.Models.Stuff
             PasswordHash = passwordHash;
             Tenant = tenant;
             IsActive = true;
+        
+            ShiftConfig = shiftConfig;
         }
     }
 }

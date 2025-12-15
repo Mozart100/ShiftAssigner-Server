@@ -12,6 +12,8 @@ public class TenantRegisterRequest : RegisterRequest
 
 {
     public string Tenant { get; set; } = string.Empty;
+
+    public ShiftConfig ShiftConfig { get; set; }
 }
 
 

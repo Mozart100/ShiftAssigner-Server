@@ -165,150 +165,183 @@ namespace ShiftAssignerServer.Tests.Features.MultiTenant
 #line 8
   await testRunner.GivenAsync("I have tenant boss registration payloads for multi tenant flow", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
-#line 10
-  await testRunner.WhenAsync("I register tenant \"1\" for multi tenant flow", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
-#line 11
-  await testRunner.ThenAsync("the tenant \"1\" registration response should contain a JWT token", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
-#line hidden
-#line 13
-  await testRunner.WhenAsync("I register tenant \"2\" for multi tenant flow", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
-#line 14
-  await testRunner.ThenAsync("the tenant \"2\" registration response should contain a JWT token", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
-#line hidden
-#line 16
-  await testRunner.WhenAsync("I register shiftleader \"leader-1\" for tenant \"1\" in multi tenant flow", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+                global::Reqnroll.Table table1 = new global::Reqnroll.Table(new string[] {
+                            "TenantId",
+                            "ShiftName",
+                            "MinWorkers",
+                            "MaxWorkers"});
+                table1.AddRow(new string[] {
+                            "1",
+                            "Morning",
+                            "2",
+                            "5"});
+                table1.AddRow(new string[] {
+                            "1",
+                            "Night",
+                            "1",
+                            "3"});
+                table1.AddRow(new string[] {
+                            "2",
+                            "Morning",
+                            "2",
+                            "4"});
+                table1.AddRow(new string[] {
+                            "2",
+                            "Day",
+                            "3",
+                            "6"});
+                table1.AddRow(new string[] {
+                            "2",
+                            "Night",
+                            "1",
+                            "3"});
+#line 9
+  await testRunner.AndAsync("I have shift configurations for tenants:", ((string)(null)), table1, "And ");
 #line hidden
 #line 17
+  await testRunner.WhenAsync("I register tenant \"1\" for multi tenant flow", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 18
+  await testRunner.ThenAsync("the tenant \"1\" registration response should contain a JWT token", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 20
+  await testRunner.WhenAsync("I register tenant \"2\" for multi tenant flow", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 21
+  await testRunner.ThenAsync("the tenant \"2\" registration response should contain a JWT token", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 23
+  await testRunner.WhenAsync("I register shiftleader \"leader-1\" for tenant \"1\" in multi tenant flow", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 24
   await testRunner.ThenAsync("the shiftleader \"leader-1\" registration for tenant \"1\" should contain a JWT token" +
                         "", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
-#line 19
+#line 26
   await testRunner.WhenAsync("I register shiftleader \"leader-2\" for tenant \"1\" in multi tenant flow", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 20
+#line 27
   await testRunner.ThenAsync("the shiftleader \"leader-2\" registration for tenant \"1\" should contain a JWT token" +
                         "", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
-#line 22
+#line 29
   await testRunner.WhenAsync("I register shiftleader \"leader-3\" for tenant \"2\" in multi tenant flow", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 23
+#line 30
   await testRunner.ThenAsync("the shiftleader \"leader-3\" registration for tenant \"2\" should contain a JWT token" +
                         "", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
-#line 25
+#line 32
   await testRunner.WhenAsync("shiftleader \"leader-1\" logs in for tenant \"1\" in multi tenant flow", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 26
+#line 33
   await testRunner.ThenAsync("the shiftleader \"leader-1\" login for tenant \"1\" should contain a JWT token", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
-#line 28
+#line 35
   await testRunner.WhenAsync("shiftleader \"leader-2\" logs in for tenant \"1\" in multi tenant flow", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 29
+#line 36
   await testRunner.ThenAsync("the shiftleader \"leader-2\" login for tenant \"1\" should contain a JWT token", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
-#line 31
+#line 38
   await testRunner.WhenAsync("shiftleader \"leader-3\" logs in for tenant \"2\" in multi tenant flow", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 32
+#line 39
   await testRunner.ThenAsync("the shiftleader \"leader-3\" login for tenant \"2\" should contain a JWT token", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
-#line 34
+#line 41
   await testRunner.WhenAsync("shiftleader \"leader-1\" registers worker \"worker-1\" for tenant \"1\" in multi tenant" +
                         " flow", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 35
+#line 42
   await testRunner.ThenAsync("the worker registration for tenant \"1\" should contain a JWT token", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
-#line 36
+#line 43
   await testRunner.ThenAsync("I verify that shiftleader \"leader-1\" has worker \"worker-1\" assigned for tenant \"1" +
                         "\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
-#line 38
+#line 45
   await testRunner.WhenAsync("shiftleader \"leader-1\" registers worker \"worker-4\" for tenant \"1\" in multi tenant" +
                         " flow", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 39
+#line 46
   await testRunner.ThenAsync("the worker registration for tenant \"1\" should contain a JWT token", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
-#line 40
+#line 47
   await testRunner.ThenAsync("I verify that shiftleader \"leader-1\" has worker \"worker-4\" assigned for tenant \"1" +
                         "\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
-#line 42
+#line 49
   await testRunner.WhenAsync("shiftleader \"leader-1\" registers worker \"worker-5\" for tenant \"1\" in multi tenant" +
                         " flow", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 43
+#line 50
   await testRunner.ThenAsync("the worker registration for tenant \"1\" should contain a JWT token", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
-#line 44
+#line 51
   await testRunner.ThenAsync("I verify that shiftleader \"leader-1\" has worker \"worker-5\" assigned for tenant \"1" +
                         "\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
-#line 46
+#line 53
   await testRunner.WhenAsync("shiftleader \"leader-2\" registers worker \"worker-2\" for tenant \"1\" in multi tenant" +
                         " flow", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 47
+#line 54
   await testRunner.ThenAsync("the worker registration for tenant \"1\" should contain a JWT token", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
-#line 48
+#line 55
   await testRunner.ThenAsync("I verify that shiftleader \"leader-2\" has worker \"worker-2\" assigned for tenant \"1" +
                         "\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
-#line 50
+#line 57
   await testRunner.WhenAsync("shiftleader \"leader-3\" registers worker \"worker-3\" for tenant \"2\" in multi tenant" +
                         " flow", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 51
+#line 58
   await testRunner.ThenAsync("the worker registration for tenant \"2\" should contain a JWT token", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
-#line 52
+#line 59
   await testRunner.ThenAsync("I verify that shiftleader \"leader-3\" has worker \"worker-3\" assigned for tenant \"2" +
                         "\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
-#line 54
+#line 61
   await testRunner.WhenAsync("worker \"worker-1\" logs in for tenant \"1\" in multi tenant flow", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 55
+#line 62
   await testRunner.ThenAsync("the worker \"worker-1\" login for tenant \"1\" should contain a JWT token", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
-#line 57
+#line 64
   await testRunner.WhenAsync("worker \"worker-2\" logs in for tenant \"1\" in multi tenant flow", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 58
+#line 65
   await testRunner.ThenAsync("the worker \"worker-2\" login for tenant \"1\" should contain a JWT token", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
-#line 60
+#line 67
   await testRunner.WhenAsync("worker \"worker-3\" logs in for tenant \"2\" in multi tenant flow", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 61
+#line 68
   await testRunner.ThenAsync("the worker \"worker-3\" login for tenant \"2\" should contain a JWT token", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
-#line 63
+#line 70
   await testRunner.WhenAsync("worker \"worker-4\" logs in for tenant \"1\" in multi tenant flow", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 64
+#line 71
   await testRunner.ThenAsync("the worker \"worker-4\" login for tenant \"1\" should contain a JWT token", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
-#line 66
+#line 73
   await testRunner.WhenAsync("worker \"worker-5\" logs in for tenant \"1\" in multi tenant flow", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 67
+#line 74
   await testRunner.ThenAsync("the worker \"worker-5\" login for tenant \"1\" should contain a JWT token", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
-#line 70
+#line 77
   await testRunner.WhenAsync("shift leader \"leader-1\" reassigns worker \"worker-1\" to shift leader \"leader-2\" fo" +
                         "r tenant \"1\" in multi tenant flow", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 71
+#line 78
   await testRunner.ThenAsync("shift leader \"leader-1\" should have \"2\" workers assigned for tenant \"1\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
-#line 72
+#line 79
   await testRunner.ThenAsync("shift leader \"leader-2\" should have \"2\" workers assigned for tenant \"1\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }

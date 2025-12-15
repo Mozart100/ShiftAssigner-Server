@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Reqnroll;
 using ShiftAssignerServer.Controllers;
+using ShiftAssignerServer.Models.Stuff;
 using ShiftAssignerServer.Requests;
 using ShiftAssignerServer.Tests.Common;
 using Xunit;
@@ -29,6 +30,38 @@ public class MultiTenantRegistrationSteps : FeatureStepBase
     {
         var multiTenantData = new MultiTenantTestData();
         _scenarioContext[MultiTenant_Data_Context] = multiTenantData;
+    }
+
+    [Given(@"I have shift configurations for tenants:")]
+    public void GivenIHaveShiftConfigurationsForTenants(Table table)
+    {
+        var multiTenantData = _scenarioContext.Get<MultiTenantTestData>(MultiTenant_Data_Context);
+
+        // Group shifts by tenant
+        var shiftsByTenant = table.Rows.GroupBy(row => row["TenantId"]);
+
+        foreach (var tenantGroup in shiftsByTenant)
+        {
+            var tenantId = tenantGroup.Key;
+            var shiftConfig = new ShiftConfig
+            {
+                IsActive = true,
+                Shifts = new List<ShiftConfig.ShiftInfo>()
+            };
+
+            foreach (var row in tenantGroup)
+            {
+                shiftConfig.Shifts.Add(new ShiftConfig.ShiftInfo
+                {
+                    ShiftName = row["ShiftName"],
+                    MinimumAmountOfWorkers = int.Parse(row["MinWorkers"]),
+                    MaximumAmountOfWorkers = int.Parse(row["MaxWorkers"])
+                });
+            }
+
+            multiTenantData.Tenants[tenantId] = new TenantInfo { TenantId = tenantId };
+            multiTenantData.Tenants[tenantId].ShiftConfigForRegistration = shiftConfig;
+        }
     }
 
     [When(@"I register tenant ""(.*)"" for multi tenant flow")]
@@ -301,16 +334,18 @@ public class MultiTenantRegistrationSteps : FeatureStepBase
         Assert.NotNull(shiftLeaderWithWorkers);
         Assert.Equal(leaderId, shiftLeaderWithWorkers.ShiftLeaderID);
         Assert.NotNull(shiftLeaderWithWorkers.Workers);
-        
+
         var actualWorkerCount = shiftLeaderWithWorkers.Workers.Count();
         var expected = int.Parse(expectedWorkerCount);
-        
+
         Assert.Equal(expected, actualWorkerCount);
     }
 
     // Helper methods for creating test data
     private TenantRegisterRequest CreateTenantRegistration(string tenantId)
     {
+        var multiTenantData = _scenarioContext.Get<MultiTenantTestData>(MultiTenant_Data_Context);
+
         return new TenantRegisterRequest
         {
             ID = $"boss-{tenantId}",
@@ -319,7 +354,8 @@ public class MultiTenantRegistrationSteps : FeatureStepBase
             PhoneNumber = $"+1-555-010{tenantId}",
             DateOfBirth = DateOnly.FromDateTime(DateTime.Now.AddYears(-30)),
             Tenant = $"MultiTenant_Company{tenantId}",
-            PasswordHash = "BossPassword123"
+            PasswordHash = "BossPassword123",
+            ShiftConfig = multiTenantData.Tenants[tenantId].ShiftConfigForRegistration
         };
     }
 
@@ -361,7 +397,10 @@ public class TenantInfo
     public TenantRegisterResponse TenantResponse { get; set; } = new TenantRegisterResponse();
     public Dictionary<string, ShiftLeaderInfo> ShiftLeaders { get; set; } = new Dictionary<string, ShiftLeaderInfo>();
     public Dictionary<string, WorkerInfo> Workers { get; set; } = new Dictionary<string, WorkerInfo>();
+    public ShiftConfig ShiftConfigForRegistration { get; set; } = new ShiftConfig();
     public string TenantToken => TenantResponse.Token;
+
+    public ShiftConfig ShiftConfig => TenantRequest.ShiftConfig;
 }
 
 public class ShiftLeaderInfo

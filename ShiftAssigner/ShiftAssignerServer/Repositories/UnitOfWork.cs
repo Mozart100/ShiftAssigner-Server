@@ -9,6 +9,7 @@ public interface ITenantUnitOfWork
     IStuffBookingRepository StuffBookings { get; }
     IMainSchemaRepository Tenants { get; }
     IBossTenantRepository BossTenantRepository { get; }
+    IShiftConfigRepository ShiftConfigs { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     int SaveChanges();
@@ -29,6 +30,7 @@ public sealed class TenantUnitOfWork : ITenantUnitOfWork
     public IStuffBookingRepository StuffBookings { get; }
     public IMainSchemaRepository Tenants { get; }
     public IBossTenantRepository BossTenantRepository { get; }
+    public IShiftConfigRepository ShiftConfigs { get; }
 
     public TenantUnitOfWork(
         ApplicationDbContext context,
@@ -36,7 +38,8 @@ public sealed class TenantUnitOfWork : ITenantUnitOfWork
         IShiftLeaderRepository shiftLeaders,
         IStuffBookingRepository stuffBookings,
         IMainSchemaRepository tenants,
-        IBossTenantRepository bossTenantRepository)
+        IBossTenantRepository bossTenantRepository,
+        IShiftConfigRepository shiftConfigs)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         Workers = workers ?? throw new ArgumentNullException(nameof(workers));
@@ -44,6 +47,7 @@ public sealed class TenantUnitOfWork : ITenantUnitOfWork
         StuffBookings = stuffBookings ?? throw new ArgumentNullException(nameof(stuffBookings));
         Tenants = tenants ?? throw new ArgumentNullException(nameof(tenants));
         BossTenantRepository = bossTenantRepository ?? throw new ArgumentNullException(nameof(bossTenantRepository));
+        ShiftConfigs = shiftConfigs ?? throw new ArgumentNullException(nameof(shiftConfigs));
     }
 
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -87,6 +91,7 @@ public sealed class TenantUnitOfWork : ITenantUnitOfWork
                ShiftLeaders.HasDataBaseChanged ||
                StuffBookings.HasDataBaseChanged ||
                Tenants.HasDataBaseChanged ||
-               BossTenantRepository.HasDataBaseChanged;
+               BossTenantRepository.HasDataBaseChanged ||
+               ShiftConfigs.HasDataBaseChanged;
     }
 }

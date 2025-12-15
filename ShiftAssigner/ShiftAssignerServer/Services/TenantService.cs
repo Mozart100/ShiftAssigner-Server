@@ -106,8 +106,20 @@ public class TenantService : ITenantService
 
         var ptr = await _tenantUnitOfWork.BossTenantRepository.InsertAsync(bossTenant);
 
+        // Save ShiftConfig to the tenant-specific schema using repository
+        await SaveShiftConfigAsync(request.ShiftConfig);
 
         return true;
+    }
+
+    private async Task SaveShiftConfigAsync(ShiftConfig shiftConfig)
+    {
+        // Set properties
+        shiftConfig.IsActive = true;
+        shiftConfig.Created = DateOnly.FromDateTime(DateTime.UtcNow);
+
+        // Use the repository pattern - AutoSaveMiddleware will handle SaveChanges
+        await _tenantUnitOfWork.ShiftConfigs.InsertAsync(shiftConfig);
     }
 }
 

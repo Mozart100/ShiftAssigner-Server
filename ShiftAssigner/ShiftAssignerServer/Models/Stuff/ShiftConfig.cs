@@ -8,6 +8,7 @@ public class ShiftConfig
     public List<ShiftInfo> Shifts { get; set; } = new List<ShiftInfo>();
 
     public bool IsActive { get; set; }
+    public DateOnly Created { get; set; }
 
 
     public class ShiftInfo

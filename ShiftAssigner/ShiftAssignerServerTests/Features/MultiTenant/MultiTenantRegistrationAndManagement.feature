@@ -6,6 +6,13 @@ Feature: Multi-Tenant Registration and Worker Management
   @integration @registration @multi-tenant
   Scenario: Register two tenants with shift leaders and workers
   Given I have tenant boss registration payloads for multi tenant flow
+  And I have shift configurations for tenants:
+    | TenantId | ShiftName | MinWorkers | MaxWorkers |
+    | 1        | Morning   | 2          | 5          |
+    | 1        | Night     | 1          | 3          |
+    | 2        | Morning   | 2          | 4          |
+    | 2        | Day       | 3          | 6          |
+    | 2        | Night     | 1          | 3          |
   
   When I register tenant "1" for multi tenant flow
   Then the tenant "1" registration response should contain a JWT token

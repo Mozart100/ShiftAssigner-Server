@@ -45,6 +45,7 @@ public class PureApplicationDbContext : DbContext
     public DbSet<ShiftLeader> ShiftLeaders { get; set; } = null!;
     public DbSet<BossTenant> BossTenants { get; set; } = null!;
     public DbSet<StuffBooking> StuffBookings { get; set; } = null!;
+    public DbSet<ShiftConfig> ShiftConfigs { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -123,6 +124,25 @@ public class PureApplicationDbContext : DbContext
             entity.HasIndex(e => new { e.ShiftLeaderId, e.IsActive });
             entity.HasIndex(e => e.ReassignmentScheduledDate)
                   .HasFilter("\"ReassignmentScheduledDate\" IS NOT NULL");
+        });
+
+        // Configure ShiftConfig entity
+        modelBuilder.Entity<ShiftConfig>(entity =>
+        {
+            entity.ToTable("shift_configs", schema);
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).IsRequired();
+            
+            // Store the Shifts list as JSONB for flexibility and performance
+            entity.Property(e => e.Shifts)
+                  .HasColumnType("jsonb")
+                  .HasConversion(
+                      v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
+                      v => System.Text.Json.JsonSerializer.Deserialize<List<ShiftConfig.ShiftInfo>>(v, (System.Text.Json.JsonSerializerOptions?)null) ?? new List<ShiftConfig.ShiftInfo>()
+                  );
+                  
+            // Index on JSONB for query performance
+            entity.HasIndex(e => e.Shifts).HasMethod("gin");
         });
     }
 }

@@ -5,21 +5,21 @@ using ShiftAssignerServer.Requests;
 
 namespace ShiftAssignerServer.Services;
 
-public interface IStuffBookingService
+public interface ITeamHierarchyService
 {
-    Task<bool> AssignAsync(StuffBooking booking);
+    Task<bool> AssignAsync(TeamHierarchy booking);
     Task<bool> ReassignAsync(ReassignWorkerRequest reassignWorkerRequest);
     Task<GetWorkerPerShiftLeaderResponse?> GetShiftLeaderWithWorkersAsync(string shiftLeaderId);
 }
 
-public class StuffBookingService : IStuffBookingService
+public class TeamHierarchyService : ITeamHierarchyService
 {
     private readonly IStuffBookingRepository _stuffBookingRepository;
     private readonly IWorkerRepository _workerRepository;
     private readonly IShiftLeaderRepository _shiftLeaderRepo;
     private readonly IMapper _mapper;
 
-    public StuffBookingService(IStuffBookingRepository stuffBookingRepository, IWorkerRepository workerRepo, IShiftLeaderRepository shiftLeaderRepo, IMapper mapper)
+    public TeamHierarchyService(IStuffBookingRepository stuffBookingRepository, IWorkerRepository workerRepo, IShiftLeaderRepository shiftLeaderRepo, IMapper mapper)
     {
         _stuffBookingRepository = stuffBookingRepository;
         _workerRepository = workerRepo;
@@ -27,7 +27,7 @@ public class StuffBookingService : IStuffBookingService
         _mapper = mapper;
     }
 
-    public async Task<bool> AssignAsync(StuffBooking booking)
+    public async Task<bool> AssignAsync(TeamHierarchy booking)
     {
         await _stuffBookingRepository.InsertAsync(booking);
         return true;
@@ -69,7 +69,7 @@ public class StuffBookingService : IStuffBookingService
                 }
 
                 // Add new record with new shift leader assignment
-                var newAssignment = new StuffBooking
+                var newAssignment = new TeamHierarchy
                 {
                     WorkerId = workerId,
                     ShiftLeaderId = reassignRequest.ReassignToShiftLeaderId,

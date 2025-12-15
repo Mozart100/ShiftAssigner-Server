@@ -44,7 +44,7 @@ public class PureApplicationDbContext : DbContext
     public DbSet<Worker> Workers { get; set; } = null!;
     public DbSet<ShiftLeader> ShiftLeaders { get; set; } = null!;
     public DbSet<BossTenant> BossTenants { get; set; } = null!;
-    public DbSet<StuffBooking> StuffBookings { get; set; } = null!;
+    public DbSet<TeamHierarchy> StuffBookings { get; set; } = null!;
     public DbSet<TenantShiftConfig> ShiftConfigs { get; set; } = null!;
     public DbSet<ShiftPeriodConfig> ShiftPeriodConfigs { get; set; } = null!;
 
@@ -107,9 +107,9 @@ public class PureApplicationDbContext : DbContext
         });
 
         // Configure StuffBooking entity
-        modelBuilder.Entity<StuffBooking>(entity =>
+        modelBuilder.Entity<TeamHierarchy>(entity =>
         {
-            entity.ToTable("stuff_bookings", schema);
+            entity.ToTable("team_hierarchy", schema);
             entity.HasKey(e => e.ID);
             entity.Property(e => e.ID).IsRequired().HasMaxLength(50);
             entity.Property(e => e.WorkerId).IsRequired().HasMaxLength(50);

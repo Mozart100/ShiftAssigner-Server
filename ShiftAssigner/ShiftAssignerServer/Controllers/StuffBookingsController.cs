@@ -15,9 +15,9 @@ namespace ShiftAssignerServer.Controllers;
 [Route("api/v1/[controller]")]
 public class StuffBookingsController : BaseController
 {
-    private readonly IStuffBookingService _service;
+    private readonly ITeamHierarchyService _service;
 
-    public StuffBookingsController(IStuffBookingService service, JwtService jwtService)
+    public StuffBookingsController(ITeamHierarchyService service, JwtService jwtService)
         : base(jwtService)
     {
         _service = service;

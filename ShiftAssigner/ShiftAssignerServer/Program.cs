@@ -92,7 +92,7 @@ builder.Services.AddScoped<ITenantUnitOfWork, TenantUnitOfWork>();
 // Business Services
 builder.Services.AddScoped<IWorkerService, WorkerService>();
 builder.Services.AddScoped<IShiftLeaderService, ShiftLeaderService>();
-builder.Services.AddScoped<IStuffBookingService, StuffBookingService>();
+builder.Services.AddScoped<ITeamHierarchyService, TeamHierarchyService>();
 builder.Services.AddScoped<ITenantService, TenantService>();
 builder.Services.AddScoped<IMainSchemaService, MainSchemaService>();
 

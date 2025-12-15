@@ -9,7 +9,7 @@ namespace ShiftAssignerServer.Models.Stuff;
 /// This allows the same worker to be supervised by different leaders across different periods.
 /// Renamed from ShiftAssignment to StuffBooking.
 /// </summary>
-public partial class StuffBooking : IAutoMapperEntities
+public partial class TeamHierarchy : IAutoMapperEntities
 {
     public string ID { get; set; } = Guid.NewGuid().ToString("N");
 
@@ -38,9 +38,9 @@ public partial class StuffBooking : IAutoMapperEntities
 }
 
 /// <summary>
-/// Additional computed members for <see cref="StuffBooking"/>.
+/// Additional computed members for <see cref="TeamHierarchy"/>.
 /// </summary>
-public partial class StuffBooking
+public partial class TeamHierarchy
 {
     /// <summary>
     /// Returns true when the booking is currently active.

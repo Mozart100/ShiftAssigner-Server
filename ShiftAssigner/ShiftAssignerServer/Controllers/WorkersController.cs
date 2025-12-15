@@ -23,12 +23,12 @@ public class WorkersController : BaseController
 
     private readonly IWorkerService _workerService;
     private readonly IWorkersServiceValidation _workersServiceValidation;
-    private readonly IStuffBookingService _assignmentService;
+    private readonly ITeamHierarchyService _assignmentService;
     private readonly IMapper _mapper;
 
     public WorkersController(IWorkerService service, 
     IWorkersServiceValidation workersServiceValidation,
-    IStuffBookingService assignmentService,IMapper mapper, JwtService jwtService)
+    ITeamHierarchyService assignmentService,IMapper mapper, JwtService jwtService)
         : base(jwtService)
     {
         _workerService = service;
@@ -69,7 +69,7 @@ public class WorkersController : BaseController
         }
 
         // Create a booking to assign the worker to the shift leader
-        var booking = new StuffBooking
+        var booking = new TeamHierarchy
         {
             WorkerId = worker.ID,
             ShiftLeaderId = shiftLeaderId,

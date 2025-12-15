@@ -28,7 +28,7 @@ namespace ShiftAssignerServer.Controllers
         private readonly IMainSchemaService _mainSchemaService;
         private readonly IShiftLeaderService _shiftLeaderService;
         private readonly IWorkerService _workerService;
-        private readonly IStuffBookingService _shiftAssignmentService;
+        private readonly ITeamHierarchyService _shiftAssignmentService;
         private readonly IShiftLeaderRepository _shiftLeaderRepository;
         private readonly IRegistrationValidationService _validationService;
 
@@ -38,7 +38,7 @@ namespace ShiftAssignerServer.Controllers
             IMainSchemaService mainSchemaService,
             IShiftLeaderService shiftLeaderService,
             IWorkerService workerService,
-            IStuffBookingService shiftAssignmentService,
+            ITeamHierarchyService shiftAssignmentService,
             IShiftLeaderRepository shiftLeaderRepository,
             IRegistrationValidationService validationService)
             : base(jwt)
@@ -78,7 +78,7 @@ namespace ShiftAssignerServer.Controllers
                 var leader = _shiftLeaderRepository.FirstOrDefault(x => x.ID.Equals(dto.ShiftLeaderId, StringComparison.InvariantCultureIgnoreCase));
                 tenantForToken = GetTenantOrEmpty();
 
-                var assignment = new StuffBooking
+                var assignment = new TeamHierarchy
                 {
                     WorkerId = worker.ID,
                     ShiftLeaderId = dto.ShiftLeaderId,

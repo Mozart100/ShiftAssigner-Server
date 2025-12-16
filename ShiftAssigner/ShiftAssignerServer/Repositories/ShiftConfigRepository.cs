@@ -1,17 +1,17 @@
 using ShiftAssignerServer.Data;
-using ShiftAssignerServer.Models.Stuff;
+using ShiftAssignerServer.Models.WorkerScheduling;
 
 namespace ShiftAssignerServer.Repositories;
 
-public interface IShiftConfigRepository : IRepositoryBase<TenantShiftConfig> 
+public interface ITenantShiftConfigRepository : IRepositoryBase<TenantShiftConfig> 
 {
     Task<IEnumerable<TenantShiftConfig>> GetActiveConfigsAsync();
     Task<TenantShiftConfig?> GetByIdAsync(int id);
 }
 
-public sealed class ShiftConfigRepository : BaseRepository<TenantShiftConfig>, IShiftConfigRepository
+public sealed class TenantShiftConfigRepository : BaseRepository<TenantShiftConfig>, ITenantShiftConfigRepository
 {
-    public ShiftConfigRepository(ApplicationDbContext context) : base(context)
+    public TenantShiftConfigRepository(ApplicationDbContext context) : base(context)
     {
     }
 

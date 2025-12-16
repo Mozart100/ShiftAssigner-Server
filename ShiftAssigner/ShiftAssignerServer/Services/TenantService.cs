@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using ShiftAssignerServer.Data;
 using ShiftAssignerServer.Models;
 using ShiftAssignerServer.Models.Stuff;
+using ShiftAssignerServer.Models.WorkerScheduling;
 using ShiftAssignerServer.Repositories;
 using ShiftAssignerServer.Requests;
 public interface ITenantService
@@ -119,7 +120,7 @@ public class TenantService : ITenantService
         shiftConfig.Created = DateOnly.FromDateTime(DateTime.UtcNow);
 
         // Use the repository pattern - AutoSaveMiddleware will handle SaveChanges
-        await _tenantUnitOfWork.ShiftConfigs.InsertAsync(shiftConfig);
+        await _tenantUnitOfWork.TenantShiftConfigs.InsertAsync(shiftConfig);
     }
 }
 

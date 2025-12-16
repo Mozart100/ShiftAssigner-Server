@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using ShiftAssignerServer.Models;
 using ShiftAssignerServer.Models.Stuff;
+using ShiftAssignerServer.Models.WorkerScheduling;
 
 namespace ShiftAssignerServer.Data;
 

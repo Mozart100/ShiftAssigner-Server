@@ -1,4 +1,5 @@
 using System;
+using ShiftAssignerServer.Models.WorkerScheduling;
 
 namespace ShiftAssignerServer.Models.Stuff
 {

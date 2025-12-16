@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Reqnroll;
 using ShiftAssignerServer.Controllers;
-using ShiftAssignerServer.Models.Stuff;
+using ShiftAssignerServer.Models.WorkerScheduling;
 using ShiftAssignerServer.Requests;
 using ShiftAssignerServer.Tests.Common;
 using Xunit;

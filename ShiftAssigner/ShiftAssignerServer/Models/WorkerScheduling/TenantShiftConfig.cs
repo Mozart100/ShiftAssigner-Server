@@ -1,6 +1,6 @@
 using System;
 
-namespace ShiftAssignerServer.Models.Stuff;
+namespace ShiftAssignerServer.Models.WorkerScheduling;
 
 public class TenantShiftConfig
 {

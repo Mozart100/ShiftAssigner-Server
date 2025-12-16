@@ -9,7 +9,7 @@ namespace ShiftAssignerServer.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/v1/[controller]")]
-public class TeamHierarchyController : BaseController
+public class TeamHierarchyController : TenantBaseController
 {
     private readonly ITeamHierarchyService _service;
     

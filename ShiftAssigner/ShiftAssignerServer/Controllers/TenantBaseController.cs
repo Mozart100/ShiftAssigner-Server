@@ -1,4 +1,3 @@
-using System;
 using Microsoft.AspNetCore.Mvc;
 using ShiftAssignerServer.Middleware;
 using ShiftAssignerServer.Models;
@@ -10,11 +9,11 @@ namespace ShiftAssignerServer.Controllers;
 /// Base controller providing common functionality for all API controllers.
 /// Handles tenant resolution and other cross-cutting concerns.
 /// </summary>
-public abstract class BaseController : ControllerBase
+public abstract class TenantBaseController : ControllerBase
 {
     protected readonly JwtService _jwtService;
     
-    protected BaseController(JwtService jwtService)
+    protected TenantBaseController(JwtService jwtService)
     {
         _jwtService = jwtService;
     }

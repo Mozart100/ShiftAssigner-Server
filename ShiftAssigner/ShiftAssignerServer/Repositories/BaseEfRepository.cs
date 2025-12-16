@@ -1,11 +1,11 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
-using ShiftAssignerServer.Common;
 using ShiftAssignerServer.Data;
+using ShiftAssignerServer.Models;
 
 namespace ShiftAssignerServer.Repositories;
 
-public interface IRepositoryBase<T> where T : class
+public interface IRepositoryBase<T> where T : class, IActiveEntity
 {
     // CREATE
     Task<T> InsertAsync(T entity, CancellationToken cancellationToken = default);
@@ -21,6 +21,8 @@ public interface IRepositoryBase<T> where T : class
     Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
     IEnumerable<T> GetAll(Expression<Func<T, bool>> predicate);
 
+    Task<IEnumerable<T>> GetAllActiveAsync(CancellationToken cancellationToken = default);
+
     // UPDATE
     Task<bool> UpdateAsync(Expression<Func<T, bool>> predicate, Action<T> update, CancellationToken cancellationToken = default);
     bool Update(Expression<Func<T, bool>> predicate, Action<T> update);
@@ -32,7 +34,7 @@ public interface IRepositoryBase<T> where T : class
     // bool Delete(Expression<Func<T, bool>> predicate);
 }
 
-public abstract class BaseRepository<T> : IRepositoryBase<T> where T : class
+public abstract class BaseRepository<T> : IRepositoryBase<T> where T : class, IActiveEntity
 {
     protected readonly ApplicationDbContext Context;
     protected DbSet<T> DbSet => Context.Set<T>();
@@ -95,6 +97,11 @@ public abstract class BaseRepository<T> : IRepositoryBase<T> where T : class
     {
         ArgumentNullException.ThrowIfNull(predicate);
         return DbSet.AsNoTracking().Where(predicate).ToList();
+    }
+
+    public virtual async Task<IEnumerable<T>> GetAllActiveAsync(CancellationToken cancellationToken = default)
+    {
+        return await DbSet.AsNoTracking().Where(x => x.IsActive).ToListAsync(cancellationToken);
     }
 
     // ---------------- UPDATE ----------------

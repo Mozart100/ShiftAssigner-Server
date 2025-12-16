@@ -1,8 +1,9 @@
 using System;
+using ShiftAssignerServer.Models;
 
 namespace ShiftAssignerServer.Models.WorkerScheduling;
 
-public class TenantShiftConfig
+public class TenantShiftConfig : IActiveEntity
 {
     public int Id { get; set; }
     public List<ShiftInfo> Shifts { get; set; } = new List<ShiftInfo>();

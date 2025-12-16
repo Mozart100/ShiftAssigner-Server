@@ -1,6 +1,8 @@
+using ShiftAssignerServer.Models;
+
 namespace ShiftAssignerServer.Models.Stuff
 {
-    public partial class ShiftPeriodConfig
+    public partial class ShiftPeriodConfig : IActiveEntity
     {
         public int Id { get; set; }
 

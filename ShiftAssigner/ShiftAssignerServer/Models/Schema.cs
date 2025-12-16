@@ -6,7 +6,7 @@ namespace ShiftAssignerServer.Models;
 /// Tenant (company) model. Implements <see cref="IAutoMapperEntities"/>
 /// so it can be used with repository and mapping infrastructure.
 /// </summary>
-public class Schema : IAutoMapperEntities
+public class Schema : IAutoMapperEntities, IActiveEntity
 {
     // public int ID { get; set; }  
 

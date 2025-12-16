@@ -1,5 +1,6 @@
 using System;
 using ShiftAssignerServer.Common;
+using ShiftAssignerServer.Models;
 using ShiftAssignerServer.Repositories;
 
 namespace ShiftAssignerServer.Models.Stuff;
@@ -9,7 +10,7 @@ namespace ShiftAssignerServer.Models.Stuff;
 /// This allows the same worker to be supervised by different leaders across different periods.
 /// Renamed from ShiftAssignment to StuffBooking.
 /// </summary>
-public partial class TeamHierarchy : IAutoMapperEntities
+public partial class TeamHierarchy : IAutoMapperEntities, IActiveEntity
 {
     public string ID { get; set; } = Guid.NewGuid().ToString("N");
 

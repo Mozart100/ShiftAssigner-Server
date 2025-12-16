@@ -1,11 +1,7 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ShiftAssignerServer.Requests;
 using ShiftAssignerServer.Services;
-using ShiftAssignerServer.Models.Stuff;
 using ShiftAssignerServer.Models;
 
 namespace ShiftAssignerServer.Controllers;
@@ -13,14 +9,14 @@ namespace ShiftAssignerServer.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/v1/[controller]")]
-public class StuffBookingsController : BaseController
+public class TeamHierarchyController : BaseController
 {
     private readonly ITeamHierarchyService _service;
     
     private const string ReassignRoute = "reassign";
     private const string ShiftLeaderWorkersRoute = "shiftleader/{shiftLeaderId}/workers";
 
-    public StuffBookingsController(ITeamHierarchyService service, JwtService jwtService)
+    public TeamHierarchyController(ITeamHierarchyService service, JwtService jwtService)
         : base(jwtService)
     {
         _service = service;

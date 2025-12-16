@@ -30,6 +30,6 @@ public class FeatureStepBase
     protected static readonly string STUFF_BOOKINGS_SHIFTLEADER_WORKERS = $"/api/v1/{StuffBookingsControllerName}/shiftleader/{{0}}/workers";
 
 
-    public static string StuffBookingsControllerName=>nameof(StuffBookingsController).Replace("Controller", "");
+    public static string StuffBookingsControllerName=>nameof(TeamHierarchyController).Replace("Controller", "");
 
 }

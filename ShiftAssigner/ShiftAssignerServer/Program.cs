@@ -84,9 +84,8 @@ builder.Services.AddScoped<IShiftLeaderRepository, ShiftLeaderRepository>();
 builder.Services.AddScoped<IBossTenantRepository, BossTenantRepository>();
 builder.Services.AddScoped<IStuffBookingRepository, StuffBookingRepository>();
 builder.Services.AddScoped<IMainSchemaRepository, MainSchemaRepository>();
-builder.Services.AddScoped<ITenantShiftConfigRepository, TenantShiftConfigRepository>();
-builder.Services.AddScoped<IShiftConfigRepository, TenantShiftConfigRepository>();
-builder.Services.AddScoped<IShiftPeriodConfigRepository, ShiftPeriodConfigRepository>();
+builder.Services.AddScoped<ITenantShiftSchedulingRepository, TenantShiftSchedulingRepository>();
+builder.Services.AddScoped<IShiftPeriodSchedulingRepository, ShiftPeriodSchedulingRepository>();
 
 // Unit of Work (recommended)
 builder.Services.AddScoped<ITenantUnitOfWork, TenantUnitOfWork>();

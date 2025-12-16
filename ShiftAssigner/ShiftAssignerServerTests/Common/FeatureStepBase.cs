@@ -1,5 +1,6 @@
 using Reqnroll;
 using ShiftAssignerServer.Tests.Infrastructure;
+using ShiftAssignerServer.Controllers;
 
 namespace ShiftAssignerServer.Tests.Common;
 
@@ -14,7 +15,7 @@ public class FeatureStepBase
     protected const string SHIFT_LEADERS_LOGIN = "/api/v1/ShiftLeaders/login";
     protected const string WORKERS_REGISTER = "/api/v1/Workers/register";
     protected const string WORKERS_LOGIN = "/api/v1/Workers/login";
-    protected const string STUFF_BOOKINGS_SHIFTLEADER_WORKERS = "/api/v1/StuffBookings/shiftleader/{0}/workers";
+
     
     protected readonly ScenarioContext _scenarioContext;
     protected readonly ClientSender _serverSender;
@@ -24,4 +25,11 @@ public class FeatureStepBase
         _scenarioContext = scenarioContext;
         _serverSender = new ClientSender(HttpBaseurl);
     }
+
+
+    protected static readonly string STUFF_BOOKINGS_SHIFTLEADER_WORKERS = $"/api/v1/{StuffBookingsControllerName}/shiftleader/{{0}}/workers";
+
+
+    public static string StuffBookingsControllerName=>nameof(StuffBookingsController).Replace("Controller", "");
+
 }

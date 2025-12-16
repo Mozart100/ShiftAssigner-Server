@@ -307,7 +307,7 @@ public class MultiTenantRegistrationSteps : FeatureStepBase
         var fromShiftLeader = tenantInfo.ShiftLeaders[fromLeaderId];
 
         var reassignResponse = await _serverSender.PostCommandAsync<ReassignWorkerRequest, ReassignWorkerResponse>(
-            "/api/v1/StuffBookings/reassign",
+            $"/api/v1/{StuffBookingsControllerName}/reassign",
             reassignRequest, fromShiftLeader.ShiftLeaderToken);
 
         // Update the worker's assigned shift leader in our test data

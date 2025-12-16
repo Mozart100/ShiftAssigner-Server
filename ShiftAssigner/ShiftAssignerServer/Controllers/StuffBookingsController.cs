@@ -16,6 +16,9 @@ namespace ShiftAssignerServer.Controllers;
 public class StuffBookingsController : BaseController
 {
     private readonly ITeamHierarchyService _service;
+    
+    private const string ReassignRoute = "reassign";
+    private const string ShiftLeaderWorkersRoute = "shiftleader/{shiftLeaderId}/workers";
 
     public StuffBookingsController(ITeamHierarchyService service, JwtService jwtService)
         : base(jwtService)
@@ -25,7 +28,7 @@ public class StuffBookingsController : BaseController
 
 
     // POST: api/v1/StuffBookings/reassign
-    [HttpPost("reassign")]
+    [HttpPost(ReassignRoute)]
     public async Task<ActionResult<ReassignWorkerResponse>> Reassign([FromBody] ReassignWorkerRequest request)
     {
         // Validate request
@@ -69,7 +72,7 @@ public class StuffBookingsController : BaseController
     }
 
     // GET: api/v1/StuffBookings/shiftleader/{shiftLeaderId}/workers
-    [HttpGet("shiftleader/{shiftLeaderId}/workers")]
+    [HttpGet(ShiftLeaderWorkersRoute)]
     public async Task<ActionResult<GetWorkerPerShiftLeaderResponse>> GetShiftLeaderWithWorkers(string shiftLeaderId)
     {
         // Extract shift leader info from JWT token to verify authorization

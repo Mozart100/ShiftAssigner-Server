@@ -85,6 +85,8 @@ builder.Services.AddScoped<IBossTenantRepository, BossTenantRepository>();
 builder.Services.AddScoped<IStuffBookingRepository, StuffBookingRepository>();
 builder.Services.AddScoped<IMainSchemaRepository, MainSchemaRepository>();
 builder.Services.AddScoped<ITenantShiftConfigRepository, TenantShiftConfigRepository>();
+builder.Services.AddScoped<IShiftConfigRepository, TenantShiftConfigRepository>();
+builder.Services.AddScoped<IShiftPeriodConfigRepository, ShiftPeriodConfigRepository>();
 
 // Unit of Work (recommended)
 builder.Services.AddScoped<ITenantUnitOfWork, TenantUnitOfWork>();
@@ -93,8 +95,9 @@ builder.Services.AddScoped<ITenantUnitOfWork, TenantUnitOfWork>();
 builder.Services.AddScoped<IWorkerService, WorkerService>();
 builder.Services.AddScoped<IShiftLeaderService, ShiftLeaderService>();
 builder.Services.AddScoped<ITeamHierarchyService, TeamHierarchyService>();
-builder.Services.AddScoped<ISchemamanagerService, SchemaManagerService>();
+builder.Services.AddScoped<ISchemaManagerService, SchemaManagerService>();
 builder.Services.AddScoped<IMainSchemaService, MainSchemaService>();
+builder.Services.AddScoped<IWorkerSchedulerService, WorkerSchedulerService>();
 
 // ---------------- FluentValidation ----------------
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();

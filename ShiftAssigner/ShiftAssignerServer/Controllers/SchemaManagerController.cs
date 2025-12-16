@@ -9,9 +9,9 @@ namespace ShiftAssignerServer.Controllers;
 [Route("api/v1/[controller]")]
 public class SchemaManagerController : ControllerBase
 {
-    private readonly ISchemamanagerService _tenantService;
+    private readonly ISchemaManagerService _tenantService;
 
-    public SchemaManagerController(ISchemamanagerService tenantService)
+    public SchemaManagerController(ISchemaManagerService tenantService)
     {
         _tenantService = tenantService;
     }

@@ -7,7 +7,7 @@ using ShiftAssignerServer.Models.WorkerScheduling;
 using ShiftAssignerServer.Repositories;
 using ShiftAssignerServer.Requests;
 
-public interface ISchemamanagerService
+public interface ISchemaManagerService
 {
     Task<bool> AddBossTenantAsync(TenantRegisterRequest request);
     Task<bool> CreateIfNoxExistedTenantSchemaAsync(string companyName);
@@ -15,7 +15,7 @@ public interface ISchemamanagerService
 }
 
 
-public class SchemaManagerService : ISchemamanagerService
+public class SchemaManagerService : ISchemaManagerService
 {
     private readonly ITenantUnitOfWork _tenantUnitOfWork;
     private readonly IMapper _mapper;

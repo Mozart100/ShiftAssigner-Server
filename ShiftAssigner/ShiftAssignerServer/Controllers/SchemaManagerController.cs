@@ -7,11 +7,11 @@ namespace ShiftAssignerServer.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/v1/[controller]")]
-public class TenantsController : ControllerBase
+public class SchemaManagerController : ControllerBase
 {
-    private readonly ITenantService _tenantService;
+    private readonly ISchemamanagerService _tenantService;
 
-    public TenantsController(ITenantService tenantService)
+    public SchemaManagerController(ISchemamanagerService tenantService)
     {
         _tenantService = tenantService;
     }

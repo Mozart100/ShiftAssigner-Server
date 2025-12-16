@@ -1,14 +1,13 @@
-using System.Linq;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using ShiftAssignerServer.Data;
-using ShiftAssignerServer.Models;
 using ShiftAssignerServer.Models.Stuff;
 using ShiftAssignerServer.Models.WorkerScheduling;
 using ShiftAssignerServer.Repositories;
 using ShiftAssignerServer.Requests;
-public interface ITenantService
+
+public interface ISchemamanagerService
 {
     Task<bool> AddBossTenantAsync(TenantRegisterRequest request);
     Task<bool> CreateIfNoxExistedTenantSchemaAsync(string companyName);
@@ -16,13 +15,13 @@ public interface ITenantService
 }
 
 
-public class TenantService : ITenantService
+public class SchemaManagerService : ISchemamanagerService
 {
     private readonly ITenantUnitOfWork _tenantUnitOfWork;
     private readonly IMapper _mapper;
     private readonly ApplicationDbContext _context;
 
-    public TenantService(ITenantUnitOfWork tenantUnitOfWork, IMapper mapper, ApplicationDbContext context)
+    public SchemaManagerService(ITenantUnitOfWork tenantUnitOfWork, IMapper mapper, ApplicationDbContext context)
     {
         _tenantUnitOfWork = tenantUnitOfWork;
         _mapper = mapper;

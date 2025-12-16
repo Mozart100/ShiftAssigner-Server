@@ -93,7 +93,7 @@ builder.Services.AddScoped<ITenantUnitOfWork, TenantUnitOfWork>();
 builder.Services.AddScoped<IWorkerService, WorkerService>();
 builder.Services.AddScoped<IShiftLeaderService, ShiftLeaderService>();
 builder.Services.AddScoped<ITeamHierarchyService, TeamHierarchyService>();
-builder.Services.AddScoped<ITenantService, TenantService>();
+builder.Services.AddScoped<ISchemamanagerService, SchemaManagerService>();
 builder.Services.AddScoped<IMainSchemaService, MainSchemaService>();
 
 // ---------------- FluentValidation ----------------

@@ -24,7 +24,7 @@ namespace ShiftAssignerServer.Controllers
 
         private readonly JwtService _jwt;
         private readonly IMapper _mapper;
-        private readonly ITenantService _tenantService;
+        private readonly ISchemamanagerService _tenantService;
         private readonly IMainSchemaService _mainSchemaService;
         private readonly IShiftLeaderService _shiftLeaderService;
         private readonly IWorkerService _workerService;
@@ -34,7 +34,7 @@ namespace ShiftAssignerServer.Controllers
 
         public AuthController(JwtService jwt,
             IMapper mapper,
-            ITenantService tenantService,
+            ISchemamanagerService tenantService,
             IMainSchemaService mainSchemaService,
             IShiftLeaderService shiftLeaderService,
             IWorkerService workerService,

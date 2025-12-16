@@ -119,7 +119,7 @@ public class SchemaManagerService : ISchemaManagerService
         shiftConfig.Created = DateOnly.FromDateTime(DateTime.UtcNow);
 
         // Use the repository pattern - AutoSaveMiddleware will handle SaveChanges
-        await _tenantUnitOfWork.TenantShiftConfigs.InsertAsync(shiftConfig);
+        await _tenantUnitOfWork.TenantShiftSchedulings.InsertAsync(shiftConfig);
     }
 }
 

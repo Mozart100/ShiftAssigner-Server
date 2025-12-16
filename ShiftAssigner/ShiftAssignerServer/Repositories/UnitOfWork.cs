@@ -9,7 +9,7 @@ public interface ITenantUnitOfWork
     IStuffBookingRepository StuffBookings { get; }
     IMainSchemaRepository Tenants { get; }
     IBossTenantRepository BossTenantRepository { get; }
-    ITenantShiftSchedulingRepository TenantShiftConfigs { get; }
+    ITenantShiftSchedulingRepository TenantShiftSchedulings { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     int SaveChanges();
@@ -30,7 +30,7 @@ public sealed class TenantUnitOfWork : ITenantUnitOfWork
     public IStuffBookingRepository StuffBookings { get; }
     public IMainSchemaRepository Tenants { get; }
     public IBossTenantRepository BossTenantRepository { get; }
-    public ITenantShiftSchedulingRepository TenantShiftConfigs { get; }
+    public ITenantShiftSchedulingRepository TenantShiftSchedulings { get; }
     public IShiftPeriodSchedulingRepository ShiftPeriodSchedulingRepository { get; }
 
     public TenantUnitOfWork(
@@ -49,7 +49,7 @@ public sealed class TenantUnitOfWork : ITenantUnitOfWork
         StuffBookings = stuffBookings ?? throw new ArgumentNullException(nameof(stuffBookings));
         Tenants = tenants ?? throw new ArgumentNullException(nameof(tenants));
         BossTenantRepository = bossTenantRepository ?? throw new ArgumentNullException(nameof(bossTenantRepository));
-        TenantShiftConfigs = tenantShiftConfigs ?? throw new ArgumentNullException(nameof(tenantShiftConfigs));
+        TenantShiftSchedulings = tenantShiftConfigs ?? throw new ArgumentNullException(nameof(tenantShiftConfigs));
         ShiftPeriodSchedulingRepository = shiftPeriodSchedulingRepository ?? throw new ArgumentNullException(nameof(shiftPeriodSchedulingRepository));
     }
 
@@ -95,7 +95,7 @@ public sealed class TenantUnitOfWork : ITenantUnitOfWork
                StuffBookings.HasDataBaseChanged ||
                Tenants.HasDataBaseChanged ||
                BossTenantRepository.HasDataBaseChanged ||
-               TenantShiftConfigs.HasDataBaseChanged ||
+               TenantShiftSchedulings.HasDataBaseChanged ||
                ShiftPeriodSchedulingRepository.HasDataBaseChanged;
     }
 }

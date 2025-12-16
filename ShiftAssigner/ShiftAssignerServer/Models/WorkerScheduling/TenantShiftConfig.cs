@@ -1,6 +1,3 @@
-using System;
-using ShiftAssignerServer.Models;
-
 namespace ShiftAssignerServer.Models.WorkerScheduling;
 
 public class TenantShiftConfig : IActiveEntity

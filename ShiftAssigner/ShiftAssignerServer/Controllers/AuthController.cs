@@ -18,7 +18,7 @@ namespace ShiftAssignerServer.Controllers
 {
     [ApiController]
     [Route("api/v1/[controller]")]
-    public class AuthController : TenantBaseController
+    public class AuthController : TenantControllerBase
     {
         public const string Register_Tenant = "register-boss-tenant";
 

@@ -16,7 +16,7 @@ namespace ShiftAssignerServer.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/v1/[controller]")]
-public class WorkersController : TenantBaseController
+public class WorkersController : TenantControllerBase
 {
     public const string Register_EndPoint = "register";
     public const string Login_EndPoint = "login";

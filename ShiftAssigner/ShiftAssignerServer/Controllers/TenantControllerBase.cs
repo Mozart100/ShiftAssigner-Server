@@ -9,11 +9,11 @@ namespace ShiftAssignerServer.Controllers;
 /// Base controller providing common functionality for all API controllers.
 /// Handles tenant resolution and other cross-cutting concerns.
 /// </summary>
-public abstract class TenantBaseController : ControllerBase
+public abstract class TenantControllerBase : ControllerBase
 {
     protected readonly JwtService _jwtService;
     
-    protected TenantBaseController(JwtService jwtService)
+    protected TenantControllerBase(JwtService jwtService)
     {
         _jwtService = jwtService;
     }

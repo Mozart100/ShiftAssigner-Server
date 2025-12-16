@@ -14,14 +14,14 @@ namespace ShiftAssignerServer.Models.Stuff
     public record BossTenant : PersonBase,IBossTenantRegistrationMapper
     {
         public string Tenant { get; set; } = string.Empty;
-        public TenantShiftConfig ShiftConfig { get; set; } = null;
+        public TenantShiftScheduling ShiftConfig { get; set; } = null;
         public BossTenant()
         {
             IsActive = true;
         }
 
         public BossTenant(string id,string firstName, string lastName, string phone, DateOnly dob, string tenant,  RoleState roleState,
-            string passwordHash,TenantShiftConfig shiftConfig)
+            string passwordHash,TenantShiftScheduling shiftConfig)
             : base()
         {
 

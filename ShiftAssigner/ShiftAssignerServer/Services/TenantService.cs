@@ -112,7 +112,7 @@ public class SchemaManagerService : ISchemaManagerService
         return true;
     }
 
-    private async Task SaveShiftConfigAsync(TenantShiftConfig shiftConfig)
+    private async Task SaveShiftConfigAsync(TenantShiftScheduling shiftConfig)
     {
         // Set properties
         shiftConfig.IsActive = true;

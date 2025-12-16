@@ -97,7 +97,7 @@ builder.Services.AddScoped<IShiftLeaderService, ShiftLeaderService>();
 builder.Services.AddScoped<ITeamHierarchyService, TeamHierarchyService>();
 builder.Services.AddScoped<ISchemaManagerService, SchemaManagerService>();
 builder.Services.AddScoped<IMainSchemaService, MainSchemaService>();
-builder.Services.AddScoped<IWorkerSchedulerService, WorkerSchedulerService>();
+// builder.Services.AddScoped<IWorkerSchedulerService, WorkerSchedulerService>();
 
 // ---------------- FluentValidation ----------------
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();

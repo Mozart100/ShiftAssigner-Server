@@ -3,32 +3,32 @@ using ShiftAssignerServer.Models.WorkerScheduling;
 
 namespace ShiftAssignerServer.Repositories;
 
-public interface IShiftConfigRepository : IRepositoryBase<TenantShiftConfig> 
+public interface IShiftConfigRepository : IRepositoryBase<TenantShiftScheduling> 
 {
-    Task<IEnumerable<TenantShiftConfig>> GetActiveConfigsAsync();
-    Task<TenantShiftConfig?> GetByIdAsync(int id);
+    Task<IEnumerable<TenantShiftScheduling>> GetActiveConfigsAsync();
+    Task<TenantShiftScheduling?> GetByIdAsync(int id);
 }
 
-public interface ITenantShiftConfigRepository : IRepositoryBase<TenantShiftConfig> 
+public interface ITenantShiftConfigRepository : IRepositoryBase<TenantShiftScheduling> 
 {
-    Task<IEnumerable<TenantShiftConfig>> GetActiveConfigsAsync();
-    Task<TenantShiftConfig?> GetByIdAsync(int id);
+    Task<IEnumerable<TenantShiftScheduling>> GetActiveConfigsAsync();
+    Task<TenantShiftScheduling?> GetByIdAsync(int id);
 }
 
-public sealed class TenantShiftConfigRepository : BaseRepository<TenantShiftConfig>, ITenantShiftConfigRepository, IShiftConfigRepository
+public sealed class TenantShiftConfigRepository : BaseRepository<TenantShiftScheduling>, ITenantShiftConfigRepository, IShiftConfigRepository
 {
     public TenantShiftConfigRepository(ApplicationDbContext context) : base(context)
     {
     }
 
-    public async Task<IEnumerable<TenantShiftConfig>> GetActiveConfigsAsync()
+    public async Task<IEnumerable<TenantShiftScheduling>> GetActiveConfigsAsync()
     {
         return await FirstOrDefaultAsync(sc => sc.IsActive) != null 
             ? await GetAllAsync()
-            : Enumerable.Empty<TenantShiftConfig>();
+            : Enumerable.Empty<TenantShiftScheduling>();
     }
 
-    public async Task<TenantShiftConfig?> GetByIdAsync(int id)
+    public async Task<TenantShiftScheduling?> GetByIdAsync(int id)
     {
         return await FirstOrDefaultAsync(sc => sc.Id == id);
     }

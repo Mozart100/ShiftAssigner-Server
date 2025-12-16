@@ -2,7 +2,7 @@ using ShiftAssignerServer.Models;
 
 namespace ShiftAssignerServer.Models.Stuff
 {
-    public partial class ShiftPeriodConfig : IActiveEntity
+    public partial class ShiftPeriodScheduling : IActiveEntity
     {
         public int Id { get; set; }
 
@@ -34,7 +34,7 @@ namespace ShiftAssignerServer.Models.Stuff
     }
 
 
-    public partial class ShiftPeriodConfig
+    public partial class ShiftPeriodScheduling
     {
         public partial class Day
         {

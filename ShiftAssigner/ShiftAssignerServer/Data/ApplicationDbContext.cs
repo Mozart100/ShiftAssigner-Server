@@ -46,8 +46,8 @@ public class PureApplicationDbContext : DbContext
     public DbSet<ShiftLeader> ShiftLeaders { get; set; } = null!;
     public DbSet<BossTenant> BossTenants { get; set; } = null!;
     public DbSet<TeamHierarchy> StuffBookings { get; set; } = null!;
-    public DbSet<TenantShiftConfig> ShiftConfigs { get; set; } = null!;
-    public DbSet<ShiftPeriodConfig> ShiftPeriodConfigs { get; set; } = null!;
+    public DbSet<TenantShiftScheduling> ShiftConfigs { get; set; } = null!;
+    public DbSet<ShiftPeriodScheduling> ShiftPeriodSchedulings { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -129,9 +129,9 @@ public class PureApplicationDbContext : DbContext
         });
 
         // Configure ShiftConfig entity
-        modelBuilder.Entity<TenantShiftConfig>(entity =>
+        modelBuilder.Entity<TenantShiftScheduling>(entity =>
         {
-            entity.ToTable("TenantShiftConfig", schema);
+            entity.ToTable("tenant_shift_schedulings", schema);
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Id).IsRequired();
             
@@ -140,17 +140,17 @@ public class PureApplicationDbContext : DbContext
                   .HasColumnType("jsonb")
                   .HasConversion(
                       v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
-                      v => System.Text.Json.JsonSerializer.Deserialize<List<TenantShiftConfig.ShiftInfo>>(v, (System.Text.Json.JsonSerializerOptions?)null) ?? new List<TenantShiftConfig.ShiftInfo>()
+                      v => System.Text.Json.JsonSerializer.Deserialize<List<TenantShiftScheduling.ShiftInfo>>(v, (System.Text.Json.JsonSerializerOptions?)null) ?? new List<TenantShiftScheduling.ShiftInfo>()
                   );
                   
             // Index on JSONB for query performance
             entity.HasIndex(e => e.Shifts).HasMethod("gin");
         });
 
-        // Configure ShiftPeriodConfig entity
-        modelBuilder.Entity<ShiftPeriodConfig>(entity =>
+        // Configure ShiftPeriodScheduling entity
+        modelBuilder.Entity<ShiftPeriodScheduling>(entity =>
         {
-            entity.ToTable("shift_period_configs", schema);
+            entity.ToTable("shift_period_schedulings", schema);
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Id).IsRequired();
             entity.Property(e => e.StartFrom).IsRequired();
@@ -161,7 +161,7 @@ public class PureApplicationDbContext : DbContext
                   .HasColumnType("jsonb")
                   .HasConversion(
                       v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
-                      v => System.Text.Json.JsonSerializer.Deserialize<List<ShiftPeriodConfig.Day>>(v, (System.Text.Json.JsonSerializerOptions?)null) ?? new List<ShiftPeriodConfig.Day>()
+                      v => System.Text.Json.JsonSerializer.Deserialize<List<ShiftPeriodScheduling.Day>>(v, (System.Text.Json.JsonSerializerOptions?)null) ?? new List<ShiftPeriodScheduling.Day>()
                   );
                   
             // Index on JSONB for query performance

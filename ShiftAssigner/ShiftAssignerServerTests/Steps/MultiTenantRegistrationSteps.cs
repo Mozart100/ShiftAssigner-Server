@@ -43,15 +43,15 @@ public class MultiTenantRegistrationSteps : FeatureStepBase
         foreach (var tenantGroup in shiftsByTenant)
         {
             var tenantId = tenantGroup.Key;
-            var shiftConfig = new TenantShiftConfig
+            var shiftConfig = new TenantShiftScheduling
             {
                 IsActive = true,
-                Shifts = new List<TenantShiftConfig.ShiftInfo>()
+                Shifts = new List<TenantShiftScheduling.ShiftInfo>()
             };
 
             foreach (var row in tenantGroup)
             {
-                shiftConfig.Shifts.Add(new TenantShiftConfig.ShiftInfo
+                shiftConfig.Shifts.Add(new TenantShiftScheduling.ShiftInfo
                 {
                     ShiftName = row["ShiftName"],
                     MinimumAmountOfWorkers = int.Parse(row["MinWorkers"]),
@@ -397,10 +397,10 @@ public class TenantInfo
     public TenantRegisterResponse TenantResponse { get; set; } = new TenantRegisterResponse();
     public Dictionary<string, ShiftLeaderInfo> ShiftLeaders { get; set; } = new Dictionary<string, ShiftLeaderInfo>();
     public Dictionary<string, WorkerInfo> Workers { get; set; } = new Dictionary<string, WorkerInfo>();
-    public TenantShiftConfig ShiftConfigForRegistration { get; set; } = new TenantShiftConfig();
+    public TenantShiftScheduling ShiftConfigForRegistration { get; set; } = new TenantShiftScheduling();
     public string TenantToken => TenantResponse.Token;
 
-    public TenantShiftConfig ShiftConfig => TenantRequest.ShiftConfig;
+    public TenantShiftScheduling ShiftConfig => TenantRequest.ShiftConfig;
 }
 
 public class ShiftLeaderInfo

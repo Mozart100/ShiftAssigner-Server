@@ -1,5 +1,5 @@
 using ShiftAssignerServer.Data;
-using ShiftAssignerServer.Models.Stuff;
+using ShiftAssignerServer.Models.WorkerScheduling;
 
 namespace ShiftAssignerServer.Repositories;
 

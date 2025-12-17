@@ -10,6 +10,8 @@ public interface ITenantUnitOfWork
     IBossTenantRepository BossTenantRepository { get; }
     ITenantShiftSchedulingRepository TenantShiftSchedulingRepository { get; }
 
+    IShiftPeriodSchedulingRepository ShiftPeriodSchedulingRepository { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     int SaveChanges();
     

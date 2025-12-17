@@ -1,3 +1,5 @@
+using ShiftAssignerServer.Models.WorkerScheduling;
+
 namespace ShiftAssignerServer.Requests;
 
 public class CreateShiftPeriodSchedulingRequest
@@ -10,7 +12,7 @@ public class CreateShiftPeriodSchedulingRequest
     /// <summary>
     /// List of days in the scheduling period with their shifts
     /// </summary>
-    public List<CreateDaySchedule> NextShifts { get; set; } = new List<CreateDaySchedule>();
+    public List<CreateDaySchedule> NextPeriod { get; set; } = new List<CreateDaySchedule>();
 
     public class CreateDaySchedule
     {

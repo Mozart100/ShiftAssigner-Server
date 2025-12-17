@@ -14,14 +14,14 @@ public interface ITeamHierarchyService
 
 public class TeamHierarchyService : ITeamHierarchyService
 {
-    private readonly IStuffBookingRepository _stuffBookingRepository;
+    private readonly ITeamHierarchyRepository _teamHierarchyRepository;
     private readonly IWorkerRepository _workerRepository;
     private readonly IShiftLeaderRepository _shiftLeaderRepo;
     private readonly IMapper _mapper;
 
-    public TeamHierarchyService(IStuffBookingRepository stuffBookingRepository, IWorkerRepository workerRepo, IShiftLeaderRepository shiftLeaderRepo, IMapper mapper)
+    public TeamHierarchyService(ITeamHierarchyRepository teamHierarchyRepository, IWorkerRepository workerRepo, IShiftLeaderRepository shiftLeaderRepo, IMapper mapper)
     {
-        _stuffBookingRepository = stuffBookingRepository;
+        _teamHierarchyRepository = teamHierarchyRepository;
         _workerRepository = workerRepo;
         _shiftLeaderRepo = shiftLeaderRepo;
         _mapper = mapper;
@@ -29,66 +29,50 @@ public class TeamHierarchyService : ITeamHierarchyService
 
     public async Task<bool> AssignAsync(TeamHierarchy booking)
     {
-        await _stuffBookingRepository.InsertAsync(booking);
+        await _teamHierarchyRepository.InsertAsync(booking);
         return true;
     }
 
     public async Task<bool> ReassignAsync(ReassignWorkerRequest reassignRequest)
     {
-        if (reassignRequest == null ||
-            reassignRequest.WorkerIds == null ||
-            !reassignRequest.WorkerIds.Any() ||
-            string.IsNullOrWhiteSpace(reassignRequest.ReassignToShiftLeaderId))
-        {
-            return false;
-        }
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
 
-        try
+        foreach (var workerId in reassignRequest.WorkerIds)
         {
-            var today = DateOnly.FromDateTime(DateTime.UtcNow);
+            // Find current active assignment for this worker
+            var currentAssignment = await _teamHierarchyRepository.FirstOrDefaultAsync(x =>
+                x.WorkerId == workerId &&
+                x.IsActive &&
+                x.PeriodEnd == null);
 
-            foreach (var workerId in reassignRequest.WorkerIds)
+            if (currentAssignment != null)
             {
-                // Find current active assignment for this worker
-                var currentAssignment = await _stuffBookingRepository.FirstOrDefaultAsync(x =>
-                    x.WorkerId == workerId &&
-                    x.IsActive &&
-                    x.PeriodEnd == null);
-
-                if (currentAssignment != null)
-                {
-                    // Deactivate current assignment (set IsActive = false)
-                    await _stuffBookingRepository.UpdateAsync(
-                        x => x.ID == currentAssignment.ID,
-                        booking =>
-                        {
-                            booking.PeriodEnd = today;
-                            booking.IsActive = false;
-                            booking.Notes += $" | Deactivated on {today:yyyy-MM-dd} - Reassigned";
-                        });
-                }
-
-                // Add new record with new shift leader assignment
-                var newAssignment = new TeamHierarchy
-                {
-                    WorkerId = workerId,
-                    ShiftLeaderId = reassignRequest.ReassignToShiftLeaderId,
-                    PeriodStart = today,
-                    PeriodEnd = null, // Open-ended
-                    Notes = $"New assignment after reassignment. {reassignRequest.Notes}".Trim(),
-                    IsActive = true
-                };
-
-                await _stuffBookingRepository.InsertAsync(newAssignment);
+                // Deactivate current assignment (set IsActive = false)
+                await _teamHierarchyRepository.UpdateAsync(
+                    x => x.ID == currentAssignment.ID,
+                    booking =>
+                    {
+                        booking.PeriodEnd = today;
+                        booking.IsActive = false;
+                        booking.Notes += $" | Deactivated on {today:yyyy-MM-dd} - Reassigned";
+                    });
             }
 
-            return true;
+            // Add new record with new shift leader assignment
+            var newAssignment = new TeamHierarchy
+            {
+                WorkerId = workerId,
+                ShiftLeaderId = reassignRequest.ReassignToShiftLeaderId,
+                PeriodStart = today,
+                PeriodEnd = null, // Open-ended
+                Notes = $"New assignment after reassignment. {reassignRequest.Notes}".Trim(),
+                IsActive = true
+            };
+
+            await _teamHierarchyRepository.InsertAsync(newAssignment);
         }
-        catch (Exception)
-        {
-            // Log exception in real application
-            return false;
-        }
+
+        return true;
     }
 
     public async Task<GetWorkerPerShiftLeaderResponse?> GetShiftLeaderWithWorkersAsync(string shiftLeaderId)
@@ -97,7 +81,7 @@ public class TeamHierarchyService : ITeamHierarchyService
         var shiftLeader = await _shiftLeaderRepo.FirstOrDefaultAsync(sl => sl.ID == shiftLeaderId);
 
         // Get current active assignments for this shift leader
-        var activeAssignments = await _stuffBookingRepository.GetAllAsync(sb =>
+        var activeAssignments = await _teamHierarchyRepository.GetAllAsync(sb =>
             sb.ShiftLeaderId == shiftLeaderId &&
             sb.IsActive);
 

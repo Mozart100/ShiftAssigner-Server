@@ -26,13 +26,13 @@ public class ShiftLeaderService : IShiftLeaderService
 
     public async Task<bool> AddShiftLeaderAsync(ShiftLeader shiftLeader)
     {
-        var model = await _tenantUnitOfWork.ShiftLeaders.InsertAsync(shiftLeader);
+        var model = await _tenantUnitOfWork.ShiftLeaderRepository.InsertAsync(shiftLeader);
         return true;
     }
 
     public async Task<IEnumerable<PubShiftLeader>> GetAllShiftLeaderAsync(string perTenant)
     {
-        var leaders = await _tenantUnitOfWork.ShiftLeaders.GetAllAsync(x => x.IsActive);
+        var leaders = await _tenantUnitOfWork.ShiftLeaderRepository.GetAllAsync(x => x.IsActive);
 
         if (leaders.IsEmpty())
         {
@@ -45,7 +45,7 @@ public class ShiftLeaderService : IShiftLeaderService
 
     public async Task<bool> LoginAsync(LoginShiftLeaderRequest request)
     {
-        var updateResult = await _tenantUnitOfWork.ShiftLeaders.UpdateAsync(x => x.ID == request.ID, y =>
+        var updateResult = await _tenantUnitOfWork.ShiftLeaderRepository.UpdateAsync(x => x.ID == request.ID, y =>
         {
             y.PasswordHash = request.Password;
             y.IsPasswordRequired = false;

@@ -4,12 +4,11 @@ namespace ShiftAssignerServer.Repositories;
 
 public interface ITenantUnitOfWork
 {
-    IWorkerRepository Workers { get; }
-    IShiftLeaderRepository ShiftLeaders { get; }
-    IStuffBookingRepository StuffBookings { get; }
+    IWorkerRepository WorkerRepository { get; }
+    IShiftLeaderRepository ShiftLeaderRepository { get; }
     IMainSchemaRepository Tenants { get; }
     IBossTenantRepository BossTenantRepository { get; }
-    ITenantShiftSchedulingRepository TenantShiftSchedulings { get; }
+    ITenantShiftSchedulingRepository TenantShiftSchedulingRepository { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     int SaveChanges();
@@ -25,31 +24,31 @@ public sealed class TenantUnitOfWork : ITenantUnitOfWork
 {
     private readonly ApplicationDbContext _context;
 
-    public IWorkerRepository Workers { get; }
-    public IShiftLeaderRepository ShiftLeaders { get; }
-    public IStuffBookingRepository StuffBookings { get; }
+    public IWorkerRepository WorkerRepository { get; }
+    public IShiftLeaderRepository ShiftLeaderRepository { get; }
     public IMainSchemaRepository Tenants { get; }
     public IBossTenantRepository BossTenantRepository { get; }
-    public ITenantShiftSchedulingRepository TenantShiftSchedulings { get; }
+    public ITeamHierarchyRepository TeamHierarchyRepository { get; }
+    public ITenantShiftSchedulingRepository TenantShiftSchedulingRepository { get; }
     public IShiftPeriodSchedulingRepository ShiftPeriodSchedulingRepository { get; }
 
     public TenantUnitOfWork(
         ApplicationDbContext context,
-        IWorkerRepository workers,
-        IShiftLeaderRepository shiftLeaders,
-        IStuffBookingRepository stuffBookings,
+        IWorkerRepository workerRepository,
+        IShiftLeaderRepository shiftLeaderRepository,
         IMainSchemaRepository tenants,
         IBossTenantRepository bossTenantRepository,
-        ITenantShiftSchedulingRepository tenantShiftConfigs,
+        ITeamHierarchyRepository teamHierarchyRepository,
+        ITenantShiftSchedulingRepository tenantShiftSchedulingRepository,
         IShiftPeriodSchedulingRepository shiftPeriodSchedulingRepository)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
-        Workers = workers ?? throw new ArgumentNullException(nameof(workers));
-        ShiftLeaders = shiftLeaders ?? throw new ArgumentNullException(nameof(shiftLeaders));
-        StuffBookings = stuffBookings ?? throw new ArgumentNullException(nameof(stuffBookings));
+        WorkerRepository = workerRepository ?? throw new ArgumentNullException(nameof(workerRepository));
+        ShiftLeaderRepository = shiftLeaderRepository ?? throw new ArgumentNullException(nameof(shiftLeaderRepository));
         Tenants = tenants ?? throw new ArgumentNullException(nameof(tenants));
         BossTenantRepository = bossTenantRepository ?? throw new ArgumentNullException(nameof(bossTenantRepository));
-        TenantShiftSchedulings = tenantShiftConfigs ?? throw new ArgumentNullException(nameof(tenantShiftConfigs));
+        TeamHierarchyRepository = teamHierarchyRepository;
+        TenantShiftSchedulingRepository = tenantShiftSchedulingRepository ?? throw new ArgumentNullException(nameof(tenantShiftSchedulingRepository));
         ShiftPeriodSchedulingRepository = shiftPeriodSchedulingRepository ?? throw new ArgumentNullException(nameof(shiftPeriodSchedulingRepository));
     }
 
@@ -90,12 +89,12 @@ public sealed class TenantUnitOfWork : ITenantUnitOfWork
     /// </summary>
     private bool HasAnyChanges()
     {
-        return Workers.HasDataBaseChanged ||
-               ShiftLeaders.HasDataBaseChanged ||
-               StuffBookings.HasDataBaseChanged ||
+        return WorkerRepository.HasDataBaseChanged ||
+               ShiftLeaderRepository.HasDataBaseChanged ||
                Tenants.HasDataBaseChanged ||
                BossTenantRepository.HasDataBaseChanged ||
-               TenantShiftSchedulings.HasDataBaseChanged ||
+               TeamHierarchyRepository.HasDataBaseChanged ||
+               TenantShiftSchedulingRepository.HasDataBaseChanged ||
                ShiftPeriodSchedulingRepository.HasDataBaseChanged;
     }
 }

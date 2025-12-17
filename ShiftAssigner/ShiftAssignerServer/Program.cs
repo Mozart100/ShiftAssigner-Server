@@ -82,8 +82,8 @@ builder.Services.AddSingleton(new JwtService(jwtKey, jwtIssuer, jwtAudience));
 builder.Services.AddScoped<IWorkerRepository, WorkerRepository>();
 builder.Services.AddScoped<IShiftLeaderRepository, ShiftLeaderRepository>();
 builder.Services.AddScoped<IBossTenantRepository, BossTenantRepository>();
-builder.Services.AddScoped<IStuffBookingRepository, StuffBookingRepository>();
 builder.Services.AddScoped<IMainSchemaRepository, MainSchemaRepository>();
+builder.Services.AddScoped<ITeamHierarchyRepository, TeamHierarchyRepository>();
 builder.Services.AddScoped<ITenantShiftSchedulingRepository, TenantShiftSchedulingRepository>();
 builder.Services.AddScoped<IShiftPeriodSchedulingRepository, ShiftPeriodSchedulingRepository>();
 

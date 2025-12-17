@@ -135,24 +135,32 @@ var activeWorkers = await _repository.GetAllAsync(x => x.IsActive);
 
 ### 4. Validation Rule
 
-Use **FluentValidation** for all request validation.
+Use **FluentValidation** for all request validation and **ServiceValidatorBase** for business validation.
 
-- Create validators inheriting from `AbstractValidator<T>`
-- Business rules in dedicated validation services inheriting from `ServiceValidatorBase`
-- Validation errors throw `ShiftAssignmentException`
+#### FluentValidation Pattern:
+- Create validators inheriting from `AbstractValidator<T>` for request/model validation
+- Use declarative validation rules with clear error messages
+- Register validators automatically via dependency injection
+
+#### Business Validation Pattern:
+- Create validation services inheriting from `ServiceValidatorBase`
+- Business rules in dedicated validation services
+- Validation errors throw `ShiftAssignmentException` using base class methods
 - Middleware catches exceptions and returns structured error responses
 
-Example:
+#### Validation Service Pattern:
+- Create interface: `I{ServiceName}ValidationService`
+- Implement: `{ServiceName}ValidationService : ServiceValidatorBase, I{ServiceName}ValidationService`
+- Inject: `IValidator<TRequest>` for FluentValidation integration
+- Use: `Dissect()` for FluentValidation errors, `Validate()` for throwing exceptions
 
+#### Registration Pattern:
 ```csharp
-public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
-{
-    public RegisterRequestValidator()
-    {
-        RuleFor(x => x.ID).NotEmpty().MinimumLength(3);
-        RuleFor(x => x.FirstName).NotEmpty().MaximumLength(50);
-    }
-}
+// In Program.cs - automatically registers all FluentValidation validators
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+
+// Register business validation services
+builder.Services.AddTransient<IWorkerSchedulerValidationService, WorkerSchedulerValidationService>();
 ```
 
 ### 5. Repository Pattern & UnitOfWork

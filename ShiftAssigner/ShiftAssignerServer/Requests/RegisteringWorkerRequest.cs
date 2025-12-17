@@ -13,9 +13,3 @@ public class RegisteringWorkerResponse : RegisterResponse
 {
     public string Token { get; set; }
 }
-
-
-public class CreateShiftPeriodScheduling
-{
-    
-}

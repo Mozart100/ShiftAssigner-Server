@@ -32,7 +32,7 @@ public class ShiftLeaderService : IShiftLeaderService
 
     public async Task<IEnumerable<PubShiftLeader>> GetAllShiftLeaderAsync(string perTenant)
     {
-        var leaders = await _tenantUnitOfWork.ShiftLeaderRepository.GetAllAsync(x => x.IsActive);
+        var leaders = await _tenantUnitOfWork.ShiftLeaderRepository.GetAllActiveAsync();
 
         if (leaders.IsEmpty())
         {

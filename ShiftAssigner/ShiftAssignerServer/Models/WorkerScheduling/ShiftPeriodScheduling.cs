@@ -5,6 +5,7 @@ namespace ShiftAssignerServer.Models.Stuff
     public partial class ShiftPeriodScheduling : IActiveEntity
     {
         public int Id { get; set; }
+        public string ShiftLeaderId { get; set; }
 
         public DateOnly StartFrom { get; set; }
 

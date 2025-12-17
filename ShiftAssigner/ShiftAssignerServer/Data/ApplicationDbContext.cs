@@ -153,6 +153,7 @@ public class PureApplicationDbContext : DbContext
             entity.ToTable("shift_period_schedulings", schema);
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Id).IsRequired();
+            entity.Property(e => e.ShiftLeaderId).IsRequired().HasMaxLength(200);
             entity.Property(e => e.StartFrom).IsRequired();
             entity.Property(e => e.IsActive).IsRequired();
             

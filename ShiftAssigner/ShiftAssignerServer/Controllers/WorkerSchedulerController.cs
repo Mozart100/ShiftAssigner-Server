@@ -10,14 +10,16 @@ namespace ShiftAssignerServer.Controllers;
 [Route("api/v1/[controller]")]
 public class WorkerSchedulerController : TenantControllerBase
 {
+    private readonly IWorkerSchedulerService _workerSchedulerService;
     private const string GetScheduleRoute = "schedule/{workerId}";
     private const string UpdateAvailabilityRoute = "availability";
     private const string RequestTimeOffRoute = "time-off";
     private const string SwapShiftRoute = "swap-shift";
     
-    public WorkerSchedulerController(JwtService jwtService)
+    public WorkerSchedulerController(IWorkerSchedulerService workerSchedulerService, JwtService jwtService)
         : base(jwtService)
     {
+        _workerSchedulerService = workerSchedulerService ?? throw new ArgumentNullException(nameof(workerSchedulerService));
     }
 
     // GET: api/v1/WorkerScheduler/schedule/{workerId}

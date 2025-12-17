@@ -102,6 +102,7 @@ builder.Services.AddScoped<IWorkerSchedulerService, WorkerSchedulerService>();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddTransient<IRegistrationValidationService, RegistrationValidationService>();
 builder.Services.AddTransient<IWorkersServiceValidation, WorkersServiceValidation>();
+builder.Services.AddTransient<IWorkerSchedulerValidationService, WorkerSchedulerValidationService>();
 
 // ---------------- Serilog ----------------
 Log.Logger = new LoggerConfiguration()

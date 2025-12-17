@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using ShiftAssignerServer.Models;
 using ShiftAssignerServer.Requests;
 using ShiftAssignerServer.Services;
+using ShiftAssignerServer.Services.Validation;
 
 namespace ShiftAssignerServer.Controllers;
 
@@ -101,6 +102,14 @@ public class WorkerSchedulerController : TenantControllerBase
                     Message = "Failed to create shift period"
                 });
             }
+        }
+        catch (ShiftAssignmentException ex)
+        {
+            return BadRequest(new CreateShiftPeriodSchedulingResponse
+            {
+                Success = false,
+                Message = string.Join("; ", ex.ShiftAssignmentErrors.Select(e => e.ErrorMessage))
+            });
         }
         catch (Exception ex)
         {

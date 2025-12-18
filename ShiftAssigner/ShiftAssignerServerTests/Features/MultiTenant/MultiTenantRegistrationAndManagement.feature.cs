@@ -344,6 +344,85 @@ namespace ShiftAssignerServer.Tests.Features.MultiTenant
 #line 79
   await testRunner.ThenAsync("shift leader \"leader-2\" should have \"2\" workers assigned for tenant \"1\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
+                global::Reqnroll.Table table2 = new global::Reqnroll.Table(new string[] {
+                            "Date",
+                            "ShiftName",
+                            "AmountOfWorkers"});
+                table2.AddRow(new string[] {
+                            "2024-01-15",
+                            "Morning",
+                            "3"});
+                table2.AddRow(new string[] {
+                            "2024-01-15",
+                            "Night",
+                            "1"});
+                table2.AddRow(new string[] {
+                            "2024-01-16",
+                            "Morning",
+                            "3"});
+                table2.AddRow(new string[] {
+                            "2024-01-16",
+                            "Night",
+                            "1"});
+                table2.AddRow(new string[] {
+                            "2024-01-17",
+                            "Morning",
+                            "4"});
+                table2.AddRow(new string[] {
+                            "2024-01-17",
+                            "Night",
+                            "2"});
+                table2.AddRow(new string[] {
+                            "2024-01-18",
+                            "Morning",
+                            "4"});
+                table2.AddRow(new string[] {
+                            "2024-01-18",
+                            "Night",
+                            "2"});
+                table2.AddRow(new string[] {
+                            "2024-01-19",
+                            "Morning",
+                            "5"});
+                table2.AddRow(new string[] {
+                            "2024-01-19",
+                            "Night",
+                            "2"});
+                table2.AddRow(new string[] {
+                            "2024-01-20",
+                            "Morning",
+                            "3"});
+                table2.AddRow(new string[] {
+                            "2024-01-20",
+                            "Night",
+                            "1"});
+                table2.AddRow(new string[] {
+                            "2024-01-21",
+                            "Morning",
+                            "2"});
+                table2.AddRow(new string[] {
+                            "2024-01-21",
+                            "Night",
+                            "1"});
+#line 82
+  await testRunner.WhenAsync("shift leader \"leader-1\" creates a weekly shift period for tenant \"1\" with the fol" +
+                        "lowing schedule:", ((string)(null)), table2, "When ");
+#line hidden
+#line 99
+  await testRunner.ThenAsync("the shift period creation should be successful for tenant \"1\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 100
+  await testRunner.AndAsync("the shift period should start from \"2024-01-15\" for tenant \"1\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 101
+  await testRunner.AndAsync("the shift period should end on \"2024-01-21\" for tenant \"1\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 102
+  await testRunner.AndAsync("the shift period should contain \"7\" days for tenant \"1\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 103
+  await testRunner.AndAsync("the shift period should have shifts for all configured days for tenant \"1\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
             }
             await this.ScenarioCleanupAsync();
         }

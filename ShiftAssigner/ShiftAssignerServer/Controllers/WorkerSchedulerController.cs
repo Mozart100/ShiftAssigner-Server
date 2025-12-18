@@ -12,8 +12,8 @@ namespace ShiftAssignerServer.Controllers;
 [Route("api/v1/[controller]")]
 public class WorkerSchedulerController : TenantControllerBase
 {
-    private const string CreateShiftPeriodRoute = "shift-period";
-    private const string GetWorkerScheduleRoute = "active-period/worker";
+    public const string CreateShiftPeriodRoute = "shift-period";
+    public const string GetWorkerScheduleRoute = "active-period/worker";
 
     private readonly IWorkerSchedulerService _workerSchedulerService;
     public WorkerSchedulerController(IWorkerSchedulerService workerSchedulerService , JwtService jwtService)

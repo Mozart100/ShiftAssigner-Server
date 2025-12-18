@@ -77,3 +77,27 @@ Feature: Multi-Tenant Registration and Worker Management
   When shift leader "leader-1" reassigns worker "worker-1" to shift leader "leader-2" for tenant "1" in multi tenant flow
   Then shift leader "leader-1" should have "2" workers assigned for tenant "1"
   Then shift leader "leader-2" should have "2" workers assigned for tenant "1"
+
+  # Test shift period creation by shift leader
+  When shift leader "leader-1" creates a weekly shift period for tenant "1" with the following schedule:
+    | Date       | ShiftName | AmountOfWorkers |
+    | 2024-01-15 | Morning   | 3               |
+    | 2024-01-15 | Night     | 1               |
+    | 2024-01-16 | Morning   | 3               |
+    | 2024-01-16 | Night     | 1               |
+    | 2024-01-17 | Morning   | 4               |
+    | 2024-01-17 | Night     | 2               |
+    | 2024-01-18 | Morning   | 4               |
+    | 2024-01-18 | Night     | 2               |
+    | 2024-01-19 | Morning   | 5               |
+    | 2024-01-19 | Night     | 2               |
+    | 2024-01-20 | Morning   | 3               |
+    | 2024-01-20 | Night     | 1               |
+    | 2024-01-21 | Morning   | 2               |
+    | 2024-01-21 | Night     | 1               |
+  
+  Then the shift period creation should be successful for tenant "1"
+  And the shift period should start from "2024-01-15" for tenant "1"
+  And the shift period should end on "2024-01-21" for tenant "1"
+  And the shift period should contain "7" days for tenant "1"
+  And the shift period should have shifts for all configured days for tenant "1"

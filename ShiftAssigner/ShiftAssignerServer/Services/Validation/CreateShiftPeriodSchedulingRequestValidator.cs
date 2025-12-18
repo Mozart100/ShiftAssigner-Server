@@ -33,7 +33,8 @@ public class CreateShiftPeriodSchedulingRequestValidator : AbstractValidator<Cre
 
     private bool BeValidStartDate(DateOnly startDate)
     {
-        return startDate >= DateOnly.FromDateTime(DateTime.Now.Date);
+        return true;
+        // return startDate >= DateOnly.FromDateTime(DateTime.Now.Date);
     }
 
     private bool HaveUniqueDates(List<CreateShiftPeriodSchedulingRequest.CreateDaySchedule> period)

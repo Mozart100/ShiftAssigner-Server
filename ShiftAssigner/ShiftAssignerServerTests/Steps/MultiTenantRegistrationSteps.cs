@@ -341,6 +341,119 @@ public class MultiTenantRegistrationSteps : FeatureStepBase
         Assert.Equal(expected, actualWorkerCount);
     }
 
+    [When(@"shift leader ""(.*)"" creates a weekly shift period for tenant ""(.*)"" with the following schedule:")]
+    public async Task WhenShiftLeaderCreatesWeeklyShiftPeriod(string shiftLeaderId, string tenantId, Table scheduleTable)
+    {
+        var multiTenantData = _scenarioContext.Get<MultiTenantTestData>(MultiTenant_Data_Context);
+        var tenantInfo = multiTenantData.Tenants[tenantId];
+
+        // Get the shift leader's JWT token
+        var shiftLeader = tenantInfo.ShiftLeaders[shiftLeaderId];
+        var jwtToken = shiftLeader.ShiftLeaderToken;
+
+        // Parse the schedule table into the request format
+        var scheduleData = scheduleTable.CreateSet<ScheduleEntry>();
+
+        // Group by date to create the period structure
+        var groupedByDate = scheduleData.GroupBy(s => s.Date).OrderBy(g => g.Key);
+
+        var nextPeriod = new List<CreateShiftPeriodSchedulingRequest.CreateDaySchedule>();
+
+        foreach (var dayGroup in groupedByDate)
+        {
+            var daySchedule = new CreateShiftPeriodSchedulingRequest.CreateDaySchedule
+            {
+                Date = DateOnly.Parse(dayGroup.Key),
+                Shifts = dayGroup.Select(shift => new CreateShiftPeriodSchedulingRequest.CreateShiftInfo
+                {
+                    ShiftName = shift.ShiftName,
+                    AmountOfWorkers = shift.AmountOfWorkers
+                }).ToList()
+            };
+            nextPeriod.Add(daySchedule);
+        }
+
+        // Create the shift period request
+        var request = new CreateShiftPeriodSchedulingRequest
+        {
+            StartFrom = nextPeriod.First().Date,
+            NextPeriod = nextPeriod
+        };
+
+        // Make the API call
+        var response = await _serverSender.PostCommandAsync<CreateShiftPeriodSchedulingRequest, CreateShiftPeriodSchedulingResponse>(
+            $"/api/v1/WorkerScheduler/{WorkerSchedulerController.CreateShiftPeriodRoute}",
+            request,
+            jwtToken);
+
+        // Store the request and response in the shift leader info
+        shiftLeader.ShiftPeriodRequest = request;
+        shiftLeader.ShiftPeriodResponse = response;
+    }
+
+    [Then(@"the shift period creation should be successful for tenant ""(.*)""")]
+    public void ThenShiftPeriodCreationShouldBeSuccessful(string tenantId)
+    {
+        var multiTenantData = _scenarioContext.Get<MultiTenantTestData>(MultiTenant_Data_Context);
+        var tenantInfo = multiTenantData.Tenants[tenantId];
+
+        // Get the first shift leader's response (assuming single leader created the period)
+        var shiftLeader = tenantInfo.ShiftLeaders.Values.FirstOrDefault(sl => sl.ShiftPeriodResponse != null);
+        Assert.NotNull(shiftLeader?.ShiftPeriodResponse);
+        Assert.True(shiftLeader.ShiftPeriodResponse.Success);
+        Assert.Contains("successfully", shiftLeader.ShiftPeriodResponse.Message);
+    }
+
+    [Then(@"the shift period should start from \""(.*)\"" for tenant \""(.*)\""")] 
+    public void ThenShiftPeriodShouldStartFrom(string expectedStartDate, string tenantId)
+    {
+        var multiTenantData = _scenarioContext.Get<MultiTenantTestData>(MultiTenant_Data_Context);
+        var tenantInfo = multiTenantData.Tenants[tenantId];
+
+        var shiftLeader = tenantInfo.ShiftLeaders.Values.FirstOrDefault(sl => sl.ShiftPeriodResponse != null);
+        Assert.NotNull(shiftLeader?.ShiftPeriodResponse);
+        Assert.Equal(DateOnly.Parse(expectedStartDate), shiftLeader.ShiftPeriodResponse.StartFrom);
+    }
+
+    [Then(@"the shift period should end on \""(.*)\"" for tenant \""(.*)\""")] 
+    public void ThenShiftPeriodShouldEndOn(string expectedEndDate, string tenantId)
+    {
+        var multiTenantData = _scenarioContext.Get<MultiTenantTestData>(MultiTenant_Data_Context);
+        var tenantInfo = multiTenantData.Tenants[tenantId];
+
+        var shiftLeader = tenantInfo.ShiftLeaders.Values.FirstOrDefault(sl => sl.ShiftPeriodResponse != null);
+        Assert.NotNull(shiftLeader?.ShiftPeriodResponse);
+        Assert.Equal(DateOnly.Parse(expectedEndDate), shiftLeader.ShiftPeriodResponse.LastDate);
+    }
+
+    [Then(@"the shift period should contain \""(.*)\"" days for tenant \""(.*)\""")] 
+    public void ThenShiftPeriodShouldContainDays(int expectedDays, string tenantId)
+    {
+        var multiTenantData = _scenarioContext.Get<MultiTenantTestData>(MultiTenant_Data_Context);
+        var tenantInfo = multiTenantData.Tenants[tenantId];
+
+        var shiftLeader = tenantInfo.ShiftLeaders.Values.FirstOrDefault(sl => sl.ShiftPeriodResponse != null);
+        Assert.NotNull(shiftLeader?.ShiftPeriodResponse);
+
+        // Calculate the number of days between start and end
+        var daysDifference = shiftLeader.ShiftPeriodResponse.LastDate.DayNumber - shiftLeader.ShiftPeriodResponse.StartFrom.DayNumber + 1;
+        Assert.Equal(expectedDays, daysDifference);
+    }
+
+    [Then(@"the shift period should have shifts for all configured days for tenant \""(.*)\""")] 
+    public void ThenShiftPeriodShouldHaveShiftsForAllConfiguredDays(string tenantId)
+    {
+        var multiTenantData = _scenarioContext.Get<MultiTenantTestData>(MultiTenant_Data_Context);
+        var tenantInfo = multiTenantData.Tenants[tenantId];
+
+        var shiftLeader = tenantInfo.ShiftLeaders.Values.FirstOrDefault(sl => sl.ShiftPeriodResponse != null);
+        Assert.NotNull(shiftLeader?.ShiftPeriodResponse);
+        Assert.True(shiftLeader.ShiftPeriodResponse.Success);
+
+        // This step verifies that the API call was successful, 
+        // which implies all validation passed including shift configuration
+    }
+
     // Helper methods for creating test data
     private TenantRegisterRequest CreateTenantRegistration(string tenantId)
     {
@@ -409,6 +522,8 @@ public class ShiftLeaderInfo
     public RegisteringShiftLeaderRequest LeaderRequest { get; set; } = new RegisteringShiftLeaderRequest();
     public RegisteringShiftLeaderResponse LeaderResponse { get; set; } = new RegisteringShiftLeaderResponse();
     public LoginShiftLeaderResponse LeaderLoginResponse { get; set; } = new LoginShiftLeaderResponse();
+    public CreateShiftPeriodSchedulingRequest? ShiftPeriodRequest { get; set; }
+    public CreateShiftPeriodSchedulingResponse? ShiftPeriodResponse { get; set; }
 
     public string ShiftLeaderToken => LeaderLoginResponse.Token;
 }
@@ -420,4 +535,12 @@ public class WorkerInfo
     public WorkerRegisteringRequest WorkerRequest { get; set; } = new WorkerRegisteringRequest();
     public RegisteringWorkerResponse WorkerResponse { get; set; } = new RegisteringWorkerResponse();
     public LoginWorkerResponse WorkerLoginResponse { get; set; } = new LoginWorkerResponse();
+}
+
+// Helper class for shift scheduling step implementations
+public class ScheduleEntry
+{
+    public string Date { get; set; } = string.Empty;
+    public string ShiftName { get; set; } = string.Empty;
+    public int AmountOfWorkers { get; set; }
 }

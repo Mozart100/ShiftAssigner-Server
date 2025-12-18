@@ -109,7 +109,8 @@ public class WorkerSchedulerValidationService : ServiceValidatorBase, IWorkerSch
 
         if (errors.IsEmpty())
         {
-            var existingPeriods = await _tenantUnitOfWork.ShiftPeriodSchedulingRepository.GetAllAsync(x => x.IsActive && x.ShiftLeaderId.IsEqual(shiftLeaderId));
+            var ptr = await _tenantUnitOfWork.ShiftPeriodSchedulingRepository.GetAllAsync(x=>true);
+            var existingPeriods = await _tenantUnitOfWork.ShiftPeriodSchedulingRepository.GetAllAsync(x => x.IsActive && x.ShiftLeaderId.Equals(shiftLeaderId));
 
             foreach (var existingPeriod in existingPeriods)
             {

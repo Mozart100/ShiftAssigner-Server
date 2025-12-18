@@ -7,21 +7,25 @@ namespace ShiftAssignerServer.Services.Validation;
 public interface IWorkerSchedulerValidationService
 {
     Task ValidateCreateShiftPeriodRequestAsync(CreateShiftPeriodSchedulingRequest request, string shiftLeaderId);
+    Task ValidateWorkerAssigningToPeriodRequestAsync(WorkerAssigningToPeriodRequest request, string workerId);
 }
 
 public class WorkerSchedulerValidationService : ServiceValidatorBase, IWorkerSchedulerValidationService
 {
     private readonly ITenantUnitOfWork _tenantUnitOfWork;
     private readonly IValidator<CreateShiftPeriodSchedulingRequest> _validator;
+    private readonly IValidator<WorkerAssigningToPeriodRequest> _workerAssigningValidator;
 
     public WorkerSchedulerValidationService(
-        ITenantUnitOfWork tenantUnitOfWork,
+        ITenantUnitOfWork tenantUnitOfWork, 
         IValidator<CreateShiftPeriodSchedulingRequest> validator,
+        IValidator<WorkerAssigningToPeriodRequest> workerAssigningValidator,
         ILogger<WorkerSchedulerValidationService> logger)
         : base(logger)
     {
         _tenantUnitOfWork = tenantUnitOfWork;
         _validator = validator;
+        _workerAssigningValidator = workerAssigningValidator;
     }
 
     public async Task ValidateCreateShiftPeriodRequestAsync(CreateShiftPeriodSchedulingRequest request, string shiftLeaderId)
@@ -115,6 +119,84 @@ public class WorkerSchedulerValidationService : ServiceValidatorBase, IWorkerSch
                     break;
                 }
             }
+        }
+
+        // Use base class validation method to throw exception if there are errors
+        Validate(errors);
+    }
+
+    public async Task ValidateWorkerAssigningToPeriodRequestAsync(WorkerAssigningToPeriodRequest request, string workerId)
+    {
+        var errors = new List<ShiftAssignmentError>();
+
+        // Validate worker ID
+        if (string.IsNullOrWhiteSpace(workerId))
+        {
+            errors.Add(new ShiftAssignmentError("workerId", "Worker ID is required"));
+        }
+
+        // Use FluentValidation validator for request validation
+        if (request != null)
+        {
+            var validationResult = await _workerAssigningValidator.ValidateAsync(request);
+            if (!validationResult.IsValid)
+            {
+                errors.AddRange(Dissect(validationResult));
+            }
+
+            // Business validation: Check if the shifts exist and are available for assignment
+            if (request.Period != null && !errors.Any())
+            {
+                foreach (var day in request.Period)
+                {
+                    foreach (var requestedShift in day.Shifts)
+                    {
+                        // Find the shift period that contains this date and shift
+                        var shiftPeriods = await _tenantUnitOfWork.ShiftPeriodSchedulingRepository
+                            .GetAllAsync(x => x.IsActive && 
+                                x.Period.Any(p => p.DateOnly == day.Date && 
+                                    p.Shifts.Any(s => s.ShiftName.Equals(requestedShift.ShiftName, StringComparison.OrdinalIgnoreCase))));
+
+                        if (!shiftPeriods.Any())
+                        {
+                            errors.Add(new ShiftAssignmentError(
+                                $"{nameof(request.Period)}.Shifts.ShiftName",
+                                $"No available shift '{requestedShift.ShiftName}' found for date {day.Date}"));
+                            continue;
+                        }
+
+                        // Check if the shift has capacity and worker is not already assigned
+                        foreach (var period in shiftPeriods)
+                        {
+                            var targetDay = period.Period.FirstOrDefault(p => p.DateOnly == day.Date);
+                            var targetShift = targetDay?.Shifts.FirstOrDefault(s => 
+                                s.ShiftName.Equals(requestedShift.ShiftName, StringComparison.OrdinalIgnoreCase));
+
+                            if (targetShift != null)
+                            {
+                                // Check if worker is already assigned to this shift
+                                if (targetShift.WorkerIds.Contains(workerId))
+                                {
+                                    errors.Add(new ShiftAssignmentError(
+                                        $"{nameof(request.Period)}.Shifts",
+                                        $"Worker is already assigned to shift '{requestedShift.ShiftName}' on {day.Date}"));
+                                }
+                                // Check if shift has capacity
+                                else if (targetShift.WorkerIds.Count >= targetShift.AmountOfWorkers)
+                                {
+                                    errors.Add(new ShiftAssignmentError(
+                                        $"{nameof(request.Period)}.Shifts",
+                                        $"Shift '{requestedShift.ShiftName}' on {day.Date} is at full capacity ({targetShift.AmountOfWorkers} workers)"));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            errors.Add(new ShiftAssignmentError("request", "Worker assigning to period request is required"));
         }
 
         // Use base class validation method to throw exception if there are errors

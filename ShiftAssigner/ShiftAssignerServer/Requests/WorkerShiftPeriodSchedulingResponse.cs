@@ -9,7 +9,6 @@ public class WorkerShiftPeriodSchedulingResponse
     /// </summary>
     public List<CreateDaySchedule> Period { get; set; } = new List<CreateDaySchedule>();
     
-    public bool Success { get; set; }
     public string Message { get; set; } = string.Empty;
 
     public class CreateDaySchedule

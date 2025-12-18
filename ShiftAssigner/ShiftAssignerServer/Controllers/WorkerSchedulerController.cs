@@ -12,13 +12,14 @@ namespace ShiftAssignerServer.Controllers;
 [Route("api/v1/[controller]")]
 public class WorkerSchedulerController : TenantControllerBase
 {
-    private readonly IWorkerSchedulerService _workerSchedulerService;
     private const string CreateShiftPeriodRoute = "shift-period";
+    private const string GetWorkerScheduleRoute = "active-period/worker";
 
+    private readonly IWorkerSchedulerService _workerSchedulerService;
     public WorkerSchedulerController(IWorkerSchedulerService workerSchedulerService , JwtService jwtService)
         : base(jwtService )
     {
-        _workerSchedulerService = workerSchedulerService ?? throw new ArgumentNullException(nameof(workerSchedulerService));
+        _workerSchedulerService = workerSchedulerService ;
     }
 
     // POST: api/v1/WorkerScheduler/shift-period
@@ -43,14 +44,22 @@ public class WorkerSchedulerController : TenantControllerBase
     }
 
     [OnlyRole(RoleState.Worker)]
-    [HttpGet]
-    public async Task<ActionResult<WorkerShiftPeriodSchedulingResponse>> GetShiftScheduling()
+    [HttpGet(GetWorkerScheduleRoute)]
+    public async Task<ActionResult<WorkerShiftPeriodSchedulingResponse>> GetWorkerShiftScheduling()
     {
         TryGetPersonInfo(out string? workerId, out RoleState? _);
 
-        WorkerShiftPeriodSchedulingResponse response = await _workerSchedulerService.GetWorkerShiftPeriodCurrentAndNextScheduling(workerId);
+        var response = await _workerSchedulerService.GetWorkerShiftPeriodCurrentAndNextScheduling(workerId);
+        return Ok(response);
+    }
 
 
+    [HttpPut]
+    public async Task<ActionResult<WorkerAssigningToPeriodResponse>> WorkerAssignTo(WorkerAssigningToPeriodRequest request)
+    {
+        TryGetPersonInfo(out string? workerId, out RoleState? _);
+
+        WorkerAssigningToPeriodResponse response = await _workerSchedulerService.WorkerAssigningToPeriod(workerId, request);
         return Ok(response);
     }
 

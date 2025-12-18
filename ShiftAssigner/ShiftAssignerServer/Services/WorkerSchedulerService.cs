@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using ShiftAssignerServer.Models.WorkerScheduling;
 using ShiftAssignerServer.Repositories;
 using ShiftAssignerServer.Requests;
@@ -9,6 +10,7 @@ public interface IWorkerSchedulerService
 {
     Task<ShiftPeriodScheduling> CreateNewWorkerRegisteringRequest(CreateShiftPeriodSchedulingRequest request, string shiftLeaderId);
     Task<WorkerShiftPeriodSchedulingResponse> GetWorkerShiftPeriodCurrentAndNextScheduling(string workerId);
+    Task<WorkerAssigningToPeriodResponse> WorkerAssigningToPeriod(string? workerId, WorkerAssigningToPeriodRequest request);
 }
 
 public class WorkerSchedulerService : IWorkerSchedulerService
@@ -65,7 +67,6 @@ public class WorkerSchedulerService : IWorkerSchedulerService
             {
                 StartFrom = DateOnly.FromDateTime(DateTime.Now),
                 Period = new List<WorkerShiftPeriodSchedulingResponse.CreateDaySchedule>(),
-                Success = true,
                 Message = "No active shift assignments found for worker"
             };
         }
@@ -99,8 +100,82 @@ public class WorkerSchedulerService : IWorkerSchedulerService
         {
             StartFrom = activeShiftPeriods.Min(x => x.StartFrom),
             Period = workerDays.OrderBy(d => d.Date).ToList(),
-            Success = true,
             Message = "Worker shift schedule retrieved successfully"
+        };
+    }
+
+    public async Task<WorkerAssigningToPeriodResponse> WorkerAssigningToPeriod(string? workerId, WorkerAssigningToPeriodRequest request)
+    {
+        // Validate the request - this will throw ShiftAssignmentException if validation fails
+        await _validationService.ValidateWorkerAssigningToPeriodRequestAsync(request, workerId);
+
+        var responseShifts = new List<WorkerAssigningToPeriodResponse.CreateDaySchedule>();
+
+        foreach (var requestDay in request.Period)
+        {
+            var dayShifts = new List<WorkerAssigningToPeriodResponse.CreateShiftInfo>();
+
+            foreach (var requestShift in requestDay.Shifts)
+            {
+                var shiftAssigned = false;
+                var assignmentReason = string.Empty;
+
+                // Find the shift period that contains this date and shift
+                var shiftPeriods = await _tenantUnitOfWork.ShiftPeriodSchedulingRepository
+                    .GetAllAsync(x => x.IsActive &&
+                        x.Period.Any(p => p.DateOnly == requestDay.Date &&
+                            p.Shifts.Any(s => s.ShiftName.Equals(requestShift.ShiftName, StringComparison.OrdinalIgnoreCase))));
+
+                var period = shiftPeriods.First();
+                var targetDay = period.Period.FirstOrDefault(p => p.DateOnly == requestDay.Date);
+                var targetShift = targetDay.Shifts.FirstOrDefault(s =>
+                    s.ShiftName.Equals(requestShift.ShiftName, StringComparison.OrdinalIgnoreCase));
+
+                // Check if worker is not already assigned and shift has capacity
+                if (!targetShift.WorkerIds.Contains(workerId) && targetShift.WorkerIds.Count < targetShift.AmountOfWorkers)
+                {
+                    // Assign worker to shift
+                    targetShift.WorkerIds.Add(workerId);
+                        await _tenantUnitOfWork.ShiftPeriodSchedulingRepository.UpdateAsync(
+                            x => x.Id == period.Id, 
+                            updatedPeriod => 
+                            {
+                                var dayToUpdate = updatedPeriod.Period.FirstOrDefault(p => p.DateOnly == requestDay.Date);
+                                var shiftToUpdate = dayToUpdate?.Shifts.FirstOrDefault(s => 
+                                    s.ShiftName.Equals(requestShift.ShiftName, StringComparison.OrdinalIgnoreCase));
+                                if (shiftToUpdate != null && !shiftToUpdate.WorkerIds.Contains(workerId))
+                                {
+                                    shiftToUpdate.WorkerIds.Add(workerId);
+                                }
+                            });
+                }
+                else if (targetShift.WorkerIds.Contains(workerId))
+                {
+                    assignmentReason = "Worker already assigned to this shift";
+                }
+                else
+                {
+                    assignmentReason = $"Shift at full capacity ({targetShift.AmountOfWorkers} workers)";
+                }
+
+                dayShifts.Add(new WorkerAssigningToPeriodResponse.CreateShiftInfo
+                {
+                    ShiftName = requestShift.ShiftName,
+                    Assigned = shiftAssigned,
+                    Reason = assignmentReason
+                });
+            }
+
+            responseShifts.Add(new WorkerAssigningToPeriodResponse.CreateDaySchedule
+            {
+                Date = requestDay.Date,
+                Shifts = dayShifts
+            });
+        }
+
+        return new WorkerAssigningToPeriodResponse
+        {
+            Period = responseShifts
         };
     }
 }

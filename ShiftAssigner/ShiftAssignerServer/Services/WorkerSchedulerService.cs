@@ -10,7 +10,7 @@ public interface IWorkerSchedulerService
 {
     Task<ShiftPeriodScheduling> CreateNewWorkerRegisteringRequest(CreateShiftPeriodSchedulingRequest request, string shiftLeaderId);
     Task<WorkerShiftPeriodSchedulingResponse> GetWorkerShiftPeriodCurrentAndNextScheduling(string workerId);
-    Task<WorkerAssigningToPeriodResponse> WorkerAssigningToPeriod(string? workerId, WorkerAssigningToPeriodRequest request);
+    Task<WorkerAssigningToPeriodResponse> WorkerSelfAssignToShift(string? workerId, WorkerAssigningToPeriodRequest request);
 }
 
 public class WorkerSchedulerService : IWorkerSchedulerService
@@ -104,7 +104,7 @@ public class WorkerSchedulerService : IWorkerSchedulerService
         };
     }
 
-    public async Task<WorkerAssigningToPeriodResponse> WorkerAssigningToPeriod(string? workerId, WorkerAssigningToPeriodRequest request)
+    public async Task<WorkerAssigningToPeriodResponse> WorkerSelfAssignToShift(string? workerId, WorkerAssigningToPeriodRequest request)
     {
         // Validate the request - this will throw ShiftAssignmentException if validation fails
         await _validationService.ValidateWorkerAssigningToPeriodRequestAsync(request, workerId);

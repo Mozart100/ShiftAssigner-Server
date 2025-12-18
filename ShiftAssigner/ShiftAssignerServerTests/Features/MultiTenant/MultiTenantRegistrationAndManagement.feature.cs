@@ -179,7 +179,7 @@ namespace ShiftAssignerServer.Tests.Features.MultiTenant
                             "1",
                             "Night",
                             "1",
-                            "3"});
+                            "2"});
                 table1.AddRow(new string[] {
                             "2",
                             "Morning",
@@ -194,7 +194,7 @@ namespace ShiftAssignerServer.Tests.Features.MultiTenant
                             "2",
                             "Night",
                             "1",
-                            "3"});
+                            "2"});
 #line 9
   await testRunner.AndAsync("I have shift configurations for tenants:", ((string)(null)), table1, "And ");
 #line hidden

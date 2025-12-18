@@ -14,6 +14,7 @@ public class WorkerSchedulerController : TenantControllerBase
 {
     public const string CreateShiftPeriodRoute = "shift-period";
     public const string GetWorkerScheduleRoute = "active-period/worker";
+    public const string AssignToShiftRoute = "shift-assignment";
 
     private readonly IWorkerSchedulerService _workerSchedulerService;
     public WorkerSchedulerController(IWorkerSchedulerService workerSchedulerService , JwtService jwtService)
@@ -54,12 +55,13 @@ public class WorkerSchedulerController : TenantControllerBase
     }
 
 
-    [HttpPut]
+    [OnlyRole(RoleState.Worker)]
+    [HttpPut(AssignToShiftRoute)]
     public async Task<ActionResult<WorkerAssigningToPeriodResponse>> WorkerAssignTo(WorkerAssigningToPeriodRequest request)
     {
         TryGetPersonInfo(out string? workerId, out RoleState? _);
 
-        WorkerAssigningToPeriodResponse response = await _workerSchedulerService.WorkerAssigningToPeriod(workerId, request);
+        WorkerAssigningToPeriodResponse response = await _workerSchedulerService.WorkerSelfAssignToShift(workerId, request);
         return Ok(response);
     }
 

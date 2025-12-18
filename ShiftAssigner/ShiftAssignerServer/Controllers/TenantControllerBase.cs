@@ -12,11 +12,13 @@ namespace ShiftAssignerServer.Controllers;
 public abstract class TenantControllerBase : ControllerBase
 {
     protected readonly JwtService _jwtService;
-    
+
     protected TenantControllerBase(JwtService jwtService)
     {
         _jwtService = jwtService;
     }
+
+
     /// <summary>
     /// Gets the current tenant from the TenantResolutionMiddleware.
     /// Returns null if the request is in the main schema context.
@@ -56,11 +58,11 @@ public abstract class TenantControllerBase : ControllerBase
     /// <param name="role">When this method returns, contains the user role enum if found; otherwise, null.</param>
     /// <returns>True if both shift leader ID and role exist in the token</returns>
     [NonAction]
-    public bool TryGetShiftLeaderInfo(out string? shiftLeaderId, out RoleState? role)
+    public bool TryGetPersonInfo(out string? shiftLeaderId, out RoleState? role)
     {
         shiftLeaderId = null;
         role = null;
-        
+
         try
         {
             var authHeader = HttpContext.Request.Headers["Authorization"].ToString();
@@ -71,14 +73,14 @@ public abstract class TenantControllerBase : ControllerBase
 
             var token = authHeader.Substring("Bearer ".Length).Trim();
             var claims = _jwtService.ParseToken(token);
-            
+
             shiftLeaderId = claims.UserId;
-            
+
             if (!string.IsNullOrEmpty(claims.Role) && Enum.TryParse<RoleState>(claims.Role, out var parsedRole))
             {
                 role = parsedRole;
             }
-            
+
             return !string.IsNullOrEmpty(shiftLeaderId) && role.HasValue;
         }
         catch

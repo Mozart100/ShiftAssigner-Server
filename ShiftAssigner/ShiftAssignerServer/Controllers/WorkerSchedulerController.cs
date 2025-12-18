@@ -15,8 +15,8 @@ public class WorkerSchedulerController : TenantControllerBase
     private readonly IWorkerSchedulerService _workerSchedulerService;
     private const string CreateShiftPeriodRoute = "shift-period";
 
-    public WorkerSchedulerController(IWorkerSchedulerService workerSchedulerService, JwtService jwtService)
-        : base(jwtService)
+    public WorkerSchedulerController(IWorkerSchedulerService workerSchedulerService , JwtService jwtService)
+        : base(jwtService )
     {
         _workerSchedulerService = workerSchedulerService ?? throw new ArgumentNullException(nameof(workerSchedulerService));
     }
@@ -24,17 +24,9 @@ public class WorkerSchedulerController : TenantControllerBase
     // POST: api/v1/WorkerScheduler/shift-period
     [MinimumRole(RoleState.ShiftLeader)]
     [HttpPost(CreateShiftPeriodRoute)]
-    // [ValidateModel]
     public async Task<ActionResult<CreateShiftPeriodSchedulingResponse>> CreateShiftPeriod([FromBody] CreateShiftPeriodSchedulingRequest request)
     {
-        // Role validation is handled by [MinimumRole] attribute
-        // Both ShiftLeader and BossTenant can access this endpoint
-        var shiftLeaderId = HttpContext.GetShiftLeaderId();
-        
-        if (string.IsNullOrEmpty(shiftLeaderId))
-        {
-            return Unauthorized("Valid shift leader authentication required");
-        }
+        TryGetPersonInfo(out string? shiftLeaderId, out RoleState? _);
 
         var record = await _workerSchedulerService.CreateNewWorkerRegisteringRequest(request, shiftLeaderId);
 
@@ -46,6 +38,19 @@ public class WorkerSchedulerController : TenantControllerBase
             Success = true,
             Message = "Shift period created successfully"
         };
+
+        return Ok(response);
+    }
+
+    [OnlyRole(RoleState.Worker)]
+    [HttpGet]
+    public async Task<ActionResult<WorkerShiftPeriodSchedulingResponse>> GetShiftScheduling()
+    {
+        TryGetPersonInfo(out string? workerId, out RoleState? _);
+
+        WorkerShiftPeriodSchedulingResponse response = await _workerSchedulerService.GetWorkerShiftPeriodCurrentAndNextScheduling(workerId);
+
+
         return Ok(response);
     }
 

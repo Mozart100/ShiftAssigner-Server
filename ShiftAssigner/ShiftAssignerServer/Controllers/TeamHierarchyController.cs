@@ -39,7 +39,7 @@ public class TeamHierarchyController : TenantControllerBase
         }
 
         // Extract shift leader info from JWT token
-        if (!TryGetShiftLeaderInfo(out string? currentShiftLeaderId, out RoleState? role))
+        if (!TryGetPersonInfo(out string? currentShiftLeaderId, out RoleState? role))
         {
             return Unauthorized("Valid shift leader authentication required");
         }
@@ -72,7 +72,7 @@ public class TeamHierarchyController : TenantControllerBase
     public async Task<ActionResult<GetWorkerPerShiftLeaderResponse>> GetShiftLeaderWithWorkers(string shiftLeaderId)
     {
         // Extract shift leader info from JWT token to verify authorization
-        if (!TryGetShiftLeaderInfo(out string? currentShiftLeaderId, out RoleState? role))
+        if (!TryGetPersonInfo(out string? currentShiftLeaderId, out RoleState? role))
         {
             return Unauthorized("Valid shift leader authentication required");
         }

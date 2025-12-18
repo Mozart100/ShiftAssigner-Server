@@ -50,7 +50,7 @@ public class WorkersController : TenantControllerBase
         var tenant = GetTenant();
 
         // Extract shift leader info from JWT token using base controller
-        if (!TryGetShiftLeaderInfo(out string? shiftLeaderId, out RoleState? role))
+        if (!TryGetPersonInfo(out string? shiftLeaderId, out RoleState? role))
         {
             return Unauthorized("Valid shift leader authentication required");
         }

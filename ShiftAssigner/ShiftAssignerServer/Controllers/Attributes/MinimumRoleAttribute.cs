@@ -27,7 +27,7 @@ public class MinimumRoleAttribute : ActionFilterAttribute
         if (context.Controller is TenantControllerBase controller)
         {
             // Extract role information from JWT token
-            if (!controller.TryGetShiftLeaderInfo(out string? shiftLeaderId, out RoleState? role))
+            if (!controller.TryGetPersonInfo(out string? shiftLeaderId, out RoleState? role))
             {
                 context.Result = new UnauthorizedObjectResult(new
                 {

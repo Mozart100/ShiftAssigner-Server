@@ -15,7 +15,7 @@ public class WorkerSchedulerValidationService : ServiceValidatorBase, IWorkerSch
     private readonly IValidator<CreateShiftPeriodSchedulingRequest> _validator;
 
     public WorkerSchedulerValidationService(
-        ITenantUnitOfWork tenantUnitOfWork, 
+        ITenantUnitOfWork tenantUnitOfWork,
         IValidator<CreateShiftPeriodSchedulingRequest> validator,
         ILogger<WorkerSchedulerValidationService> logger)
         : base(logger)
@@ -28,47 +28,91 @@ public class WorkerSchedulerValidationService : ServiceValidatorBase, IWorkerSch
     {
         var errors = new List<ShiftAssignmentError>();
 
+        // Get active tenant shift configuration to validate against min/max worker limits
+        var activeConfig = await _tenantUnitOfWork.TenantShiftSchedulingRepository.FirstOrDefaultAsync(x => x.IsActive);
+
+        if (request is null)
+        {
+            errors.Add(new ShiftAssignmentError("request", "Create shift period request is required"));
+            Validate(errors);
+        }
+
+        // Check if tenant has active shift configuration
+        if (activeConfig == null)
+        {
+            errors.Add(new ShiftAssignmentError("tenantConfiguration", "No active shift configuration found for this tenant"));
+            Validate(errors);
+        }
+
         // Validate shift leader ID
-        if (string.IsNullOrWhiteSpace(shiftLeaderId))
+        if (shiftLeaderId.IsEmpty())
         {
             errors.Add(new ShiftAssignmentError("shiftLeaderId", "Shift leader ID is required"));
+            Validate(errors);
         }
 
         // Use FluentValidation validator for request validation
-        if (request != null)
+        var validationResult = await _validator.ValidateAsync(request);
+        if (!validationResult.IsValid)
         {
-            var validationResult = await _validator.ValidateAsync(request);
-            if (!validationResult.IsValid)
+            errors.AddRange(Dissect(validationResult));
+            Validate(errors);
+        }
+
+        if (request.NextPeriod.IsEmpty())
+        {
+            errors.Add(new ShiftAssignmentError($"{nameof(CreateShiftPeriodSchedulingRequest.NextPeriod)}", $"No active shift configuration found for {nameof(CreateShiftPeriodSchedulingRequest)}"));
+            Validate(errors);
+        }
+
+
+        // Validate worker counts against tenant shift configuration
+        foreach (var day in request.NextPeriod)
+        {
+            foreach (var requestShift in day.Shifts)
             {
-                errors.AddRange(Dissect(validationResult));
+                // Find matching shift configuration by name
+                var shiftConfig = activeConfig.Shifts.FirstOrDefault(s =>
+                    s.ShiftName.Equals(requestShift.ShiftName, StringComparison.OrdinalIgnoreCase));
+
+                if (shiftConfig is not null)
+                {
+                    // Check minimum worker requirement
+                    if (requestShift.AmountOfWorkers < shiftConfig.MinimumAmountOfWorkers)
+                    {
+                        errors.Add(new ShiftAssignmentError(
+                            $"{nameof(request.NextPeriod)}.Shifts.AmountOfWorkers",
+                            $"Shift '{requestShift.ShiftName}' on {day.Date} requires at least {shiftConfig.MinimumAmountOfWorkers} workers, but only {requestShift.AmountOfWorkers} were assigned"));
+                    }
+
+                    // Check maximum worker limit
+                    if (requestShift.AmountOfWorkers > shiftConfig.MaximumAmountOfWorkers)
+                    {
+                        errors.Add(new ShiftAssignmentError(
+                            $"{nameof(request.NextPeriod)}.Shifts.AmountOfWorkers",
+                            $"Shift '{requestShift.ShiftName}' on {day.Date} cannot exceed {shiftConfig.MaximumAmountOfWorkers} workers, but {requestShift.AmountOfWorkers} were assigned"));
+                    }
+                }
+                else
+                {
+                    // Shift name not found in configuration
+                    errors.Add(new ShiftAssignmentError(
+                        $"{nameof(request.NextPeriod)}.Shifts.ShiftName",
+                        $"Shift '{requestShift.ShiftName}' is not configured for this tenant. Available shifts: {string.Join(", ", activeConfig.Shifts.Select(s => s.ShiftName))}"));
+                }
             }
         }
-        else
-        {
-            errors.Add(new ShiftAssignmentError("request", "Create shift period request is required"));
-        }
 
-        // Check for overlapping periods for the same shift leader if no errors so far
-        if (!errors.Any() && !string.IsNullOrWhiteSpace(shiftLeaderId) && request != null && request.NextPeriod?.Any() == true)
+        if (errors.IsEmpty())
         {
-            var existingPeriods = await _tenantUnitOfWork.ShiftPeriodSchedulingRepository
-                .GetAllAsync(x => x.IsActive && x.ShiftLeaderId == shiftLeaderId);
-
-            var requestEndDate = request.NextPeriod.Max(d => d.Date);
+            var existingPeriods = await _tenantUnitOfWork.ShiftPeriodSchedulingRepository.GetAllAsync(x => x.IsActive && x.ShiftLeaderId.IsEqual(shiftLeaderId));
 
             foreach (var existingPeriod in existingPeriods)
             {
-                if (existingPeriod.Period?.Any() == true)
+                if (request.StartFrom <= existingPeriod.LastDay )
                 {
-                    var existingStartDate = existingPeriod.StartFrom;
-                    var existingEndDate = existingPeriod.Period.Max(d => d.DateOnly);
-
-                    // Check for overlap
-                    if (request.StartFrom <= existingEndDate && requestEndDate >= existingStartDate)
-                    {
-                        errors.Add(new ShiftAssignmentError(nameof(request.StartFrom), $"Shift period overlaps with existing period from {existingStartDate} to {existingEndDate}"));
-                        break;
-                    }
+                    errors.Add(new ShiftAssignmentError(nameof(request.StartFrom), $"Shift period overlaps with existing period from {existingPeriod.StartFrom} to {existingPeriod.LastDay}"));
+                    break;
                 }
             }
         }

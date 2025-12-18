@@ -46,6 +46,7 @@ public class CreateShiftPeriodSchedulingResponse
     public int Id { get; set; }
     public string ShiftLeaderId { get; set; } = string.Empty;
     public DateOnly StartFrom { get; set; }
+    public DateOnly LastDate { get; set; }
     public string Message { get; set; } = string.Empty;
     public bool Success { get; set; }
 }

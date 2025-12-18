@@ -1,3 +1,5 @@
+using Microsoft.CodeAnalysis.Host;
+
 namespace ShiftAssignerServer.Models.WorkerScheduling;
 
 public partial class ShiftPeriodScheduling : IActiveEntity
@@ -35,16 +37,40 @@ public partial class ShiftPeriodScheduling : IActiveEntity
 
 public partial class ShiftPeriodScheduling
 {
+    public DateOnly LastDay => Period?.Any() == true ? Period.Max(d => d.DateOnly) : StartFrom;
+    
     public partial class Day
     {
         // public string Name { get; set; } // Sunday,Monday...
 
         public string DayOfTheWeek => DateOnly.DayOfWeek.ToString();
 
-
         public partial class ShiftInfo
         {
-        }
+            /// <summary>
+            /// Total capacity for this shift (same as AmountOfWorkers)
+            /// </summary>
+            public int Capacity => AmountOfWorkers;
 
+            /// <summary>
+            /// Number of workers currently assigned to this shift
+            /// </summary>
+            public int AssignedCount => WorkerIds?.Count ?? 0;
+
+            /// <summary>
+            /// Number of remaining spots available for this shift
+            /// </summary>
+            public int RemainingSpots => Math.Max(0, AmountOfWorkers - AssignedCount);
+
+            /// <summary>
+            /// Whether this shift is fully staffed
+            /// </summary>
+            public bool IsFullyStaffed => !HasAvailableSpots;
+
+            /// <summary>
+            /// Whether this shift has available spots
+            /// </summary>
+            public bool HasAvailableSpots => AssignedCount < AmountOfWorkers;
+        }
     }
 }

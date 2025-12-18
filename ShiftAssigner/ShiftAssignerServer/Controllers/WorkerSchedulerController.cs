@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using ShiftAssignerServer.Models;
 using ShiftAssignerServer.Requests;
 using ShiftAssignerServer.Services;
-using ShiftAssignerServer.Services.Validation;
 
 namespace ShiftAssignerServer.Controllers;
 
@@ -18,7 +17,7 @@ public class WorkerSchedulerController : TenantControllerBase
     private const string RequestTimeOffRoute = "time-off";
     private const string SwapShiftRoute = "swap-shift";
     private const string CreateShiftPeriodRoute = "shift-period";
-    
+
     public WorkerSchedulerController(IWorkerSchedulerService workerSchedulerService, JwtService jwtService)
         : base(jwtService)
     {
@@ -41,84 +40,17 @@ public class WorkerSchedulerController : TenantControllerBase
             return Forbid("Only shift leaders can create shift periods");
         }
 
-        // Validate request
-        if (request == null)
-        {
-            return BadRequest("Create shift period request is required");
-        }
+        var record = await _workerSchedulerService.CreateNewWorkerRegisteringRequest(request, shiftLeaderId);
 
-        if (request.StartFrom == default)
+        var response = new CreateShiftPeriodSchedulingResponse
         {
-            return BadRequest("Start date is required");
-        }
-
-        if (request.NextPeriod == null || !request.NextPeriod.Any())
-        {
-            return BadRequest("NextPeriod with at least one day is required");
-        }
-
-        // Validate each day has shifts
-        foreach (var day in request.NextPeriod)
-        {
-            if (day.Shifts == null || !day.Shifts.Any())
-            {
-                return BadRequest($"Day {day.Date} must have at least one shift");
-            }
-
-            foreach (var shift in day.Shifts)
-            {
-                if (string.IsNullOrWhiteSpace(shift.ShiftName))
-                {
-                    return BadRequest("Shift name is required");
-                }
-
-                if (shift.AmountOfWorkers <= 0)
-                {
-                    return BadRequest("Amount of workers must be greater than 0");
-                }
-            }
-        }
-
-        try
-        {
-            var success = await _workerSchedulerService.CreateNewWorkerRegisteringRequest(request, shiftLeaderId);
-
-            if (success)
-            {
-                var response = new CreateShiftPeriodSchedulingResponse
-                {
-                    ShiftLeaderId = shiftLeaderId,
-                    StartFrom = request.StartFrom,
-                    Success = true,
-                    Message = "Shift period created successfully"
-                };
-                return Ok(response);
-            }
-            else
-            {
-                return BadRequest(new CreateShiftPeriodSchedulingResponse
-                {
-                    Success = false,
-                    Message = "Failed to create shift period"
-                });
-            }
-        }
-        catch (ShiftAssignmentException ex)
-        {
-            return BadRequest(new CreateShiftPeriodSchedulingResponse
-            {
-                Success = false,
-                Message = string.Join("; ", ex.ShiftAssignmentErrors.Select(e => e.ErrorMessage))
-            });
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new CreateShiftPeriodSchedulingResponse
-            {
-                Success = false,
-                Message = $"Failed to create shift period: {ex.Message}"
-            });
-        }
+            ShiftLeaderId = shiftLeaderId,
+            StartFrom = request.StartFrom,
+            LastDate = record.LastDay,
+            Success = true,
+            Message = "Shift period created successfully"
+        };
+        return Ok(response);
     }
 
 }

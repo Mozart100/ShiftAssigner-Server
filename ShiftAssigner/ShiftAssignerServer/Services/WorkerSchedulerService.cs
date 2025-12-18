@@ -1,4 +1,3 @@
-using ShiftAssignerServer.Models.Stuff;
 using ShiftAssignerServer.Models.WorkerScheduling;
 using ShiftAssignerServer.Repositories;
 using ShiftAssignerServer.Requests;
@@ -8,7 +7,7 @@ namespace ShiftAssignerServer.Services;
 
 public interface IWorkerSchedulerService
 {
-    Task<bool> CreateNewWorkerRegisteringRequest(CreateShiftPeriodSchedulingRequest request, string shiftLeaderId);
+    Task<ShiftPeriodScheduling> CreateNewWorkerRegisteringRequest(CreateShiftPeriodSchedulingRequest request, string shiftLeaderId);
 
 }
 
@@ -23,7 +22,7 @@ public class WorkerSchedulerService : IWorkerSchedulerService
         _validationService = validationService;
     }
 
-    public async Task<bool> CreateNewWorkerRegisteringRequest(CreateShiftPeriodSchedulingRequest request, string shiftLeaderId)
+    public async Task<ShiftPeriodScheduling> CreateNewWorkerRegisteringRequest(CreateShiftPeriodSchedulingRequest request, string shiftLeaderId)
     {
         // Validate the request - this will throw ShiftAssignmentException if validation fails
         await _validationService.ValidateCreateShiftPeriodRequestAsync(request, shiftLeaderId);
@@ -49,8 +48,7 @@ public class WorkerSchedulerService : IWorkerSchedulerService
         };
 
         await _tenantUnitOfWork.ShiftPeriodSchedulingRepository.InsertAsync(record);
-        await _tenantUnitOfWork.SaveChangesAsync();
 
-        return true;
+        return record;
     }
 }

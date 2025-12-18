@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ShiftAssignerServer.Controllers.Attributes;
 using ShiftAssignerServer.Models;
 using ShiftAssignerServer.Requests;
 using ShiftAssignerServer.Services;
@@ -12,10 +13,6 @@ namespace ShiftAssignerServer.Controllers;
 public class WorkerSchedulerController : TenantControllerBase
 {
     private readonly IWorkerSchedulerService _workerSchedulerService;
-    private const string GetScheduleRoute = "schedule/{workerId}";
-    private const string UpdateAvailabilityRoute = "availability";
-    private const string RequestTimeOffRoute = "time-off";
-    private const string SwapShiftRoute = "swap-shift";
     private const string CreateShiftPeriodRoute = "shift-period";
 
     public WorkerSchedulerController(IWorkerSchedulerService workerSchedulerService, JwtService jwtService)
@@ -25,19 +22,18 @@ public class WorkerSchedulerController : TenantControllerBase
     }
 
     // POST: api/v1/WorkerScheduler/shift-period
+    [MinimumRole(RoleState.ShiftLeader)]
     [HttpPost(CreateShiftPeriodRoute)]
+    // [ValidateModel]
     public async Task<ActionResult<CreateShiftPeriodSchedulingResponse>> CreateShiftPeriod([FromBody] CreateShiftPeriodSchedulingRequest request)
     {
-        // Extract shift leader info from JWT token
-        if (!TryGetShiftLeaderInfo(out string? shiftLeaderId, out RoleState? role))
+        // Role validation is handled by [MinimumRole] attribute
+        // Both ShiftLeader and BossTenant can access this endpoint
+        var shiftLeaderId = HttpContext.GetShiftLeaderId();
+        
+        if (string.IsNullOrEmpty(shiftLeaderId))
         {
             return Unauthorized("Valid shift leader authentication required");
-        }
-
-        // Only shift leaders can create shift periods
-        if (role != RoleState.ShiftLeader)
-        {
-            return Forbid("Only shift leaders can create shift periods");
         }
 
         var record = await _workerSchedulerService.CreateNewWorkerRegisteringRequest(request, shiftLeaderId);

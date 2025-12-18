@@ -55,7 +55,8 @@ public abstract class TenantControllerBase : ControllerBase
     /// <param name="shiftLeaderId">When this method returns, contains the shift leader ID if found; otherwise, null.</param>
     /// <param name="role">When this method returns, contains the user role enum if found; otherwise, null.</param>
     /// <returns>True if both shift leader ID and role exist in the token</returns>
-    protected bool TryGetShiftLeaderInfo(out string? shiftLeaderId, out RoleState? role)
+    [NonAction]
+    public bool TryGetShiftLeaderInfo(out string? shiftLeaderId, out RoleState? role)
     {
         shiftLeaderId = null;
         role = null;

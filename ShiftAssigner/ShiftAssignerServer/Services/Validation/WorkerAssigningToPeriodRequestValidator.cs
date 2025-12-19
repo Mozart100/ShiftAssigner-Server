@@ -54,7 +54,8 @@ public class WorkerAssigningDayScheduleValidator : AbstractValidator<WorkerAssig
 
     private bool BeValidDate(DateOnly date)
     {
-        return date >= DateOnly.FromDateTime(DateTime.Now.Date);
+        return true;
+        // return date >= DateOnly.FromDateTime(DateTime.Now.Date);
     }
 
     private bool HaveUniqueShiftNames(List<WorkerAssigningToPeriodRequest.CreateShiftInfo> shifts)

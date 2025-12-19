@@ -101,3 +101,22 @@ Feature: Multi-Tenant Registration and Worker Management
   And the shift period should end on "2024-01-21" for tenant "1"
   And the shift period should contain "7" days for tenant "1"
   And the shift period should have shifts for all configured days for tenant "1"
+
+  # Test worker self-assignment to shifts and schedule verification
+  When worker "worker-1" self-assigns to the following shifts for tenant "1":
+    | Date       | ShiftName |
+    | 2024-01-15 | Morning   |
+    | 2024-01-15 | Night     |
+    | 2024-01-16 | Morning   |
+    | 2024-01-17 | Night     |
+  
+  Then the worker "worker-1" shift assignment should be successful for tenant "1"
+  
+  When worker "worker-1" retrieves their schedule for tenant "1"
+  Then worker "worker-1" schedule should show "4" assigned shifts for tenant "1"
+  And worker "worker-1" schedule should contain the following shifts for tenant "1":
+    | Date       | ShiftName |
+    | 2024-01-15 | Morning   |
+    | 2024-01-15 | Night     |
+    | 2024-01-16 | Morning   |
+    | 2024-01-17 | Night     |

@@ -56,10 +56,14 @@ public class WorkerSchedulerService : IWorkerSchedulerService
 
     public async Task<WorkerShiftPeriodSchedulingResponse> GetWorkerShiftPeriodCurrentAndNextScheduling(string workerId)
     {
-        // Get active shift periods where the worker is assigned
-        var activeShiftPeriods = await _tenantUnitOfWork.ShiftPeriodSchedulingRepository
-            .GetAllAsync(x => x.IsActive &&
-                x.Period.Any(day => day.Shifts.Any(shift => shift.WorkerIds.Contains(workerId))));
+        // Get all active shift periods first (simple SQL query)
+        var allActivePeriods = await _tenantUnitOfWork.ShiftPeriodSchedulingRepository
+            .GetAllAsync(x => x.IsActive);
+            
+        // Filter in memory to find periods where worker is assigned (full LINQ support)
+        var activeShiftPeriods = allActivePeriods.Where(x =>
+            x.Period.Any(day => day.Shifts.Any(shift => shift.WorkerIds.Contains(workerId))))
+            .ToList();
 
         if (activeShiftPeriods.IsEmpty())
         {
@@ -110,6 +114,14 @@ public class WorkerSchedulerService : IWorkerSchedulerService
         await _validationService.ValidateWorkerAssigningToPeriodRequestAsync(request, workerId);
 
         var responseShifts = new List<WorkerAssigningToPeriodResponse.CreateDaySchedule>();
+        var modifiedPeriodsById = new Dictionary<int, ShiftPeriodScheduling>();
+
+        // Get all active periods ONCE, outside the loops to reuse same instances
+        var allActivePeriods = await _tenantUnitOfWork.ShiftPeriodSchedulingRepository
+            .GetAllAsync(x => x.IsActive);
+
+        // Create a lookup cache to guarantee same instance per period ID
+        var periodLookup = allActivePeriods.ToDictionary(p => p.Id, p => p);
 
         foreach (var requestDay in request.Period)
         {
@@ -120,34 +132,30 @@ public class WorkerSchedulerService : IWorkerSchedulerService
                 var shiftAssigned = false;
                 var assignmentReason = string.Empty;
 
-                // Find the shift period that contains this date and shift
-                var shiftPeriods = await _tenantUnitOfWork.ShiftPeriodSchedulingRepository
-                    .GetAllAsync(x => x.IsActive &&
-                        x.Period.Any(p => p.DateOnly == requestDay.Date &&
-                            p.Shifts.Any(s => s.ShiftName.Equals(requestShift.ShiftName, StringComparison.OrdinalIgnoreCase))));
+                // Filter in memory using the SAME instances (full LINQ support)
+                var shiftPeriods = allActivePeriods.Where(x =>
+                    x.Period.Any(p => p.DateOnly == requestDay.Date &&
+                        p.Shifts.Any(s => s.ShiftName.Equals(requestShift.ShiftName, StringComparison.OrdinalIgnoreCase))))
+                    .ToList();
 
                 var period = shiftPeriods.First();
-                var targetDay = period.Period.FirstOrDefault(p => p.DateOnly == requestDay.Date);
+                
+                // Always use the cached instance to guarantee accumulation
+                var cachedPeriod = periodLookup[period.Id];
+                
+                var targetDay = cachedPeriod.Period.FirstOrDefault(p => p.DateOnly == requestDay.Date);
                 var targetShift = targetDay.Shifts.FirstOrDefault(s =>
                     s.ShiftName.Equals(requestShift.ShiftName, StringComparison.OrdinalIgnoreCase));
 
                 // Check if worker is not already assigned and shift has capacity
                 if (!targetShift.WorkerIds.Contains(workerId) && targetShift.WorkerIds.Count < targetShift.AmountOfWorkers)
                 {
-                    // Assign worker to shift
+                    // Assign worker to shift in memory (accumulate changes by period ID)
                     targetShift.WorkerIds.Add(workerId);
-                        await _tenantUnitOfWork.ShiftPeriodSchedulingRepository.UpdateAsync(
-                            x => x.Id == period.Id, 
-                            updatedPeriod => 
-                            {
-                                var dayToUpdate = updatedPeriod.Period.FirstOrDefault(p => p.DateOnly == requestDay.Date);
-                                var shiftToUpdate = dayToUpdate?.Shifts.FirstOrDefault(s => 
-                                    s.ShiftName.Equals(requestShift.ShiftName, StringComparison.OrdinalIgnoreCase));
-                                if (shiftToUpdate != null && !shiftToUpdate.WorkerIds.Contains(workerId))
-                                {
-                                    shiftToUpdate.WorkerIds.Add(workerId);
-                                }
-                            });
+                    shiftAssigned = true;
+                    
+                    // Store the cached instance - guaranteed to accumulate all changes
+                    modifiedPeriodsById[period.Id] = cachedPeriod;
                 }
                 else if (targetShift.WorkerIds.Contains(workerId))
                 {
@@ -171,6 +179,20 @@ public class WorkerSchedulerService : IWorkerSchedulerService
                 Date = requestDay.Date,
                 Shifts = dayShifts
             });
+        }
+
+        // After both loops complete, persist accumulated changes with single update per period ID
+        foreach (var kvp in modifiedPeriodsById)
+        {
+            var periodId = kvp.Key;
+            var finalPeriodState = kvp.Value;
+            
+            await _tenantUnitOfWork.ShiftPeriodSchedulingRepository.UpdateAsync(
+                x => x.Id == periodId,
+                updatedPeriod =>
+                {
+                    updatedPeriod.Period = finalPeriodState.Period;
+                });
         }
 
         return new WorkerAssigningToPeriodResponse

@@ -1,4 +1,6 @@
 using Microsoft.CodeAnalysis.Host;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace ShiftAssignerServer.Models.WorkerScheduling;
 
@@ -37,12 +39,16 @@ public partial class ShiftPeriodScheduling : IActiveEntity
 
 public partial class ShiftPeriodScheduling
 {
+    [NotMapped]
+    [JsonIgnore]
     public DateOnly LastDay => Period?.Any() == true ? Period.Max(d => d.DateOnly) : StartFrom;
     
     public partial class Day
     {
         // public string Name { get; set; } // Sunday,Monday...
 
+        [NotMapped]
+        [JsonIgnore]
         public string DayOfTheWeek => DateOnly.DayOfWeek.ToString();
 
         public partial class ShiftInfo
@@ -50,26 +56,36 @@ public partial class ShiftPeriodScheduling
             /// <summary>
             /// Total capacity for this shift (same as AmountOfWorkers)
             /// </summary>
+            [NotMapped]
+            [JsonIgnore]
             public int Capacity => AmountOfWorkers;
 
             /// <summary>
             /// Number of workers currently assigned to this shift
             /// </summary>
+            [NotMapped]
+            [JsonIgnore]
             public int AssignedCount => WorkerIds?.Count ?? 0;
 
             /// <summary>
             /// Number of remaining spots available for this shift
             /// </summary>
+            [NotMapped]
+            [JsonIgnore]
             public int RemainingSpots => Math.Max(0, AmountOfWorkers - AssignedCount);
 
             /// <summary>
             /// Whether this shift is fully staffed
             /// </summary>
+            [NotMapped]
+            [JsonIgnore]
             public bool IsFullyStaffed => !HasAvailableSpots;
 
             /// <summary>
             /// Whether this shift has available spots
             /// </summary>
+            [NotMapped]
+            [JsonIgnore]
             public bool HasAvailableSpots => AssignedCount < AmountOfWorkers;
         }
     }

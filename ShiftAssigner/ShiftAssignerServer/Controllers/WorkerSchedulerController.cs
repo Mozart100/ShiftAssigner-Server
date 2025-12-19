@@ -56,7 +56,7 @@ public class WorkerSchedulerController : TenantControllerBase
 
 
     [OnlyRole(RoleState.Worker)]
-    [HttpPut(AssignToShiftRoute)]
+    [HttpPost(AssignToShiftRoute)]
     public async Task<ActionResult<WorkerAssigningToPeriodResponse>> WorkerAssignTo(WorkerAssigningToPeriodRequest request)
     {
         TryGetPersonInfo(out string? workerId, out RoleState? _);

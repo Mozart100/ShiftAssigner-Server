@@ -46,3 +46,21 @@ docker exec postgres14 psql -U postgres -d shiftassigner -c "\dt testcompany_1.*
 
 docker stop postgres14 2>$null; docker rm postgres14 2>$null; docker run --name postgres14 -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=shiftassigner -p 5432:5432 -d postgres:14
 ```
+
+## Database Queries
+
+### Worker Shift Assignments Report
+
+Query to get all worker shift assignments with dates and shift names:
+
+```sql
+SELECT
+  (d.day->>'DateOnly')::date AS day,
+  sh->>'ShiftName' AS shift_name,
+  worker.worker_id
+FROM multitenant_company1.shift_period_schedulings sps
+JOIN LATERAL jsonb_array_elements(sps."Period") AS d(day) ON TRUE
+JOIN LATERAL jsonb_array_elements(d.day->'Shifts') AS sh ON TRUE
+JOIN LATERAL jsonb_array_elements_text(sh->'WorkerIds') AS worker(worker_id) ON TRUE
+ORDER BY day, shift_name, worker.worker_id;
+```

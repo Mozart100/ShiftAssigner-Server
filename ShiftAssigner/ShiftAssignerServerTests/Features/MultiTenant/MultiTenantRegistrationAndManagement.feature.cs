@@ -423,6 +423,51 @@ namespace ShiftAssignerServer.Tests.Features.MultiTenant
 #line 103
   await testRunner.AndAsync("the shift period should have shifts for all configured days for tenant \"1\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
+                global::Reqnroll.Table table3 = new global::Reqnroll.Table(new string[] {
+                            "Date",
+                            "ShiftName"});
+                table3.AddRow(new string[] {
+                            "2024-01-15",
+                            "Morning"});
+                table3.AddRow(new string[] {
+                            "2024-01-15",
+                            "Night"});
+                table3.AddRow(new string[] {
+                            "2024-01-16",
+                            "Morning"});
+                table3.AddRow(new string[] {
+                            "2024-01-17",
+                            "Night"});
+#line 106
+  await testRunner.WhenAsync("worker \"worker-1\" self-assigns to the following shifts for tenant \"1\":", ((string)(null)), table3, "When ");
+#line hidden
+#line 113
+  await testRunner.ThenAsync("the worker \"worker-1\" shift assignment should be successful for tenant \"1\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 115
+  await testRunner.WhenAsync("worker \"worker-1\" retrieves their schedule for tenant \"1\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 116
+  await testRunner.ThenAsync("worker \"worker-1\" schedule should show \"4\" assigned shifts for tenant \"1\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+                global::Reqnroll.Table table4 = new global::Reqnroll.Table(new string[] {
+                            "Date",
+                            "ShiftName"});
+                table4.AddRow(new string[] {
+                            "2024-01-15",
+                            "Morning"});
+                table4.AddRow(new string[] {
+                            "2024-01-15",
+                            "Night"});
+                table4.AddRow(new string[] {
+                            "2024-01-16",
+                            "Morning"});
+                table4.AddRow(new string[] {
+                            "2024-01-17",
+                            "Night"});
+#line 117
+  await testRunner.AndAsync("worker \"worker-1\" schedule should contain the following shifts for tenant \"1\":", ((string)(null)), table4, "And ");
+#line hidden
             }
             await this.ScenarioCleanupAsync();
         }

@@ -49,15 +49,18 @@ docker stop postgres14 2>$null; docker rm postgres14 2>$null; docker run --name 
 
 ## Database Queries
 
-### Worker Shift Assignments Report
+### Worker Shift Assignments Report with Capacity Information
 
-Query to get all worker shift assignments with dates and shift names:
+Query to get all worker shift assignments with dates, shift names, and remaining capacity:
 
 ```sql
 SELECT
   (d.day->>'DateOnly')::date AS day,
   sh->>'ShiftName' AS shift_name,
-  worker.worker_id
+  worker.worker_id,
+  (sh->>'AmountOfWorkers')::int AS total_capacity,
+  COUNT(*) OVER (PARTITION BY d.day->>'DateOnly', sh->>'ShiftName') AS assigned_workers,
+  (sh->>'AmountOfWorkers')::int - COUNT(*) OVER (PARTITION BY d.day->>'DateOnly', sh->>'ShiftName') AS remaining_spots
 FROM multitenant_company1.shift_period_schedulings sps
 JOIN LATERAL jsonb_array_elements(sps."Period") AS d(day) ON TRUE
 JOIN LATERAL jsonb_array_elements(d.day->'Shifts') AS sh ON TRUE

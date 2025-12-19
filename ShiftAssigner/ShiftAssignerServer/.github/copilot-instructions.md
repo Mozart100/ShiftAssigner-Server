@@ -293,3 +293,26 @@ public async Task WhenIRegisterAWorkerWithValidData(Table table) // → WorkerRe
 - ✅ JWT authentication
 - ✅ Error handling middleware
 - ✅ **TenantBoss registration with mandatory ShiftConfig**
+
+### 10. Test Development Compilation Rule
+
+**CRITICAL**: After making any changes to test files, always compile the test project to validate the changes:
+
+```powershell
+dotnet build C:\MyDevelopment\ShiftAssigner-Server\ShiftAssigner\ShiftAssignerServerTests\ShiftAssignerServer.Tests.csproj --no-dependencies
+```
+
+**This applies to changes in:**
+- ✅ Test class files (*.cs)
+- ✅ Feature files (*.feature)
+- ✅ Step definition files
+- ✅ Test configuration files
+- ✅ Test data files
+
+**Benefits:**
+- ✅ **Syntax validation** - Ensures code changes are syntactically correct
+- ✅ **Dependency resolution** - Validates all references are properly resolved  
+- ✅ **Early error detection** - Catches compilation issues before test execution
+- ✅ **Code quality assurance** - Validates changes immediately after modification
+
+This practice prevents runtime errors and ensures test stability.

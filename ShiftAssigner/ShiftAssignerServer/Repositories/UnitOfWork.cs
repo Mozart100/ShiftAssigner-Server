@@ -9,12 +9,14 @@ public interface ITenantUnitOfWork
     IMainSchemaRepository Tenants { get; }
     IBossTenantRepository BossTenantRepository { get; }
     ITenantShiftSchedulingRepository TenantShiftSchedulingRepository { get; }
+    ITeamHierarchyRepository TeamHierarchyRepository { get; }
+
 
     IShiftPeriodSchedulingRepository ShiftPeriodSchedulingRepository { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     int SaveChanges();
-    
+
     /// <summary>
     /// Checks if any repository has pending changes and automatically saves if needed
     /// </summary>

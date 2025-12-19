@@ -136,6 +136,14 @@ public class WorkerSchedulerValidationService : ServiceValidatorBase, IWorkerSch
             errors.Add(new ShiftAssignmentError("workerId", "Worker ID is required"));
         }
 
+        // Get worker information to check their assigned shift leader
+        var worker = await _tenantUnitOfWork.TeamHierarchyRepository.FirstOrDefaultAsync(x =>  x.WorkerId == workerId && x.IsActive);
+        if (worker == null)
+        {
+            errors.Add(new ShiftAssignmentError("workerId", "Worker not found"));
+            Validate(errors); // Early return if worker doesn't exist
+        }
+
         // Use FluentValidation validator for request validation
         var validationResult = await _workerAssigningValidator.ValidateAsync(request);
         if (!validationResult.IsValid)
@@ -171,6 +179,15 @@ public class WorkerSchedulerValidationService : ServiceValidatorBase, IWorkerSch
                     // Check if the shift has capacity and worker is not already assigned
                     foreach (var period in shiftPeriods)
                     {
+                        // BUSINESS RULE: Check if worker is assigned to the shift leader who owns the period
+                        if (worker.ShiftLeaderId != period.ShiftLeaderId)
+                        {
+                            errors.Add(new ShiftAssignmentError(
+                                $"{nameof(request.Period)}.Authorization",
+                                $"Worker can only assign to shifts in their own shift leader's periods. Worker is under shift leader '{worker.ShiftLeaderId}' but trying to assign to period owned by '{period.ShiftLeaderId}'"));
+                            continue; // Skip further validation for this period
+                        }
+
                         var targetDay = period.Period.FirstOrDefault(p => p.DateOnly == day.Date);
                         var targetShift = targetDay?.Shifts.FirstOrDefault(s =>
                             s.ShiftName.Equals(requestedShift.ShiftName, StringComparison.OrdinalIgnoreCase));

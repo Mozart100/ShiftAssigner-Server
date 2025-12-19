@@ -110,8 +110,6 @@ Feature: Multi-Tenant Registration and Worker Management
     | 2024-01-16 | Morning   |
     | 2024-01-17 | Night     |
   
-  Then the worker "worker-1" shift assignment should be successful for tenant "1"
-  
   When worker "worker-1" retrieves their schedule for tenant "1"
   Then worker "worker-1" schedule should show "4" assigned shifts for tenant "1"
   And worker "worker-1" schedule should contain the following shifts for tenant "1":

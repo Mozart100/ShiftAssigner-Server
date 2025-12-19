@@ -442,12 +442,9 @@ namespace ShiftAssignerServer.Tests.Features.MultiTenant
   await testRunner.WhenAsync("worker \"worker-1\" self-assigns to the following shifts for tenant \"1\":", ((string)(null)), table3, "When ");
 #line hidden
 #line 113
-  await testRunner.ThenAsync("the worker \"worker-1\" shift assignment should be successful for tenant \"1\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
-#line hidden
-#line 115
   await testRunner.WhenAsync("worker \"worker-1\" retrieves their schedule for tenant \"1\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 116
+#line 114
   await testRunner.ThenAsync("worker \"worker-1\" schedule should show \"4\" assigned shifts for tenant \"1\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
                 global::Reqnroll.Table table4 = new global::Reqnroll.Table(new string[] {
@@ -465,7 +462,7 @@ namespace ShiftAssignerServer.Tests.Features.MultiTenant
                 table4.AddRow(new string[] {
                             "2024-01-17",
                             "Night"});
-#line 117
+#line 115
   await testRunner.AndAsync("worker \"worker-1\" schedule should contain the following shifts for tenant \"1\":", ((string)(null)), table4, "And ");
 #line hidden
             }

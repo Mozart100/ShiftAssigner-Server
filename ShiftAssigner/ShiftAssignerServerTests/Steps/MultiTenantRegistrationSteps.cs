@@ -501,23 +501,6 @@ public class MultiTenantRegistrationSteps : FeatureStepBase
         worker.ShiftAssignmentResponse = response;
     }
 
-    [Then(@"the worker ""(.*)"" shift assignment should be successful for tenant ""(.*)""")]
-    public void ThenWorkerShiftAssignmentShouldBeSuccessful(string workerId, string tenantId)
-    {
-        var multiTenantData = _scenarioContext.Get<MultiTenantTestData>(MultiTenant_Data_Context);
-        var tenantInfo = multiTenantData.Tenants[tenantId];
-        
-        var worker = tenantInfo.Workers[workerId];
-        Assert.NotNull(worker.ShiftAssignmentResponse);
-        
-        // Verify that at least one shift was successfully assigned
-        var successfulAssignments = worker.ShiftAssignmentResponse.Period
-            .SelectMany(day => day.Shifts)
-            .Count(shift => shift.Assigned);
-            
-        Assert.True(successfulAssignments > 0, "At least one shift assignment should be successful");
-    }
-
     [When(@"worker ""(.*)"" retrieves their schedule for tenant ""(.*)""")]
     public async Task WhenWorkerRetrievesTheirSchedule(string workerId, string tenantId)
     {

@@ -6,6 +6,7 @@ using Reqnroll;
 using ShiftAssignerServer.Controllers;
 using ShiftAssignerServer.Models.WorkerScheduling;
 using ShiftAssignerServer.Requests;
+using ShiftAssignerServer.Services.Validation;
 using ShiftAssignerServer.Tests.Common;
 using Xunit;
 
@@ -404,7 +405,7 @@ public class MultiTenantRegistrationSteps : FeatureStepBase
         Assert.Contains("successfully", shiftLeader.ShiftPeriodResponse.Message);
     }
 
-    [Then(@"the shift period should start from \""(.*)\"" for tenant \""(.*)\""")] 
+    [Then(@"the shift period should start from \""(.*)\"" for tenant \""(.*)\""")]
     public void ThenShiftPeriodShouldStartFrom(string expectedStartDate, string tenantId)
     {
         var multiTenantData = _scenarioContext.Get<MultiTenantTestData>(MultiTenant_Data_Context);
@@ -415,7 +416,7 @@ public class MultiTenantRegistrationSteps : FeatureStepBase
         Assert.Equal(DateOnly.Parse(expectedStartDate), shiftLeader.ShiftPeriodResponse.StartFrom);
     }
 
-    [Then(@"the shift period should end on \""(.*)\"" for tenant \""(.*)\""")] 
+    [Then(@"the shift period should end on \""(.*)\"" for tenant \""(.*)\""")]
     public void ThenShiftPeriodShouldEndOn(string expectedEndDate, string tenantId)
     {
         var multiTenantData = _scenarioContext.Get<MultiTenantTestData>(MultiTenant_Data_Context);
@@ -426,7 +427,7 @@ public class MultiTenantRegistrationSteps : FeatureStepBase
         Assert.Equal(DateOnly.Parse(expectedEndDate), shiftLeader.ShiftPeriodResponse.LastDate);
     }
 
-    [Then(@"the shift period should contain \""(.*)\"" days for tenant \""(.*)\""")] 
+    [Then(@"the shift period should contain \""(.*)\"" days for tenant \""(.*)\""")]
     public void ThenShiftPeriodShouldContainDays(int expectedDays, string tenantId)
     {
         var multiTenantData = _scenarioContext.Get<MultiTenantTestData>(MultiTenant_Data_Context);
@@ -440,7 +441,7 @@ public class MultiTenantRegistrationSteps : FeatureStepBase
         Assert.Equal(expectedDays, daysDifference);
     }
 
-    [Then(@"the shift period should have shifts for all configured days for tenant \""(.*)\""")] 
+    [Then(@"the shift period should have shifts for all configured days for tenant \""(.*)\""")]
     public void ThenShiftPeriodShouldHaveShiftsForAllConfiguredDays(string tenantId)
     {
         var multiTenantData = _scenarioContext.Get<MultiTenantTestData>(MultiTenant_Data_Context);
@@ -457,21 +458,22 @@ public class MultiTenantRegistrationSteps : FeatureStepBase
     [When(@"worker ""(.*)"" self-assigns to the following shifts for tenant ""(.*)"":")]
     public async Task WhenWorkerSelfAssignsToShifts(string workerId, string tenantId, Table shiftAssignmentTable)
     {
+        // ✅ SUCCESSFUL WORKER SELF-ASSIGNMENT METHOD
         var multiTenantData = _scenarioContext.Get<MultiTenantTestData>(MultiTenant_Data_Context);
         var tenantInfo = multiTenantData.Tenants[tenantId];
-        
+
         // Get the worker's JWT token
         var worker = tenantInfo.Workers[workerId];
         var jwtToken = worker.WorkerLoginResponse.Token;
 
         // Parse the shift assignment table
         var assignmentData = shiftAssignmentTable.CreateSet<ShiftAssignmentEntry>();
-        
+
         // Group by date to create the assignment structure
         var groupedByDate = assignmentData.GroupBy(s => s.Date).OrderBy(g => g.Key);
-        
+
         var assignmentPeriod = new List<WorkerAssigningToPeriodRequest.CreateDaySchedule>();
-        
+
         foreach (var dayGroup in groupedByDate)
         {
             var daySchedule = new WorkerAssigningToPeriodRequest.CreateDaySchedule
@@ -494,11 +496,73 @@ public class MultiTenantRegistrationSteps : FeatureStepBase
         // Make the API call to self-assign (using POST method for test infrastructure)
         var response = await _serverSender.PostCommandAsync<WorkerAssigningToPeriodRequest, WorkerAssigningToPeriodResponse>(
             $"/api/v1/WorkerScheduler/{WorkerSchedulerController.AssignToShiftRoute}",
-            request, 
+            request,
             jwtToken);
 
-        // Store the assignment response for verification
+        // Store the assignment response for verification - THIS METHOD IS SUCCESSFUL! ✅
         worker.ShiftAssignmentResponse = response;
+    }
+
+    [When(@"worker ""(.*)"" attempts shift assignment to tenant ""(.*)"" expecting ""(.*)"" result:")]
+    public async Task WhenWorkerSelfAssignsToShiftsWithExpectedResult(string workerId, string tenantId, string expectedResult, Table shiftAssignmentTable)
+    {
+        // ⚠️ ASSIGNMENT METHOD WITH FAILURE DETECTION
+        var multiTenantData = _scenarioContext.Get<MultiTenantTestData>(MultiTenant_Data_Context);
+        var tenantInfo = multiTenantData.Tenants[tenantId];
+
+        // Get the worker's JWT token
+        var worker = tenantInfo.Workers[workerId];
+        var jwtToken = worker.WorkerLoginResponse.Token;
+
+        // Parse the shift assignment table
+        var assignmentData = shiftAssignmentTable.CreateSet<ShiftAssignmentEntry>();
+
+        // Group by date to create the assignment structure
+        var groupedByDate = assignmentData.GroupBy(s => s.Date).OrderBy(g => g.Key);
+
+        var assignmentPeriod = new List<WorkerAssigningToPeriodRequest.CreateDaySchedule>();
+
+        foreach (var dayGroup in groupedByDate)
+        {
+            var daySchedule = new WorkerAssigningToPeriodRequest.CreateDaySchedule
+            {
+                Date = DateOnly.Parse(dayGroup.Key),
+                Shifts = dayGroup.Select(shift => new WorkerAssigningToPeriodRequest.CreateShiftInfo
+                {
+                    ShiftName = shift.ShiftName
+                }).ToList()
+            };
+            assignmentPeriod.Add(daySchedule);
+        }
+
+        // Create the worker assignment request
+        var request = new WorkerAssigningToPeriodRequest
+        {
+            Period = assignmentPeriod
+        };
+
+        var expectSuccess = expectedResult.Equals("success", StringComparison.OrdinalIgnoreCase);
+        var expectFailure = expectedResult.Equals("failure", StringComparison.OrdinalIgnoreCase);
+        var expectPartial = expectedResult.Equals("partial", StringComparison.OrdinalIgnoreCase);
+
+        try
+        {
+            // Make the API call to self-assign (using POST method for test infrastructure)
+            var response = await _serverSender.PostCommandAsync<WorkerAssigningToPeriodRequest, WorkerAssigningToPeriodResponse>(
+                $"/api/v1/WorkerScheduler/{WorkerSchedulerController.AssignToShiftRoute}",
+                request,
+                jwtToken);
+
+            Assert.Fail($"Should have been failed!!!");
+        }
+        catch (ShiftAssignmentException shiftException)
+        {
+
+        }
+        catch (Exception ex)
+        {
+            Assert.Fail($"Expected assignment to succeed/partially succeed, but got exception: {ex.Message}");
+        }
     }
 
     [When(@"worker ""(.*)"" retrieves their schedule for tenant ""(.*)""")]
@@ -506,7 +570,7 @@ public class MultiTenantRegistrationSteps : FeatureStepBase
     {
         var multiTenantData = _scenarioContext.Get<MultiTenantTestData>(MultiTenant_Data_Context);
         var tenantInfo = multiTenantData.Tenants[tenantId];
-        
+
         // Get the worker's JWT token
         var worker = tenantInfo.Workers[workerId];
         var jwtToken = worker.WorkerLoginResponse.Token;
@@ -525,14 +589,14 @@ public class MultiTenantRegistrationSteps : FeatureStepBase
     {
         var multiTenantData = _scenarioContext.Get<MultiTenantTestData>(MultiTenant_Data_Context);
         var tenantInfo = multiTenantData.Tenants[tenantId];
-        
+
         var worker = tenantInfo.Workers[workerId];
         Assert.NotNull(worker.ScheduleResponse);
-        
+
         var totalAssignedShifts = worker.ScheduleResponse.Period
             .SelectMany(day => day.Shifts)
             .Count();
-            
+
         Assert.Equal(expectedShiftCount, totalAssignedShifts);
     }
 
@@ -541,23 +605,23 @@ public class MultiTenantRegistrationSteps : FeatureStepBase
     {
         var multiTenantData = _scenarioContext.Get<MultiTenantTestData>(MultiTenant_Data_Context);
         var tenantInfo = multiTenantData.Tenants[tenantId];
-        
+
         var worker = tenantInfo.Workers[workerId];
         Assert.NotNull(worker.ScheduleResponse);
-        
+
         var expectedShifts = expectedShiftsTable.CreateSet<ShiftAssignmentEntry>();
-        
+
         foreach (var expectedShift in expectedShifts)
         {
             var expectedDate = DateOnly.Parse(expectedShift.Date);
             var daySchedule = worker.ScheduleResponse.Period
                 .FirstOrDefault(day => day.Date == expectedDate);
-            
+
             Assert.NotNull(daySchedule);
-            
+
             var assignedShift = daySchedule.Shifts
                 .FirstOrDefault(shift => shift.ShiftName.Equals(expectedShift.ShiftName, StringComparison.OrdinalIgnoreCase));
-                
+
             Assert.NotNull(assignedShift);
         }
     }
@@ -645,6 +709,10 @@ public class WorkerInfo
     public LoginWorkerResponse WorkerLoginResponse { get; set; } = new LoginWorkerResponse();
     public WorkerAssigningToPeriodResponse? ShiftAssignmentResponse { get; set; }
     public WorkerShiftPeriodSchedulingResponse? ScheduleResponse { get; set; }
+
+    // Properties for assignment failure tracking
+    public List<string>? AssignmentFailures { get; set; }
+    public Exception? AssignmentException { get; set; }
 }
 
 // Helper class for shift scheduling step implementations

@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
+using ShiftAssignerServer.Services.Validation;
 
 namespace ShiftAssignerServer.Tests.Infrastructure;
 
@@ -192,7 +195,7 @@ public class ClientSender
             {
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             }
-            
+
             var sendOptions = new JsonSerializerOptions();
             //sendOptions.Converters.Add(_dateOnlyConverter);
 
@@ -226,15 +229,38 @@ public class ClientSender
             return response;
         }
 
-        // Read response content (if any) and throw a more descriptive exception so tests can surface server errors.
         var errorContent = string.Empty;
-        try
+        errorContent = await message.Content.ReadAsStringAsync();
+
+        if (message.StatusCode == HttpStatusCode.BadRequest && !string.IsNullOrEmpty(errorContent))
         {
-            errorContent = await message.Content.ReadAsStringAsync();
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var errorResponse = JsonSerializer.Deserialize<ValidationErrorResponse>(errorContent, options);
+
+            if (errorResponse?.Message == "Validation failed" && errorResponse.Errors != null)
+            {
+                var shiftErrors = errorResponse.Errors
+                    .Select(e => new ShiftAssignmentError(e.Property, e.Error))
+                    .ToArray();
+
+                throw new ShiftAssignmentException(shiftErrors);
+            }
         }
-        catch { /* ignore read errors */ }
 
         throw new HttpRequestException($"Request failed with status {(int)message.StatusCode} ({message.ReasonPhrase}). Response: {errorContent}");
+    }
+
+    // Helper class for deserializing validation error responses
+    private class ValidationErrorResponse
+    {
+        public string Message { get; set; }
+        public List<ValidationErrorItem> Errors { get; set; }
+    }
+
+    private class ValidationErrorItem
+    {
+        public string Property { get; set; }
+        public string Error { get; set; }
     }
 
     protected string ConvertFileToBase64(string filePath)

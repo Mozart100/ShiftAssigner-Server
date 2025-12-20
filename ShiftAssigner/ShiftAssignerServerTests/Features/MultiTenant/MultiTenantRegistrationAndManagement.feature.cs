@@ -465,6 +465,31 @@ namespace ShiftAssignerServer.Tests.Features.MultiTenant
 #line 115
   await testRunner.AndAsync("worker \"worker-5\" schedule should contain the following shifts for tenant \"1\":", ((string)(null)), table4, "And ");
 #line hidden
+                global::Reqnroll.Table table5 = new global::Reqnroll.Table(new string[] {
+                            "Date",
+                            "ShiftName"});
+                table5.AddRow(new string[] {
+                            "2024-01-15",
+                            "Morning"});
+                table5.AddRow(new string[] {
+                            "2024-01-15",
+                            "Night"});
+                table5.AddRow(new string[] {
+                            "2024-01-17",
+                            "Morning"});
+                table5.AddRow(new string[] {
+                            "2024-01-17",
+                            "Night"});
+#line 123
+  await testRunner.WhenAsync("worker \"worker-4\" attempts shift assignment to tenant \"1\" expecting \"partial\" res" +
+                        "ult:", ((string)(null)), table5, "When ");
+#line hidden
+#line 130
+  await testRunner.WhenAsync("worker \"worker-4\" retrieves their schedule for tenant \"1\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 131
+  await testRunner.ThenAsync("worker \"worker-4\" schedule should show \"0\" assigned shifts for tenant \"1\"", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
             }
             await this.ScenarioCleanupAsync();
         }

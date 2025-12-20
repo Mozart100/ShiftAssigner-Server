@@ -118,3 +118,14 @@ Feature: Multi-Tenant Registration and Worker Management
     | 2024-01-15 | Night     |
     | 2024-01-16 | Morning   |
     | 2024-01-17 | Night     |
+
+  # Test worker-4 assignment to shifts with no open spots (capacity validation)
+  When worker "worker-4" attempts shift assignment to tenant "1" expecting "partial" result:
+    | Date       | ShiftName |
+    | 2024-01-15 | Morning   |
+    | 2024-01-15 | Night     |
+    | 2024-01-17 | Morning   |
+    | 2024-01-17 | Night     |
+  
+  When worker "worker-4" retrieves their schedule for tenant "1"
+  Then worker "worker-4" schedule should show "0" assigned shifts for tenant "1"

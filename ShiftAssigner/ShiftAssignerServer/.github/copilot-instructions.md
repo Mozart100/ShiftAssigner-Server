@@ -309,10 +309,16 @@ dotnet build C:\MyDevelopment\ShiftAssigner-Server\ShiftAssigner\ShiftAssignerSe
 - ✅ Test configuration files
 - ✅ Test data files
 
+**Special attention for Feature files and Step definitions:**
+- ⚠️ **Check for ambiguous step bindings** - If compilation succeeds but tests fail with `Reqnroll.AmbiguousBindingException`, multiple step definitions match the same pattern
+- ⚠️ **Make step patterns distinct** - Use unique keywords like "expecting result" vs basic patterns
+- ⚠️ **Verify step uniqueness** - Each `[When]`, `[Given]`, `[Then]` attribute must have unique regex patterns
+
 **Benefits:**
 - ✅ **Syntax validation** - Ensures code changes are syntactically correct
 - ✅ **Dependency resolution** - Validates all references are properly resolved  
 - ✅ **Early error detection** - Catches compilation issues before test execution
 - ✅ **Code quality assurance** - Validates changes immediately after modification
+- ✅ **Ambiguity prevention** - Detects conflicting step definitions early
 
 This practice prevents runtime errors and ensures test stability.

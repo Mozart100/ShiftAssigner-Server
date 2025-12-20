@@ -2,6 +2,7 @@ using AutoMapper;
 using ShiftAssignerServer.Models.Stuff;
 using ShiftAssignerServer.Repositories;
 using ShiftAssignerServer.Requests;
+using ShiftAssignerServer.Services.Validation;
 
 namespace ShiftAssignerServer.Services;
 
@@ -17,13 +18,18 @@ public class TeamHierarchyService : ITeamHierarchyService
     private readonly ITeamHierarchyRepository _teamHierarchyRepository;
     private readonly IWorkerRepository _workerRepository;
     private readonly IShiftLeaderRepository _shiftLeaderRepo;
+    private readonly ITeamHierarchyValidationService _validationService;
     private readonly IMapper _mapper;
 
-    public TeamHierarchyService(ITeamHierarchyRepository teamHierarchyRepository, IWorkerRepository workerRepo, IShiftLeaderRepository shiftLeaderRepo, IMapper mapper)
+    public TeamHierarchyService(ITeamHierarchyRepository teamHierarchyRepository,
+     IWorkerRepository workerRepo, IShiftLeaderRepository shiftLeaderRepo,
+     ITeamHierarchyValidationService validationService,
+      IMapper mapper)
     {
         _teamHierarchyRepository = teamHierarchyRepository;
         _workerRepository = workerRepo;
         _shiftLeaderRepo = shiftLeaderRepo;
+        _validationService = validationService;
         _mapper = mapper;
     }
 
@@ -33,8 +39,12 @@ public class TeamHierarchyService : ITeamHierarchyService
         return true;
     }
 
+
     public async Task<bool> ReassignAsync(ReassignWorkerRequest reassignRequest)
     {
+        // Validate the request - this will throw ShiftAssignmentException if validation fails
+        await _validationService.ValidateReassignWorkerRequestAsync(reassignRequest);
+
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
 
         foreach (var workerId in reassignRequest.WorkerIds)

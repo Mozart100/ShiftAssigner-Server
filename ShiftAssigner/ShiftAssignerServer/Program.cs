@@ -103,6 +103,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddTransient<IRegistrationValidationService, RegistrationValidationService>();
 builder.Services.AddTransient<IWorkersServiceValidation, WorkersServiceValidation>();
 builder.Services.AddTransient<IWorkerSchedulerValidationService, WorkerSchedulerValidationService>();
+builder.Services.AddTransient<ITeamHierarchyValidationService, TeamHierarchyValidationService>();
 
 // ---------------- Serilog ----------------
 Log.Logger = new LoggerConfiguration()

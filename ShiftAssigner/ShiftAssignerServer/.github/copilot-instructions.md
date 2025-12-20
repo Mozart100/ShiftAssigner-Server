@@ -141,6 +141,7 @@ Use **FluentValidation** for all request validation and **ServiceValidatorBase**
 - Create validators inheriting from `AbstractValidator<T>` for request/model validation
 - Use declarative validation rules with clear error messages
 - Register validators automatically via dependency injection
+- **CRITICAL: All `AbstractValidator<T>` classes must be placed in `Services/Validation` folder/namespace**
 
 #### Business Validation Pattern:
 - Create validation services inheriting from `ServiceValidatorBase`
@@ -162,6 +163,11 @@ builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 // Register business validation services
 builder.Services.AddTransient<IWorkerSchedulerValidationService, WorkerSchedulerValidationService>();
 ```
+
+#### File Organization:
+- **FluentValidation validators** (`AbstractValidator<T>`) → `Services/Validation/`
+- **Business validation services** → `Services/Validation/`
+- **Example**: `ReassignWorkerRequestValidator : AbstractValidator<ReassignWorkerRequest>` → `Services/Validation/ReassignWorkerRequestValidator.cs`
 
 ### 5. Repository Pattern & UnitOfWork
 

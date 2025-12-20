@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using ShiftAssignerServer.Requests;
 using ShiftAssignerServer.Services;
 using ShiftAssignerServer.Models;
+using ShiftAssignerServer.Controllers.Attributes;
 
 namespace ShiftAssignerServer.Controllers;
 
@@ -24,6 +25,7 @@ public class TeamHierarchyController : TenantControllerBase
 
 
     // POST: api/v1/StuffBookings/reassign
+    [OnlyRole(RoleState.ShiftLeader)]
     [HttpPost(ReassignRoute)]
     public async Task<ActionResult<ReassignWorkerResponse>> Reassign([FromBody] ReassignWorkerRequest request)
     {
@@ -42,12 +44,6 @@ public class TeamHierarchyController : TenantControllerBase
         if (!TryGetPersonInfo(out string? currentShiftLeaderId, out RoleState? role))
         {
             return Unauthorized("Valid shift leader authentication required");
-        }
-
-        // Verify that the requesting user is a shift leader
-        if (role != RoleState.ShiftLeader)
-        {
-            return Forbid("Only shift leaders can reassign workers");
         }
 
         // Perform reassignment

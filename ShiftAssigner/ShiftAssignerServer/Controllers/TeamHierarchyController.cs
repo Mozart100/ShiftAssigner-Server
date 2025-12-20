@@ -33,11 +33,6 @@ public class TeamHierarchyController : TenantControllerBase
 
         // Perform reassignment
         bool success = await _service.ReassignAsync(request);
-        
-        if (!success)
-        {
-            return BadRequest("Failed to reassign workers. Please check that all worker IDs are valid and currently assigned.");
-        }
 
         var response = new ReassignWorkerResponse
         {
@@ -49,35 +44,15 @@ public class TeamHierarchyController : TenantControllerBase
     }
 
     // GET: api/v1/StuffBookings/shiftleader/{shiftLeaderId}/workers
+    [OnlyRole(RoleState.ShiftLeader)]
     [HttpGet(ShiftLeaderWorkersRoute)]
     public async Task<ActionResult<GetWorkerPerShiftLeaderResponse>> GetShiftLeaderWithWorkers(string shiftLeaderId)
     {
         // Extract shift leader info from JWT token to verify authorization
-        if (!TryGetPersonInfo(out string? currentShiftLeaderId, out RoleState? role))
-        {
-            return Unauthorized("Valid shift leader authentication required");
-        }
-
-        // Verify that the requesting user is a shift leader
-        if (role != RoleState.ShiftLeader)
-        {
-            return Forbid("Only shift leaders can access this information");
-        }
-
-        // Optional: Allow shift leaders to only view their own workers
-        // Uncomment the following lines if you want to restrict access
-        // if (currentShiftLeaderId != shiftLeaderId)
-        // {
-        //     return Forbid("You can only view your own workers");
-        // }
+        TryGetPersonInfo(out string? currentShiftLeaderId, out RoleState? role);
 
         var shiftLeaderWithWorkers = await _service.GetShiftLeaderWithWorkersAsync(shiftLeaderId);
         
-        if (shiftLeaderWithWorkers == null)
-        {
-            return NotFound($"Shift leader with ID '{shiftLeaderId}' not found");
-        }
-
         return Ok(shiftLeaderWithWorkers);
     }
 

@@ -2,6 +2,30 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "start-postgres-and-build",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "start-postgres",
+        "build"
+      ]
+    },
+    {
+      "label": "start-postgres",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-Command",
+        "Write-Host '🐘 Starting PostgreSQL Database...' -ForegroundColor Cyan; Write-Host '📋 Stopping existing postgres14 container...' -ForegroundColor Yellow; docker stop postgres14 2>$null; Write-Host '🗑️ Removing existing postgres14 container...' -ForegroundColor Yellow; docker rm postgres14 2>$null; Write-Host '🚀 Creating new PostgreSQL container...' -ForegroundColor Green; docker run --name postgres14 -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=shiftassigner -p 5432:5432 -d postgres:14; Write-Host '✅ PostgreSQL is ready on port 5432!' -ForegroundColor Green"
+      ],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
       "label": "build",
       "command": "dotnet",
       "type": "process",

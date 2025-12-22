@@ -5,7 +5,7 @@
       "name": "Launch ShiftAssignerServer",
       "type": "coreclr",
       "request": "launch",
-      "preLaunchTask": "build",
+      "preLaunchTask": "start-postgres-and-build",
       "program": "${workspaceFolder}/shift_assigner_server/ShiftAssignerServer/bin/Debug/net8.0/ShiftAssignerServer.dll",
       "args": [],
       "cwd": "${workspaceFolder}/shift_assigner_server/ShiftAssignerServer",

@@ -1,3 +1,14 @@
 {
-  "dotnet.defaultSolution": "ShiftAssignerServer/ShiftAssignerServer.sln"
+  "dotnet.defaultSolution": "ShiftAssignerServer/ShiftAssignerServer.sln",
+  "terminal.integrated.profiles.windows": {
+    "Server-Powershell": {
+      "source": "PowerShell",
+      "args": ["-NoExit", "-Command", "cd 'C:\\MyDevelopment\\ShiftAssigner-Server\\shift_assigner_server'"]
+    },
+    "Client-Powershell": {
+      "source": "PowerShell",
+      "args": ["-NoExit", "-Command", "cd 'C:\\MyDevelopment\\ShiftAssigner-Server\\shift_assigner_client'"]
+    }
+  },
+  "terminal.integrated.defaultProfile.windows": "Server-Powershell"
 }

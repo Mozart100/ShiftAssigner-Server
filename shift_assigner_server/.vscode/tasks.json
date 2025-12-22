@@ -34,7 +34,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/ShiftAssignerServer.csproj",
+        "${workspaceFolder}/ShiftAssignerServer/ShiftAssignerServer.csproj",
         "-c",
         "Debug"
       ],
@@ -50,7 +50,7 @@
       "command": "powershell",
       "args": [
         "-Command",
-        "Start-Sleep 3; dotnet test '${workspaceFolder}/../ShiftAssignerServerTests/ShiftAssignerServer.Tests.csproj' --no-build --no-restore --logger 'console;verbosity=detailed'"
+        "Start-Sleep 3; dotnet test '${workspaceFolder}/ShiftAssignerServerTests/ShiftAssignerServer.Tests.csproj' --no-build --no-restore --logger 'console;verbosity=detailed'"
       ],
       "group": "test",
       "presentation": {

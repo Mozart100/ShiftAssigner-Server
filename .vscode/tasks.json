@@ -40,6 +40,99 @@
         "kind": "build",
         "isDefault": true
       }
+    },
+    {
+      "label": "start-emulator-and-expo",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "start-android-emulator",
+        "wait-for-emulator",
+        "install-expo-deps",
+        "start-expo"
+      ]
+    },
+    {
+      "label": "start-android-emulator",
+      "type": "shell",
+      "command": "emulator",
+      "args": ["-avd", "Pixel_4"],
+      "group": "build",
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": ".*"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*emulator.*",
+          "endsPattern": ".*boot completed.*|.*Ignore IPv6.*"
+        }
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "wait-for-emulator",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-Command",
+        "Write-Host '⏳ Waiting 10 seconds for emulator to boot...' -ForegroundColor Yellow; Start-Sleep -Seconds 10; Write-Host '✅ Ready to start Expo!' -ForegroundColor Green"
+      ],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "install-expo-deps",
+      "type": "shell",
+      "command": "npm",
+      "args": ["install"],
+      "options": {
+        "cwd": "${workspaceFolder}/shift_assigner_client"
+      },
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "start-expo",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "android"],
+      "options": {
+        "cwd": "${workspaceFolder}/shift_assigner_client"
+      },
+      "group": "build",
+      "isBackground": true,
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "new"
+      },
+      "problemMatcher": {
+        "pattern": {
+          "regexp": ".*"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*Starting.*",
+          "endsPattern": ".*Expo.*started.*|.*Metro.*ready.*"
+        }
+      }
     }
   ]
 }

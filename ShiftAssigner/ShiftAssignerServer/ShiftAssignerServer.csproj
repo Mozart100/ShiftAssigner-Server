@@ -29,6 +29,7 @@
 
   <ItemGroup>
     <Folder Include="Extensions\" />
+    <Folder Include="Images\" />
     <Folder Include="Startup\" />
   </ItemGroup>
 

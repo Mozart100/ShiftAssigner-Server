@@ -19,14 +19,15 @@
       "name": "Client - Launch ShiftAssigner",
       "type": "node",
       "request": "launch",
-      "preLaunchTask": "start-emulator-and-expo",
-      "program": "${workspaceFolder}/shift_assigner_client/node_modules/.bin/expo",
+      "preLaunchTask": "clean-and-start-expo",
+      "program": "${workspaceFolder}/shift_assigner_client/node_modules/@expo/cli/build/bin/cli",
       "args": ["start", "--android"],
       "cwd": "${workspaceFolder}/shift_assigner_client",
       "console": "integratedTerminal",
       "env": {
         "NODE_ENV": "development"
-      }
+      },
+      "skipFiles": ["<node_internals>/**"]
     }
   ]
 }

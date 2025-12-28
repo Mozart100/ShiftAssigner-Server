@@ -18,7 +18,7 @@ import {
 } from '../store/selectors';
 import { RoleState, TenantRegistrationActions } from '../store/tenantReducer';
 import { submitTenantRegistration } from '../store/actions';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { useAppDispatch, useAppSelector } from '../store';
 
 export const TenantRegistrationForm: React.FC = () => {
   const dispatch = useAppDispatch();

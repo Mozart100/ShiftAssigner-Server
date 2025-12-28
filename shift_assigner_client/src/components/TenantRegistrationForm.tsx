@@ -9,8 +9,7 @@ import {
   Alert,
   Switch
 } from 'react-native';
-import { RoleState, TenantRegistrationActions, BossTenant } from '../store/tenantReducer';
-import { submitTenantRegistration } from '../store/actions';
+import { RoleState, TenantRegistrationActions, BossTenant, submitTenantRegistration } from '../store/tenantReducer';
 import { RootState, useAppDispatch, useAppSelector } from '../store';
 import { useSelector } from 'react-redux';
 

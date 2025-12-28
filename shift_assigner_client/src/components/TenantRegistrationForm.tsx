@@ -16,9 +16,8 @@ import {
   selectIsFormValid,
   selectIsSuccess
 } from '../store/selectors';
-import { TenantRegistrationActions } from '../store/tenantReducer';
+import { RoleState, TenantRegistrationActions } from '../store/tenantReducer';
 import { submitTenantRegistration } from '../store/actions';
-import { RoleState } from '../store/types';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 
 export const TenantRegistrationForm: React.FC = () => {

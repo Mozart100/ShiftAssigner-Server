@@ -1,4 +1,4 @@
-import { TenantRegistrationState, BossTenant } from "./types";
+import { BossTenant, TenantRegistrationState } from "./tenantReducer";
 
 export const selectTenant = (state: { tenantRegistration: TenantRegistrationState }): BossTenant =>
   state.tenantRegistration.tenant;

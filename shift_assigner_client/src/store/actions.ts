@@ -1,10 +1,9 @@
 import { TenantRegistrationActions } from './tenantReducer';
-import { selectTenant } from './selectors';
 import { RootState } from './index';
 
 export const submitTenantRegistration = () => async (dispatch: any, getState: () => RootState) => {
   const state = getState();
-  const tenant = selectTenant(state);
+  const tenant = state.tenantRegistration.tenant;
 
   dispatch(TenantRegistrationActions.submitStart());
 

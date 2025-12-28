@@ -7,26 +7,29 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
-  Switch
+  Switch,
+  AppState
 } from 'react-native';
-import {
-  selectTenant,
-  selectIsSubmitting,
-  selectError,
-  selectIsFormValid,
-  selectIsSuccess
-} from '../store/selectors';
-import { RoleState, TenantRegistrationActions } from '../store/tenantReducer';
+import { RoleState, TenantRegistrationActions, BossTenant } from '../store/tenantReducer';
 import { submitTenantRegistration } from '../store/actions';
-import { useAppDispatch, useAppSelector } from '../store';
+import { RootState, useAppDispatch, useAppSelector } from '../store';
+import { useSelector } from 'react-redux';
 
 export const TenantRegistrationForm: React.FC = () => {
   const dispatch = useAppDispatch();
-  const tenant = useAppSelector(selectTenant);
-  const isSubmitting = useAppSelector(selectIsSubmitting);
-  const error = useAppSelector(selectError);
-  const isFormValid = useAppSelector(selectIsFormValid);
-  const isSuccess = useAppSelector(selectIsSuccess);
+  const tenant = useSelector<RootState, BossTenant>(state => state.tenantRegistration.tenant);
+  const isSubmitting = useSelector<RootState,boolean>(state=> state.tenantRegistration.isSubmitting);
+  const error = useSelector<RootState, string | undefined>(state => state.tenantRegistration.error);
+  const isFormValid = useSelector<RootState, boolean>(state => {
+    const { tenant } = state.tenantRegistration;
+    return (
+      tenant.firstName.trim() !== "" &&
+      tenant.lastName.trim() !== "" &&
+      tenant.phoneNumber.trim() !== "" &&
+      tenant.tenant.trim() !== ""
+    );
+  });
+  const isSuccess = useSelector<RootState, boolean>(state => state.tenantRegistration.isSuccess);
 
   const updateField = <K extends keyof typeof tenant>(key: K, value: typeof tenant[K]) => {
     dispatch(TenantRegistrationActions.setField({ key, value }));

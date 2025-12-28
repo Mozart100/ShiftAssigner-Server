@@ -7,8 +7,7 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
-  Switch,
-  AppState
+  Switch
 } from 'react-native';
 import { RoleState, TenantRegistrationActions, BossTenant } from '../store/tenantReducer';
 import { submitTenantRegistration } from '../store/actions';
@@ -17,10 +16,10 @@ import { useSelector } from 'react-redux';
 
 export const TenantRegistrationForm: React.FC = () => {
   const dispatch = useAppDispatch();
-  const tenant = useSelector<RootState, BossTenant>(state => state.tenantRegistration.tenant);
-  const isSubmitting = useSelector<RootState,boolean>(state=> state.tenantRegistration.isSubmitting);
-  const error = useSelector<RootState, string | undefined>(state => state.tenantRegistration.error);
-  const isFormValid = useSelector<RootState, boolean>(state => {
+  const tenant = useSelector<AppState, BossTenant>(state => state.tenantRegistration.tenant);
+  const isSubmitting = useSelector<AppState,boolean>(state=> state.tenantRegistration.isSubmitting);
+  const error = useSelector<AppState, string | undefined>(state => state.tenantRegistration.error);
+  const isFormValid = useSelector<AppState, boolean>(state => {
     const { tenant } = state.tenantRegistration;
     return (
       tenant.firstName.trim() !== "" &&
@@ -29,7 +28,7 @@ export const TenantRegistrationForm: React.FC = () => {
       tenant.tenant.trim() !== ""
     );
   });
-  const isSuccess = useSelector<RootState, boolean>(state => state.tenantRegistration.isSuccess);
+  const isSuccess = useSelector<AppState, boolean>(state => state.tenantRegistration.isSuccess);
 
   const updateField = <K extends keyof typeof tenant>(key: K, value: typeof tenant[K]) => {
     dispatch(TenantRegistrationActions.setField({ key, value }));

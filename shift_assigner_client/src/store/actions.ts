@@ -1,7 +1,7 @@
 import { TenantRegistrationActions } from './tenantReducer';
-import { RootState } from './index';
+import { AppState } from './index';
 
-export const submitTenantRegistration = () => async (dispatch: any, getState: () => RootState) => {
+export const submitTenantRegistration = () => async (dispatch: any, getState: () => AppState) => {
   const state = getState();
   const tenant = state.tenantRegistration.tenant;
 

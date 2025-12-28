@@ -91,7 +91,6 @@ export class TenantRegistrationReducer extends ImmerReducer<TenantRegistrationSt
 }
 
 export const TenantRegistrationActions = createActionCreators(TenantRegistrationReducer);
-
 export const tenantRegistrationReducer = createReducerFunction(
   TenantRegistrationReducer,
   initialTenantRegistrationState

@@ -7,7 +7,7 @@ export const rootReducer = combineReducers({
   tenantRegistration: tenantRegistrationReducer
 });
 
-export type RootState = ReturnType<typeof rootReducer>;
+export type AppState = ReturnType<typeof rootReducer>;
 
 export const store = configureStore({
   reducer: rootReducer,
@@ -23,4 +23,4 @@ export const store = configureStore({
 
 // Use throughout your app instead of plain `useDispatch` and `useSelector`
 export const useAppDispatch = () => useDispatch();
-export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
+export const useAppSelector: TypedUseSelectorHook<AppState> = useSelector;

@@ -5,15 +5,19 @@ import { NavigationContainer } from "@react-navigation/native";
 import { Provider } from "react-redux";
 import { store } from "./src/store";
 import { TenantRegistrationForm } from "./src/components/TenantRegistrationForm";
+import { LanguageSync } from "./src/localization";
+import './src/localization/i18n'; // Initialize i18n
 
 export default function App(): React.JSX.Element {
   return (
     <Provider store={store}>
-      <NavigationContainer>
-        <View style={styles.container}>
-          <TenantRegistrationForm />
-        </View>
-      </NavigationContainer>
+      <LanguageSync>
+        <NavigationContainer>
+          <View style={styles.container}>
+            <TenantRegistrationForm />
+          </View>
+        </NavigationContainer>
+      </LanguageSync>
       <StatusBar style="auto" />
     </Provider>
   );

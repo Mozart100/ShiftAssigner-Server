@@ -1,4 +1,5 @@
 import { ImmerReducer, createReducerFunction, createActionCreators } from "immer-reducer";
+import type { SupportedLanguage } from '../localization/i18n';
 
 export enum RoleState {
   Worker = "Worker",
@@ -30,6 +31,7 @@ export interface TenantRegistrationState {
   isSubmitting: boolean;
   isSuccess: boolean;
   error?: string;
+  currentLanguage: SupportedLanguage;
 }
 
 export const initialTenantRegistrationState: TenantRegistrationState = {
@@ -46,7 +48,8 @@ export const initialTenantRegistrationState: TenantRegistrationState = {
     shiftConfig: null
   },
   isSubmitting: false,
-  isSuccess: false
+  isSuccess: false,
+  currentLanguage: 'en'
 };
 
 export class TenantRegistrationReducer extends ImmerReducer<TenantRegistrationState> {
@@ -87,6 +90,10 @@ export class TenantRegistrationReducer extends ImmerReducer<TenantRegistrationSt
   clearMessages() {
     this.draftState.error = undefined;
     this.draftState.isSuccess = false;
+  }
+
+  setLanguage(language: SupportedLanguage) {
+    this.draftState.currentLanguage = language;
   }
 }
 

@@ -9,11 +9,14 @@ import {
   Alert,
   Switch
 } from 'react-native';
+import { useLanguage } from '../localization';
 import { RoleState, TenantRegistrationActions, BossTenant, submitTenantRegistration } from '../store/tenantReducer';
 import { RootState, useAppDispatch, useAppSelector } from '../store';
 import { useSelector } from 'react-redux';
+import { LanguageSwitcher } from './LanguageSwitcher';
 
 export const TenantRegistrationForm: React.FC = () => {
+  const { t } = useLanguage();
   const dispatch = useAppDispatch();
   const tenant = useSelector<AppState, BossTenant>(state => state.tenantRegistration.tenant);
   const isSubmitting = useSelector<AppState,boolean>(state=> state.tenantRegistration.isSubmitting);
@@ -35,7 +38,7 @@ export const TenantRegistrationForm: React.FC = () => {
 
   const handleSubmit = () => {
     if (!isFormValid) {
-      Alert.alert('Error', 'Please fill all required fields correctly');
+      Alert.alert(t('common.error'), t('tenantRegistration.messages.fillRequired'));
       return;
     }
     dispatch(submitTenantRegistration());
@@ -49,41 +52,42 @@ export const TenantRegistrationForm: React.FC = () => {
 
   React.useEffect(() => {
     if (isSuccess) {
-      Alert.alert('Success', 'Tenant registration completed successfully!');
+      Alert.alert(t('common.success'), t('tenantRegistration.messages.success'));
     }
-  }, [isSuccess]);
+  }, [isSuccess, t]);
 
   React.useEffect(() => {
     if (error) {
-      Alert.alert('Error', error);
+      Alert.alert(t('common.error'), error);
     }
-  }, [error]);
+  }, [error, t]);
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.title}>Tenant Registration</Text>
+      <LanguageSwitcher />
+      <Text style={styles.title}>{t('tenantRegistration.title')}</Text>
 
       {/* Personal Information */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Personal Information</Text>
+        <Text style={styles.sectionTitle}>{t('tenantRegistration.personalInfo')}</Text>
         
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>First Name *</Text>
+          <Text style={styles.label}>{t('tenantRegistration.firstName')} *</Text>
           <TextInput
             style={styles.input}
             value={tenant.firstName}
             onChangeText={(value) => updateField('firstName', value)}
-            placeholder="Enter first name"
+            placeholder={t('tenantRegistration.placeholders.firstName')}
           />
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Last Name *</Text>
+          <Text style={styles.label}>{t('tenantRegistration.lastName')} *</Text>
           <TextInput
             style={styles.input}
             value={tenant.lastName}
             onChangeText={(value) => updateField('lastName', value)}
-            placeholder="Enter last name"
+            placeholder={t('tenantRegistration.placeholders.lastName')}
           />
         </View>
 

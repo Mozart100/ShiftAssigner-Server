@@ -16,7 +16,7 @@ import { useSelector } from 'react-redux';
 import { LanguageSwitcher } from './LanguageSwitcher';
 
 export const TenantRegistrationForm: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, tPlural, tICU, isRTL, direction } = useLanguage(['tenantRegistration', 'common']);
   const dispatch = useAppDispatch();
   const tenant = useSelector<AppState, BossTenant>(state => state.tenantRegistration.tenant);
   const isSubmitting = useSelector<AppState,boolean>(state=> state.tenantRegistration.isSubmitting);
@@ -38,7 +38,7 @@ export const TenantRegistrationForm: React.FC = () => {
 
   const handleSubmit = () => {
     if (!isFormValid) {
-      Alert.alert(t('common.error'), t('tenantRegistration.messages.fillRequired'));
+      Alert.alert(t('common:error'), t('tenantRegistration:messages.fillRequired'));
       return;
     }
     dispatch(submitTenantRegistration());
@@ -52,42 +52,54 @@ export const TenantRegistrationForm: React.FC = () => {
 
   React.useEffect(() => {
     if (isSuccess) {
-      Alert.alert(t('common.success'), t('tenantRegistration.messages.success'));
+      Alert.alert(t('common:success'), t('tenantRegistration:messages.success'));
     }
   }, [isSuccess, t]);
 
   React.useEffect(() => {
     if (error) {
-      Alert.alert(t('common.error'), error);
+      Alert.alert(t('common:error'), error);
     }
   }, [error, t]);
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView 
+      style={[styles.container, { direction }]} 
+      contentContainerStyle={styles.contentContainer}
+      showsVerticalScrollIndicator={false}
+    >
       <LanguageSwitcher />
-      <Text style={styles.title}>{t('tenantRegistration.title')}</Text>
+      <Text style={[styles.title, { textAlign: isRTL ? 'right' : 'center' }]}>
+        {t('tenantRegistration:title')}
+      </Text>
 
       {/* Personal Information */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>{t('tenantRegistration.personalInfo')}</Text>
+        <Text style={[styles.sectionTitle, { textAlign: isRTL ? 'right' : 'left' }]}>
+          {t('tenantRegistration:personalInfo')}
+        </Text>
         
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>{t('tenantRegistration.firstName')} *</Text>
+          <Text style={[styles.label, { textAlign: isRTL ? 'right' : 'left' }]}>
+            {t('tenantRegistration:firstName')} *
+          </Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { textAlign: isRTL ? 'right' : 'left' }]}
             value={tenant.firstName}
             onChangeText={(value) => updateField('firstName', value)}
-            placeholder={t('tenantRegistration.placeholders.firstName')}
+            placeholder={t('tenantRegistration:placeholders.firstName')}
           />
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>{t('tenantRegistration.lastName')} *</Text>
+          <Text style={[styles.label, { textAlign: isRTL ? 'right' : 'left' }]}>
+            {t('tenantRegistration:lastName')} *
+          </Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { textAlign: isRTL ? 'right' : 'left' }]}
             value={tenant.lastName}
             onChangeText={(value) => updateField('lastName', value)}
-            placeholder={t('tenantRegistration.placeholders.lastName')}
+            placeholder={t('tenantRegistration:placeholders.lastName')}
           />
         </View>
 
@@ -206,8 +218,11 @@ export const TenantRegistrationForm: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
     backgroundColor: '#f5f5f5',
+  },
+  contentContainer: {
+    flexGrow: 1,
+    padding: 16,
   },
   title: {
     fontSize: 24,

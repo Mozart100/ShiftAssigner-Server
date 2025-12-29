@@ -1,7 +1,7 @@
 export default {
   title: "Регистрация арендатора",
   personalInfo: "Личная информация",
-  tenantInfo: "Информация об арендаторе", 
+  tenantInfo: "Информация о арендаторе", 
   shiftConfig: "Настройка смен",
   
   // Fields

@@ -104,50 +104,60 @@ export const TenantRegistrationForm: React.FC = () => {
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Phone Number *</Text>
+          <Text style={[styles.label, { textAlign: isRTL ? 'right' : 'left' }]}>
+            {t('tenantRegistration:phoneNumber')} *
+          </Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { textAlign: isRTL ? 'right' : 'left' }]}
             value={tenant.phoneNumber}
             onChangeText={(value) => updateField('phoneNumber', value)}
-            placeholder="Enter phone number"
+            placeholder={t('tenantRegistration:placeholders.phoneNumber')}
             keyboardType="phone-pad"
           />
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Date of Birth *</Text>
+          <Text style={[styles.label, { textAlign: isRTL ? 'right' : 'left' }]}>
+            {t('tenantRegistration:dateOfBirth')} *
+          </Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { textAlign: isRTL ? 'right' : 'left' }]}
             value={tenant.dateOfBirth}
             onChangeText={(value) => updateField('dateOfBirth', value)}
-            placeholder="YYYY-MM-DD"
+            placeholder={t('tenantRegistration:placeholders.dateOfBirth')}
           />
         </View>
       </View>
 
       {/* Tenant Information */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Tenant Information</Text>
+        <Text style={[styles.sectionTitle, { textAlign: isRTL ? 'right' : 'left' }]}>
+          {t('tenantRegistration:tenantInfo')}
+        </Text>
         
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Tenant Name *</Text>
+          <Text style={[styles.label, { textAlign: isRTL ? 'right' : 'left' }]}>
+            {t('tenantRegistration:tenantName')} *
+          </Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { textAlign: isRTL ? 'right' : 'left' }]}
             value={tenant.tenant}
             onChangeText={(value) => updateField('tenant', value)}
-            placeholder="Enter tenant/company name"
+            placeholder={t('tenantRegistration:placeholders.tenantName')}
           />
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Role</Text>
+          <Text style={[styles.label, { textAlign: isRTL ? 'right' : 'left' }]}>
+            {t('tenantRegistration:role')}
+          </Text>
           <View style={styles.roleContainer}>
           <TouchableOpacity 
             style={[styles.roleButton, tenant.role === RoleState.Boss && styles.roleButtonActive]}
             onPress={() => updateField('role', RoleState.Boss)}
           >
             <Text style={[styles.roleButtonText, tenant.role === RoleState.Boss && styles.roleButtonTextActive]}>
-              Boss
+              {t('tenantRegistration:roles.boss')}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity 
@@ -155,7 +165,7 @@ export const TenantRegistrationForm: React.FC = () => {
             onPress={() => updateField('role', RoleState.Admin)}
           >
             <Text style={[styles.roleButtonText, tenant.role === RoleState.Admin && styles.roleButtonTextActive]}>
-              Admin
+              {t('tenantRegistration:roles.admin')}
             </Text>
           </TouchableOpacity>
           </View>
@@ -164,10 +174,14 @@ export const TenantRegistrationForm: React.FC = () => {
 
       {/* Shift Configuration */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Shift Configuration</Text>
+        <Text style={[styles.sectionTitle, { textAlign: isRTL ? 'right' : 'left' }]}>
+          {t('tenantRegistration:shiftConfig')}
+        </Text>
         
         <View style={styles.shiftRow}>
-          <Text style={styles.shiftLabel}>Morning Shift</Text>
+          <Text style={[styles.shiftLabel, { textAlign: isRTL ? 'right' : 'left' }]}>
+            {t('tenantRegistration:shifts.morning')}
+          </Text>
           <Switch
             value={tenant.shiftConfig?.morning || false}
             onValueChange={(value) => handleShiftConfigChange('morning', value)}
@@ -175,7 +189,9 @@ export const TenantRegistrationForm: React.FC = () => {
         </View>
 
         <View style={styles.shiftRow}>
-          <Text style={styles.shiftLabel}>Day Shift</Text>
+          <Text style={[styles.shiftLabel, { textAlign: isRTL ? 'right' : 'left' }]}>
+            {t('tenantRegistration:shifts.day')}
+          </Text>
           <Switch
             value={tenant.shiftConfig?.day || false}
             onValueChange={(value) => handleShiftConfigChange('day', value)}
@@ -183,7 +199,9 @@ export const TenantRegistrationForm: React.FC = () => {
         </View>
 
         <View style={styles.shiftRow}>
-          <Text style={styles.shiftLabel}>Evening Shift</Text>
+          <Text style={[styles.shiftLabel, { textAlign: isRTL ? 'right' : 'left' }]}>
+            {t('tenantRegistration:shifts.evening')}
+          </Text>
           <Switch
             value={tenant.shiftConfig?.evening || false}
             onValueChange={(value) => handleShiftConfigChange('evening', value)}
@@ -198,7 +216,7 @@ export const TenantRegistrationForm: React.FC = () => {
         disabled={!isFormValid || isSubmitting}
       >
         <Text style={styles.submitButtonText}>
-          {isSubmitting ? 'Submitting...' : 'Register Tenant'}
+          {isSubmitting ? t('tenantRegistration:submitting') : t('tenantRegistration:register')}
         </Text>
       </TouchableOpacity>
 
@@ -207,7 +225,7 @@ export const TenantRegistrationForm: React.FC = () => {
         style={styles.resetButton}
         onPress={() => dispatch(TenantRegistrationActions.resetForm())}
       >
-        <Text style={styles.resetButtonText}>Reset Form</Text>
+        <Text style={styles.resetButtonText}>{t('tenantRegistration:resetForm')}</Text>
       </TouchableOpacity>
 
       <View style={styles.spacer} />

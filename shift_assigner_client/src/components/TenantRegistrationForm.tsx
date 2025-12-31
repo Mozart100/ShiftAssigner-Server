@@ -16,7 +16,7 @@ import { useSelector } from 'react-redux';
 import { LanguageSwitcher } from './LanguageSwitcher';
 
 export const TenantRegistrationForm: React.FC = () => {
-  const { t, tPlural, tICU, isRTL, direction } = useLanguage(['tenantRegistration', 'common']);
+  const { t, tPlural, tICU, isRTL, direction, textAlign } = useLanguage(['tenantRegistration', 'common']);
   const dispatch = useAppDispatch();
   const tenant = useSelector<AppState, BossTenant>(state => state.tenantRegistration.tenant);
   const isSubmitting = useSelector<AppState,boolean>(state=> state.tenantRegistration.isSubmitting);
@@ -75,16 +75,16 @@ export const TenantRegistrationForm: React.FC = () => {
 
       {/* Personal Information */}
       <View style={styles.section}>
-        <Text style={[styles.sectionTitle, { textAlign: isRTL ? 'right' : 'left' }]}>
+        <Text style={[styles.sectionTitle, { textAlign }]}>
           {t('tenantRegistration:personalInfo')}
         </Text>
         
         <View style={styles.inputGroup}>
-          <Text style={[styles.label, { textAlign: isRTL ? 'right' : 'left' }]}>
+          <Text style={[styles.label, { textAlign }]}>
             {t('tenantRegistration:firstName')} *
           </Text>
           <TextInput
-            style={[styles.input, { textAlign: isRTL ? 'right' : 'left' }]}
+            style={[styles.input, { textAlign }]}
             value={tenant.firstName}
             onChangeText={(value) => updateField('firstName', value)}
             placeholder={t('tenantRegistration:placeholders.firstName')}
@@ -92,11 +92,11 @@ export const TenantRegistrationForm: React.FC = () => {
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={[styles.label, { textAlign: isRTL ? 'right' : 'left' }]}>
+          <Text style={[styles.label, { textAlign }]}>
             {t('tenantRegistration:lastName')} *
           </Text>
           <TextInput
-            style={[styles.input, { textAlign: isRTL ? 'right' : 'left' }]}
+            style={[styles.input, { textAlign }]}
             value={tenant.lastName}
             onChangeText={(value) => updateField('lastName', value)}
             placeholder={t('tenantRegistration:placeholders.lastName')}
@@ -104,11 +104,11 @@ export const TenantRegistrationForm: React.FC = () => {
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={[styles.label, { textAlign: isRTL ? 'right' : 'left' }]}>
+          <Text style={[styles.label, { textAlign }]}>
             {t('tenantRegistration:phoneNumber')} *
           </Text>
           <TextInput
-            style={[styles.input, { textAlign: isRTL ? 'right' : 'left' }]}
+            style={[styles.input, { textAlign }]}
             value={tenant.phoneNumber}
             onChangeText={(value) => updateField('phoneNumber', value)}
             placeholder={t('tenantRegistration:placeholders.phoneNumber')}
@@ -117,11 +117,11 @@ export const TenantRegistrationForm: React.FC = () => {
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={[styles.label, { textAlign: isRTL ? 'right' : 'left' }]}>
+          <Text style={[styles.label, { textAlign }]}>
             {t('tenantRegistration:dateOfBirth')} *
           </Text>
           <TextInput
-            style={[styles.input, { textAlign: isRTL ? 'right' : 'left' }]}
+            style={[styles.input, { textAlign }]}
             value={tenant.dateOfBirth}
             onChangeText={(value) => updateField('dateOfBirth', value)}
             placeholder={t('tenantRegistration:placeholders.dateOfBirth')}
@@ -131,16 +131,16 @@ export const TenantRegistrationForm: React.FC = () => {
 
       {/* Tenant Information */}
       <View style={styles.section}>
-        <Text style={[styles.sectionTitle, { textAlign: isRTL ? 'right' : 'left' }]}>
+        <Text style={[styles.sectionTitle, { textAlign }]}>
           {t('tenantRegistration:tenantInfo')}
         </Text>
         
         <View style={styles.inputGroup}>
-          <Text style={[styles.label, { textAlign: isRTL ? 'right' : 'left' }]}>
+          <Text style={[styles.label, { textAlign }]}>
             {t('tenantRegistration:tenantName')} *
           </Text>
           <TextInput
-            style={[styles.input, { textAlign: isRTL ? 'right' : 'left' }]}
+            style={[styles.input, { textAlign }]}
             value={tenant.tenant}
             onChangeText={(value) => updateField('tenant', value)}
             placeholder={t('tenantRegistration:placeholders.tenantName')}
@@ -148,7 +148,7 @@ export const TenantRegistrationForm: React.FC = () => {
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={[styles.label, { textAlign: isRTL ? 'right' : 'left' }]}>
+          <Text style={[styles.label, { textAlign }]}>
             {t('tenantRegistration:role')}
           </Text>
           <View style={styles.roleContainer}>
@@ -174,12 +174,12 @@ export const TenantRegistrationForm: React.FC = () => {
 
       {/* Shift Configuration */}
       <View style={styles.section}>
-        <Text style={[styles.sectionTitle, { textAlign: isRTL ? 'right' : 'left' }]}>
+        <Text style={[styles.sectionTitle, { textAlign }]}>
           {t('tenantRegistration:shiftConfig')}
         </Text>
         
         <View style={styles.shiftRow}>
-          <Text style={[styles.shiftLabel, { textAlign: isRTL ? 'right' : 'left' }]}>
+          <Text style={[styles.shiftLabel, { textAlign }]}>
             {t('tenantRegistration:shifts.morning')}
           </Text>
           <Switch
@@ -189,7 +189,7 @@ export const TenantRegistrationForm: React.FC = () => {
         </View>
 
         <View style={styles.shiftRow}>
-          <Text style={[styles.shiftLabel, { textAlign: isRTL ? 'right' : 'left' }]}>
+          <Text style={[styles.shiftLabel, { textAlign }]}>
             {t('tenantRegistration:shifts.day')}
           </Text>
           <Switch
@@ -199,7 +199,7 @@ export const TenantRegistrationForm: React.FC = () => {
         </View>
 
         <View style={styles.shiftRow}>
-          <Text style={[styles.shiftLabel, { textAlign: isRTL ? 'right' : 'left' }]}>
+          <Text style={[styles.shiftLabel, { textAlign }]}>
             {t('tenantRegistration:shifts.evening')}
           </Text>
           <Switch

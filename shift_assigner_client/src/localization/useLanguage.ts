@@ -73,6 +73,9 @@ export const useLanguage = (namespace?: string | string[]) => {
     isRTL: isRTL(currentLanguage),
     direction: isRTL(currentLanguage) ? 'rtl' : 'ltr',
     textAlign: isRTL(currentLanguage) ? 'right' : 'left',
+    textAlignOpposite: isRTL(currentLanguage) ? 'left' : 'right',
+    alignSelf: isRTL(currentLanguage) ? 'flex-end' : 'flex-start',
+    alignSelfOpposite: isRTL(currentLanguage) ? 'flex-start' : 'flex-end',
     
     // Namespace helpers
     exists: (key: string) => i18n.exists(key),

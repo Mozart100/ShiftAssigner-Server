@@ -34,6 +34,13 @@ export default {
     evening: "Вечерняя смена"
   },
 
+  // Dynamic shifts
+  addShift: "Добавить смену",
+  removeShift: "Удалить",
+  shiftName: "Название смены",
+  shiftNamePlaceholder: "Введите название смены",
+  noShifts: "Смены не настроены. Нажмите 'Добавить смену' для создания первой смены.",
+
   // Actions
   register: "Зарегистрировать арендатора",
   submitting: "Отправка...",

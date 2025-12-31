@@ -34,6 +34,13 @@ export default {
     evening: "Evening Shift"
   },
 
+  // Dynamic shifts
+  addShift: "Add Shift",
+  removeShift: "Remove",
+  shiftName: "Shift Name",
+  shiftNamePlaceholder: "Enter shift name",
+  noShifts: "No shifts configured. Click 'Add Shift' to create your first shift.",
+
   // Actions  
   register: "Register Tenant",
   submitting: "Submitting...",

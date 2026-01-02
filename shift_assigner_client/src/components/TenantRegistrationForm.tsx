@@ -1,11 +1,5 @@
 import React, { useState } from 'react';
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
   Alert,
   Switch
 } from 'react-native';
@@ -15,12 +9,30 @@ import { RootState, useAppDispatch, useAppSelector } from '../store';
 import { useSelector } from 'react-redux';
 import { LanguageSwitcher } from './LanguageSwitcher';
 
+// Design System Components
+import {
+  Typography,
+  Heading4,
+  Heading5,
+  Label,
+  SafeContainer,
+  Section,
+  VStack,
+  HStack,
+  Button,
+  Input,
+  Heading6,
+  Heading3,
+  Heading1,
+  Heading2,
+} from '../design-system';
+
 export const TenantRegistrationForm: React.FC = () => {
   const { t, tPlural, tICU, isRTL, direction, textAlign } = useLanguage(['tenantRegistration', 'common']);
   const dispatch = useAppDispatch();
-  const tenant = useSelector<AppState, BossTenant>(state => state.tenantRegistration.tenant);
-  const isSubmitting = useSelector<AppState,boolean>(state=> state.tenantRegistration.isSubmitting);
-  const error = useSelector<AppState, string | undefined>(state => state.tenantRegistration.error);
+  const tenant = useSelector<RootState, BossTenant>(state => state.tenantRegistration.tenant);
+  const isSubmitting = useSelector<RootState,boolean>(state=> state.tenantRegistration.isSubmitting);
+  const error = useSelector<RootState, string | undefined>(state => state.tenantRegistration.error);
   
   // State for dynamic shifts
   const [shifts, setShifts] = useState<Array<{ id: string; name: string; enabled: boolean }>>([
@@ -29,7 +41,7 @@ export const TenantRegistrationForm: React.FC = () => {
     { id: '3', name: 'Evening Shift', enabled: false }
   ]);
   const [newShiftName, setNewShiftName] = useState('');
-  const isFormValid = useSelector<AppState, boolean>(state => {
+  const isFormValid = useSelector<RootState, boolean>(state => {
     const { tenant } = state.tenantRegistration;
     return (
       tenant.firstName.trim() !== "" &&
@@ -38,7 +50,7 @@ export const TenantRegistrationForm: React.FC = () => {
       tenant.tenant.trim() !== ""
     );
   });
-  const isSuccess = useSelector<AppState, boolean>(state => state.tenantRegistration.isSuccess);
+  const isSuccess = useSelector<RootState, boolean>(state => state.tenantRegistration.isSuccess);
 
   const updateField = <K extends keyof typeof tenant>(key: K, value: typeof tenant[K]) => {
     dispatch(TenantRegistrationActions.setField({ key, value }));
@@ -46,10 +58,10 @@ export const TenantRegistrationForm: React.FC = () => {
 
   const handleSubmit = () => {
     if (!isFormValid) {
-      Alert.alert(t('common:error'), t('tenantRegistration:messages.fillRequired'));
+      Alert.alert(t('common:error') as string, t('tenantRegistration:messages.fillRequired') as string);
       return;
     }
-    dispatch(submitTenantRegistration());
+    dispatch(submitTenantRegistration() as any);
   };
 
   const handleShiftConfigChange = (shift: keyof NonNullable<typeof tenant.shiftConfig>, value: boolean) => {
@@ -83,379 +95,192 @@ export const TenantRegistrationForm: React.FC = () => {
 
   React.useEffect(() => {
     if (isSuccess) {
-      Alert.alert(t('common:success'), t('tenantRegistration:messages.success'));
+      Alert.alert(t('common:success') as string, t('tenantRegistration:messages.success') as string);
     }
   }, [isSuccess, t]);
 
   React.useEffect(() => {
     if (error) {
-      Alert.alert(t('common:error'), error);
+      Alert.alert(t('common:error') as string, error);
     }
   }, [error, t]);
 
   return (
-    <ScrollView 
-      style={[styles.container, { direction }]} 
-      contentContainerStyle={styles.contentContainer}
-      showsVerticalScrollIndicator={false}
-    >
+    <SafeContainer>
       <LanguageSwitcher />
-      <Text style={[styles.title, { textAlign: isRTL ? 'right' : 'center' }]}>
-        {t('tenantRegistration:title')}
-      </Text>
+      
+      <Heading4 align="center" style={{ marginBottom: 24 }}>
+        {String(t('tenantRegistration:title'))}
+      </Heading4>
 
       {/* Personal Information */}
-      <View style={styles.section}>
-        <Text style={[styles.sectionTitle, { textAlign }]}>
-          {t('tenantRegistration:personalInfo')}
-        </Text>
+      <Section>
+        <Heading5 style={{ marginBottom: 24 }}>
+          {String(t('tenantRegistration:personalInfo'))}
+        </Heading5>
         
-        <View style={styles.inputGroup}>
-          <Text style={[styles.label, { textAlign }]}>
-            {t('tenantRegistration:firstName')} *
-          </Text>
-          <TextInput
-            style={[styles.input, { textAlign }]}
+        <VStack gap={4}>
+          <Input
+            label={`${String(t('tenantRegistration:firstName'))} *`}
             value={tenant.firstName}
             onChangeText={(value) => updateField('firstName', value)}
-            placeholder={t('tenantRegistration:placeholders.firstName')}
+            placeholder={String(t('tenantRegistration:placeholders.firstName'))}
           />
-        </View>
 
-        <View style={styles.inputGroup}>
-          <Text style={[styles.label, { textAlign }]}>
-            {t('tenantRegistration:lastName')} *
-          </Text>
-          <TextInput
-            style={[styles.input, { textAlign }]}
+          <Input
+            label={`${String(t('tenantRegistration:lastName'))} *`}
             value={tenant.lastName}
             onChangeText={(value) => updateField('lastName', value)}
-            placeholder={t('tenantRegistration:placeholders.lastName')}
+            placeholder={String(t('tenantRegistration:placeholders.lastName'))}
           />
-        </View>
 
-        <View style={styles.inputGroup}>
-          <Text style={[styles.label, { textAlign }]}>
-            {t('tenantRegistration:phoneNumber')} *
-          </Text>
-          <TextInput
-            style={[styles.input, { textAlign }]}
+          <Input
+            label={`${String(t('tenantRegistration:phoneNumber'))} *`}
             value={tenant.phoneNumber}
             onChangeText={(value) => updateField('phoneNumber', value)}
-            placeholder={t('tenantRegistration:placeholders.phoneNumber')}
+            placeholder={String(t('tenantRegistration:placeholders.phoneNumber'))}
             keyboardType="phone-pad"
           />
-        </View>
 
-        <View style={styles.inputGroup}>
-          <Text style={[styles.label, { textAlign }]}>
-            {t('tenantRegistration:dateOfBirth')} *
-          </Text>
-          <TextInput
-            style={[styles.input, { textAlign }]}
+          <Input
+            label={`${String(t('tenantRegistration:dateOfBirth'))} *`}
             value={tenant.dateOfBirth}
             onChangeText={(value) => updateField('dateOfBirth', value)}
-            placeholder={t('tenantRegistration:placeholders.dateOfBirth')}
+            placeholder={String(t('tenantRegistration:placeholders.dateOfBirth'))}
           />
-        </View>
-      </View>
+        </VStack>
+      </Section>
 
       {/* Tenant Information */}
-      <View style={styles.section}>
-        <Text style={[styles.sectionTitle, { textAlign }]}>
-          {t('tenantRegistration:tenantInfo')}
-        </Text>
+      <Section>
+        <Heading5 style={{ marginBottom: 16 }}>
+          {String(t('tenantRegistration:tenantInfo'))}
+        </Heading5>
         
-        <View style={styles.inputGroup}>
-          <Text style={[styles.label, { textAlign }]}>
-            {t('tenantRegistration:tenantName')} *
-          </Text>
-          <TextInput
-            style={[styles.input, { textAlign }]}
+        <VStack gap={4}>
+          <Input
+            label={`${String(t('tenantRegistration:tenantName'))} *`}
             value={tenant.tenant}
             onChangeText={(value) => updateField('tenant', value)}
-            placeholder={t('tenantRegistration:placeholders.tenantName')}
+            placeholder={String(t('tenantRegistration:placeholders.tenantName'))}
+            size='lg'
           />
-        </View>
 
-        <View style={styles.inputGroup}>
-          <Text style={[styles.label, { textAlign }]}>
-            {t('tenantRegistration:role')}
-          </Text>
-          <View style={styles.roleContainer}>
-          <TouchableOpacity 
-            style={[styles.roleButton, tenant.role === RoleState.Boss && styles.roleButtonActive]}
-            onPress={() => updateField('role', RoleState.Boss)}
-          >
-            <Text style={[styles.roleButtonText, tenant.role === RoleState.Boss && styles.roleButtonTextActive]}>
-              {t('tenantRegistration:roles.boss')}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.roleButton, tenant.role === RoleState.Admin && styles.roleButtonActive]}
-            onPress={() => updateField('role', RoleState.Admin)}
-          >
-            <Text style={[styles.roleButtonText, tenant.role === RoleState.Admin && styles.roleButtonTextActive]}>
-              {t('tenantRegistration:roles.admin')}
-            </Text>
-          </TouchableOpacity>
-          </View>
-        </View>
-      </View>
+          <VStack gap={2}>
+            <Label>{String(t('tenantRegistration:role'))}</Label>
+            <HStack gap={2}>
+              <Button
+                variant={tenant.role === RoleState.Boss ? 'primary' : 'outline-primary'}
+                size="md"
+                style={{ flex: 1 }}
+                onPress={() => updateField('role', RoleState.Boss)}
+              >
+                {String(t('tenantRegistration:roles.boss'))}
+              </Button>
+              <Button
+                variant={tenant.role === RoleState.Admin ? 'primary' : 'outline-primary'}
+                size="md"
+                style={{ flex: 1 }}
+                onPress={() => updateField('role', RoleState.Admin)}
+              >
+                {String(t('tenantRegistration:roles.admin'))}
+              </Button>
+            </HStack>
+          </VStack>
+        </VStack>
+      </Section>
 
       {/* Shift Configuration */}
-      <View style={styles.section}>
-        <Text style={[styles.sectionTitle, { textAlign }]}>
-          {t('tenantRegistration:shiftConfig')}
-        </Text>
+      <Section>
+        <Heading5 style={{ marginBottom: 16 }}>
+          {String(t('tenantRegistration:shiftConfig'))}
+        </Heading5>
         
-        {/* Add new shift input */}
-        <View style={styles.addShiftContainer}>
-          <TextInput
-            style={[styles.shiftInput, { textAlign }]}
-            value={newShiftName}
-            onChangeText={setNewShiftName}
-            placeholder={t('tenantRegistration:shiftNamePlaceholder')}
-          />
-          <TouchableOpacity 
-            style={[styles.addButton, !newShiftName.trim() && styles.addButtonDisabled]}
-            onPress={addShift}
-            disabled={!newShiftName.trim()}
-          >
-            <Text style={styles.addButtonText}>
-              {t('tenantRegistration:addShift')}
-            </Text>
-          </TouchableOpacity>
-        </View>
+        <VStack gap={4}>
+          {/* Add new shift input */}
+          <HStack gap={2}>
+            <Input
+              value={newShiftName}
+              onChangeText={setNewShiftName}
+              placeholder={String(t('tenantRegistration:shiftNamePlaceholder'))}
+              containerStyle={{ flex: 1 }}
+            />
+            <Button
+              variant="success"
+              size="md"
+              disabled={!newShiftName.trim()}
+              onPress={addShift}
+            >
+              {String(t('tenantRegistration:addShift'))}
+            </Button>
+          </HStack>
 
-        {/* Dynamic shift list */}
-        {shifts.length === 0 ? (
-          <Text style={[styles.noShiftsText, { textAlign }]}>
-            {t('tenantRegistration:noShifts')}
-          </Text>
-        ) : (
-          shifts.map((shift) => (
-            <View key={shift.id} style={styles.shiftRow}>
-              <View style={styles.shiftInfo}>
-                <Text style={[styles.shiftLabel, { textAlign }]}>
-                  {shift.name}
-                </Text>
-                <TouchableOpacity 
-                  style={styles.removeButton}
-                  onPress={() => removeShift(shift.id)}
+          {/* Dynamic shift list */}
+          {shifts.length === 0 ? (
+            <Typography 
+              variant="body2" 
+              color="text-secondary" 
+              align="center"
+              italic
+              style={{ paddingVertical: 16 }}
+            >
+              {String(t('tenantRegistration:noShifts'))}
+            </Typography>
+          ) : (
+            <VStack gap={2}>
+              {shifts.map((shift) => (
+                <HStack 
+                  key={shift.id} 
+                  justify="space-between" 
+                  align="center"
+                  padding={3}
+                  style={{
+                    borderBottomWidth: 1,
+                    borderBottomColor: '#f0f0f0',
+                  }}
                 >
-                  <Text style={styles.removeButtonText}>
-                    {t('tenantRegistration:removeShift')}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          ))
-        )}
-      </View>
+                  <HStack align="center" gap={3} style={{ flex: 1 }}>
+                    <Typography variant="body1" style={{ flex: 1 }}>
+                      {shift.name}
+                    </Typography>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onPress={() => removeShift(shift.id)}
+                    >
+                      {String(t('tenantRegistration:removeShift'))}
+                    </Button>
+                  </HStack>
+                </HStack>
+              ))}
+            </VStack>
+          )}
+        </VStack>
+      </Section>
 
-      {/* Submit Button */}
-      <TouchableOpacity
-        style={[styles.submitButton, (!isFormValid || isSubmitting) && styles.submitButtonDisabled]}
-        onPress={handleSubmit}
-        disabled={!isFormValid || isSubmitting}
-      >
-        <Text style={styles.submitButtonText}>
-          {isSubmitting ? t('tenantRegistration:submitting') : t('tenantRegistration:register')}
-        </Text>
-      </TouchableOpacity>
+      {/* Action Buttons */}
+      <VStack gap={2} style={{ marginTop: 24 }}>
+        <Button
+          variant="primary"
+          size="lg"
+          fullWidth
+          loading={isSubmitting}
+          disabled={!isFormValid}
+          onPress={handleSubmit}
+        >
+          {isSubmitting ? String(t('tenantRegistration:submitting')) : String(t('tenantRegistration:register'))}
+        </Button>
 
-      {/* Reset Button */}
-      <TouchableOpacity
-        style={styles.resetButton}
-        onPress={() => dispatch(TenantRegistrationActions.resetForm())}
-      >
-        <Text style={styles.resetButtonText}>{t('tenantRegistration:resetForm')}</Text>
-      </TouchableOpacity>
-
-      <View style={styles.spacer} />
-    </ScrollView>
+        <Button
+          variant="outline-secondary"
+          size="md"
+          fullWidth
+          onPress={() => dispatch(TenantRegistrationActions.resetForm())}
+        >
+          {String(t('tenantRegistration:resetForm'))}
+        </Button>
+      </VStack>
+    </SafeContainer>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  contentContainer: {
-    flexGrow: 1,
-    padding: 16,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 24,
-    color: '#333',
-  },
-  section: {
-    backgroundColor: '#fff',
-    padding: 16,
-    marginBottom: 16,
-    borderRadius: 8,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 12,
-    color: '#333',
-  },
-  inputGroup: {
-    marginBottom: 16,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '500',
-    marginBottom: 4,
-    color: '#333',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 6,
-    padding: 12,
-    fontSize: 16,
-    backgroundColor: '#fff',
-  },
-  roleContainer: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  roleButton: {
-    flex: 1,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 6,
-    alignItems: 'center',
-    backgroundColor: '#fff',
-  },
-  roleButtonActive: {
-    backgroundColor: '#007AFF',
-    borderColor: '#007AFF',
-  },
-  roleButtonText: {
-    fontSize: 14,
-    color: '#333',
-  },
-  roleButtonTextActive: {
-    color: '#fff',
-    fontWeight: '500',
-  },
-  shiftRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  shiftLabel: {
-    fontSize: 16,
-    color: '#333',
-    flex: 1,
-  },
-  addShiftContainer: {
-    flexDirection: 'row',
-    marginBottom: 16,
-    gap: 8,
-  },
-  shiftInput: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 6,
-    padding: 12,
-    fontSize: 16,
-    backgroundColor: '#fff',
-  },
-  addButton: {
-    backgroundColor: '#28a745',
-    padding: 12,
-    borderRadius: 6,
-    justifyContent: 'center',
-    paddingHorizontal: 16,
-  },
-  addButtonDisabled: {
-    backgroundColor: '#6c757d',
-    opacity: 0.6,
-  },
-  addButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  shiftInfo: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  removeButton: {
-    backgroundColor: '#dc3545',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
-    marginLeft: 8,
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 1,
-  },
-  removeButtonText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-  },
-  noShiftsText: {
-    fontSize: 14,
-    color: '#666',
-    fontStyle: 'italic',
-    textAlign: 'center',
-    paddingVertical: 16,
-  },
-  submitButton: {
-    backgroundColor: '#007AFF',
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 24,
-  },
-  submitButtonDisabled: {
-    backgroundColor: '#ccc',
-  },
-  submitButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  resetButton: {
-    backgroundColor: '#fff',
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 8,
-    borderWidth: 1,
-    borderColor: '#ddd',
-  },
-  resetButtonText: {
-    color: '#333',
-    fontSize: 16,
-  },
-  spacer: {
-    height: 32,
-  },
-});

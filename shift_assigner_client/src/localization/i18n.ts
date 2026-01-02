@@ -17,7 +17,7 @@ export const isRTL = (language: string): boolean => RTL_LANGUAGES.includes(langu
 // Get device language or fallback to English
 export const getDeviceLanguage = (): SupportedLanguage => {
   try {
-    const locale = Localization.locale || Localization.locales?.[0] || 'en-US';
+    const locale = Localization.getLocales()?.[0]?.languageTag || 'en-US';
     const deviceLanguage = locale.split('-')[0]; // 'en-US' -> 'en'
     return supportedLanguages.includes(deviceLanguage as SupportedLanguage) 
       ? (deviceLanguage as SupportedLanguage) 
@@ -46,23 +46,10 @@ i18n
     // Advanced interpolation with ICU
     interpolation: {
       escapeValue: false, // React already escapes values
-      format: (value, format, lng) => {
-        if (format === 'uppercase') return value.toUpperCase();
-        if (format === 'lowercase') return value.toLowerCase();
-        if (format === 'capitalize') return value.charAt(0).toUpperCase() + value.slice(1);
-        if (format === 'currency') return new Intl.NumberFormat(lng, { style: 'currency', currency: 'USD' }).format(value);
-        if (format === 'date') return new Intl.DateTimeFormat(lng).format(new Date(value));
-        if (format === 'time') return new Intl.DateTimeFormat(lng, { timeStyle: 'short' }).format(new Date(value));
-        return value;
-      }
     },
 
-    // Pluralization rules (built into i18next)
-    pluralSeparator: '_',
-    contextSeparator: '_',
-
     // Enable debugging in development
-    debug: false, // Disable debug to avoid console spam
+    debug: false,
     
     // Namespace configuration for performance
     defaultNS: 'common',
@@ -76,20 +63,11 @@ i18n
     returnNull: false,
     returnEmptyString: false,
     
-    // Load missing keys
-    saveMissing: __DEV__, // Only in development
-    
     // Performance optimizations
     load: 'languageOnly', // Load 'en' instead of 'en-US'
     preload: supportedLanguages,
-    
-    // ICU options for advanced formatting
-    icu: {
-      memoize: true, // Cache parsed ICU messages
-      bindI18n: 'languageChanged', // Re-parse on language change
-    }
-  })
-  .catch((error) => {
+  } as any)
+  .catch((error: any) => {
     console.warn('i18n initialization failed:', error);
   });
 

@@ -7,12 +7,12 @@ export const I18nDemo: React.FC = () => {
   const [count, setCount] = React.useState(1);
 
   return (
-    <View style={[styles.container, { direction }]}>
+    <View style={styles.container}>
       <Text style={styles.title}>🌍 Advanced i18n Features</Text>
       
       {/* Basic Translation */}
       <Text style={styles.demo}>
-        Basic: {t('common:welcome', { name: 'John' })}
+        Basic: {String(t('common:welcome', { name: 'John' }))}
       </Text>
       
       {/* Pluralization */}
@@ -21,7 +21,7 @@ export const I18nDemo: React.FC = () => {
           <Text style={styles.button}>-</Text>
         </TouchableOpacity>
         <Text style={styles.demo}>
-          Plural: {tPlural('common:items', count)}
+          Plural: {String(tPlural('common:items', count))}
         </Text>
         <TouchableOpacity onPress={() => setCount(count + 1)}>
           <Text style={styles.button}>+</Text>

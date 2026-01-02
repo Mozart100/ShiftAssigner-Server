@@ -8,6 +8,7 @@ export const rootReducer = combineReducers({
 });
 
 export type AppState = ReturnType<typeof rootReducer>;
+export type RootState = AppState; // Export RootState alias
 
 export const store = configureStore({
   reducer: rootReducer,

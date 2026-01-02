@@ -79,7 +79,7 @@ export const Input: React.FC<InputProps> = ({
     if (variant === 'outlined') {
       return {
         ...baseStyle,
-        backgroundColor: size === 'lg' ? '#e8f5e8' : colors.background.paper, // Temporary green for lg
+        backgroundColor: size === 'lg' ? '#c9ffc9ff' : colors.background.paper, // Temporary green for lg
         borderWidth: 2,
         borderColor: error
           ? colors.danger[500]

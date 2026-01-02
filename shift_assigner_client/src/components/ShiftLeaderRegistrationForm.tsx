@@ -178,7 +178,7 @@ export const ShiftLeaderRegistrationForm: React.FC = () => {
             onChangeText={(value) => updateField('ID', value)}
             placeholder={String(t('shiftLeader:placeholders.id', 'Enter your ID'))}
             error={errors.ID}
-            size="lg"
+            size="md"
           />
 
           <Input
@@ -187,7 +187,7 @@ export const ShiftLeaderRegistrationForm: React.FC = () => {
             onChangeText={(value) => updateField('FirstName', value)}
             placeholder={String(t('shiftLeader:placeholders.firstName', 'Enter first name'))}
             error={errors.FirstName}
-            size="lg"
+            size="md"
           />
 
           <Input
@@ -196,7 +196,7 @@ export const ShiftLeaderRegistrationForm: React.FC = () => {
             onChangeText={(value) => updateField('LastName', value)}
             placeholder={String(t('shiftLeader:placeholders.lastName', 'Enter last name'))}
             error={errors.LastName}
-            size="lg"
+            size="md"
           />
 
           <Input
@@ -206,7 +206,7 @@ export const ShiftLeaderRegistrationForm: React.FC = () => {
             placeholder={String(t('shiftLeader:placeholders.phoneNumber', 'Enter phone number'))}
             keyboardType="phone-pad"
             error={errors.PhoneNumber}
-            size="lg"
+            size="md"
           />
 
           <Input
@@ -215,7 +215,7 @@ export const ShiftLeaderRegistrationForm: React.FC = () => {
             onChangeText={(value) => updateField('DateOfBirth', value)}
             placeholder={String(t('shiftLeader:placeholders.dateOfBirth', 'YYYY-MM-DD'))}
             error={errors.DateOfBirth}
-            size="lg"
+            size="md"
           />
         </VStack>
       </Section>

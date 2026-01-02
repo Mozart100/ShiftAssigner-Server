@@ -21,6 +21,7 @@ export interface BossTenant {
   dateOfBirth: string;
   role: RoleState;
   passwordHash: string;
+  password: string; // For registration form
   isActive: boolean;
   tenant: string;
   shiftConfig?: TenantShiftScheduling | null;
@@ -43,6 +44,7 @@ export const initialTenantRegistrationState: TenantRegistrationState = {
     dateOfBirth: "",
     role: RoleState.TenantBoss,
     passwordHash: "",
+    password: "",
     isActive: true,
     tenant: "",
     shiftConfig: null

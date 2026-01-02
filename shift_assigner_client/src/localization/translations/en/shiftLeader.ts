@@ -1,5 +1,4 @@
 export default {
-  translation: {
     // Title
     title: 'Shift Leader Registration',
     
@@ -55,5 +54,4 @@ export default {
     // Helper Text
     passwordHelp: 'Minimum 6 characters',
     notice: 'All fields marked with * are required. Your information will be used to create your shift leader account.',
-  }
 };

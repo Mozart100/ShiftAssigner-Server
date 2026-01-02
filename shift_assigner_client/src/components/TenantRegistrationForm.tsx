@@ -41,13 +41,23 @@ export const TenantRegistrationForm: React.FC = () => {
     { id: '3', name: 'Evening Shift', enabled: false }
   ]);
   const [newShiftName, setNewShiftName] = useState('');
+  
+  // Local state for confirm password (not stored in Redux)
+  const [confirmPassword, setConfirmPassword] = useState('');
+  
+  // Get password value from Redux state
+  const password = tenant.password;
   const isFormValid = useSelector<RootState, boolean>(state => {
     const { tenant } = state.tenantRegistration;
     return (
       tenant.firstName.trim() !== "" &&
       tenant.lastName.trim() !== "" &&
       tenant.phoneNumber.trim() !== "" &&
-      tenant.tenant.trim() !== ""
+      tenant.tenant.trim() !== "" &&
+      tenant.password.trim() !== "" &&
+      tenant.password.length >= 6 &&
+      confirmPassword.trim() !== "" &&
+      tenant.password === confirmPassword
     );
   });
   const isSuccess = useSelector<RootState, boolean>(state => state.tenantRegistration.isSuccess);
@@ -57,6 +67,18 @@ export const TenantRegistrationForm: React.FC = () => {
   };
 
   const handleSubmit = () => {
+    // Validate password
+    if (password.length < 6) {
+      Alert.alert(t('common:error') as string, 'Password must be at least 6 characters');
+      return;
+    }
+    
+    // Validate confirm password equals password
+    if (password !== confirmPassword) {
+      Alert.alert(t('common:error') as string, 'Passwords do not match');
+      return;
+    }
+    
     if (!isFormValid) {
       Alert.alert(t('common:error') as string, t('tenantRegistration:messages.fillRequired') as string);
       return;
@@ -167,6 +189,32 @@ export const TenantRegistrationForm: React.FC = () => {
           />
 
         </VStack>
+      </Section>
+
+      {/* Security Information */}
+      <Section>
+        <Heading5 style={{ marginBottom: 16 }}>
+          Security Information
+        </Heading5>
+        
+        <VStack gap={4}>
+          <Input
+            label="Password *"
+            value={password}
+            onChangeText={(value) => updateField('password', value)}
+            placeholder="Enter password"
+            secureTextEntry
+            helperText="Minimum 6 characters"
+            size="lg"
+          />
+          <Input
+            label="Confirm Password *"
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            placeholder="Confirm your password"
+            secureTextEntry
+            size="lg"
+          />        </VStack>
       </Section>
 
       {/* Shift Configuration */}

@@ -3,8 +3,8 @@ import type { SupportedLanguage } from '../localization/i18n';
 
 export enum RoleState {
   Worker = "Worker",
-  Boss = "Boss",
-  Admin = "Admin"
+  TenantBoss = "TenantBoss",
+  TeamLeader = "TeamLeader"
 }
 
 export interface TenantShiftScheduling {
@@ -41,7 +41,7 @@ export const initialTenantRegistrationState: TenantRegistrationState = {
     lastName: "",
     phoneNumber: "",
     dateOfBirth: "",
-    role: RoleState.Boss,
+    role: RoleState.TenantBoss,
     passwordHash: "",
     isActive: true,
     tenant: "",

@@ -166,27 +166,6 @@ export const TenantRegistrationForm: React.FC = () => {
             size='lg'
           />
 
-          <VStack gap={2}>
-            <Label>{String(t('tenantRegistration:role'))}</Label>
-            <HStack gap={2}>
-              <Button
-                variant={tenant.role === RoleState.Boss ? 'primary' : 'outline-primary'}
-                size="md"
-                style={{ flex: 1 }}
-                onPress={() => updateField('role', RoleState.Boss)}
-              >
-                {String(t('tenantRegistration:roles.boss'))}
-              </Button>
-              <Button
-                variant={tenant.role === RoleState.Admin ? 'primary' : 'outline-primary'}
-                size="md"
-                style={{ flex: 1 }}
-                onPress={() => updateField('role', RoleState.Admin)}
-              >
-                {String(t('tenantRegistration:roles.admin'))}
-              </Button>
-            </HStack>
-          </VStack>
         </VStack>
       </Section>
 

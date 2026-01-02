@@ -53,7 +53,7 @@ i18n
     
     // Namespace configuration for performance
     defaultNS: 'common',
-    ns: ['common', 'tenantRegistration', 'shiftLeader', 'auth', 'navigation'],
+    ns: ['common', 'tenantRegistration', 'shiftLeader', 'registration', 'auth', 'navigation'],
     
     // Key separator (supports nested keys like 'common.save')
     keySeparator: '.',

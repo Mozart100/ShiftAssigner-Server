@@ -4,7 +4,7 @@ import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { Provider } from "react-redux";
 import { store } from "./src/store";
-import { TenantRegistrationForm } from "./src/components/TenantRegistrationForm";
+import { RegistrationSelectionForm } from "./src/components/RegistrationSelectionForm";
 import { LanguageSync } from "./src/localization";
 import './src/localization/i18n'; // Initialize i18n
 
@@ -14,7 +14,7 @@ export default function App(): React.JSX.Element {
       <LanguageSync>
         <NavigationContainer>
           <View style={styles.container}>
-            <TenantRegistrationForm />
+            <RegistrationSelectionForm />
           </View>
         </NavigationContainer>
       </LanguageSync>

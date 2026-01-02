@@ -1,5 +1,4 @@
 export default {
-  translation: {
     // Main title and subtitle
     title: 'Register',
     subtitle: 'Sign in to your account or register your company.',
@@ -18,5 +17,4 @@ export default {
     // Help text
     helpText: 'Not sure which option to choose?',
     contactUs: 'Contact support for guidance',
-  }
 };

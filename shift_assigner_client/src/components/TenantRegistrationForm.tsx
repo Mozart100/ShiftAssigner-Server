@@ -107,7 +107,7 @@ export const TenantRegistrationForm: React.FC = () => {
 
   return (
     <SafeContainer>
-      <LanguageSwitcher />
+      {/* <LanguageSwitcher /> */}
       
       <Heading4 align="center" style={{ marginBottom: 24 }}>
         {String(t('tenantRegistration:title'))}

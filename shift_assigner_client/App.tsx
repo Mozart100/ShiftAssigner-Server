@@ -6,7 +6,8 @@ import { Provider } from "react-redux";
 import { store } from "./src/store";
 import { RegistrationSelectionForm } from "./src/components/RegistrationSelectionForm";
 import { LanguageSync } from "./src/localization";
-import './src/localization/i18n'; // Initialize i18n
+import "./src/localization/i18n"; // Initialize i18n
+import { LanguageSwitcher } from "./src/components/LanguageSwitcher";
 
 export default function App(): React.JSX.Element {
   return (
@@ -14,6 +15,7 @@ export default function App(): React.JSX.Element {
       <LanguageSync>
         <NavigationContainer>
           <View style={styles.container}>
+            <LanguageSwitcher />
             <RegistrationSelectionForm />
           </View>
         </NavigationContainer>

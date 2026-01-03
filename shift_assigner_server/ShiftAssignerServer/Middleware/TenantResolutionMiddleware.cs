@@ -60,23 +60,6 @@ public class TenantResolutionMiddleware
             }
         }
 
-        // 3. Fallback to X-TenantId header
-        // if (context.Request.Headers.TryGetValue(TenantIdHeaderName, out var headerValues))
-        // {
-        //     var tenantId = headerValues.ToString().Trim();
-        //     if (!string.IsNullOrWhiteSpace(tenantId))
-        //     {
-        //         return tenantId;
-        //     }
-        // }
-
-        // 4. For non-auth endpoints without tenant context, return error
-        // if (!requestPath.StartsWith("/api/v1/Auth/", StringComparison.OrdinalIgnoreCase))
-        // {
-        //     throw new UnauthorizedAccessException($"Tenant context could not be resolved. Provide either a valid JWT token or '{TenantIdHeaderName}' header.");
-        // }
-
-        // This should never be reached for auth endpoints, but return a safe fallback
         throw new BadHttpRequestException("Unable to resolve tenant context for the request.");
     }
 

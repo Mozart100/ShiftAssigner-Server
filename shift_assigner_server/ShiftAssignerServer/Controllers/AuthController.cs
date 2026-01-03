@@ -101,6 +101,7 @@ namespace ShiftAssignerServer.Controllers
         {
             // Debugger.Break();
             var tenant = _mapper.Map<BossTenant>(request);
+            tenant.Role = RoleState.Boss;
 
             // Create tenant schema in the database
             await _tenantService.CreateIfNoxExistedTenantSchemaAsync(tenant.Tenant);

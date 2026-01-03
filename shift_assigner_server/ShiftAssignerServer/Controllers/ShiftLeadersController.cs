@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ShiftAssignerServer.Controllers.Attributes;
 using ShiftAssignerServer.Models;
 using ShiftAssignerServer.Models.Stuff;
 using ShiftAssignerServer.Requests;
@@ -37,8 +38,11 @@ public class ShiftLeadersController : TenantControllerBase
 
     [Authorize]
     [HttpPost(Register_EndPoint)]
+    [OnlyRole(RoleState.Boss)]
     public async Task<ActionResult<RegisteringShiftLeaderResponse>> Registering([FromBody] RegisteringShiftLeaderRequest request)
     {
+        // TryGetPersonInfo(out string? shiftLeaderId, out var tmpRole );
+
         // Debugger.Break();
         var leader = _mapper.Map<ShiftLeader>(request);
         leader.Role = RoleState.ShiftLeader;

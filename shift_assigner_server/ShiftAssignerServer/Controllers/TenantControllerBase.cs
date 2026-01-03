@@ -54,13 +54,13 @@ public abstract class TenantControllerBase : ControllerBase
     /// <summary>
     /// Tries to get the current shift leader ID and role from the JWT token.
     /// </summary>
-    /// <param name="shiftLeaderId">When this method returns, contains the shift leader ID if found; otherwise, null.</param>
+    /// <param name="userId">When this method returns, contains the shift leader ID if found; otherwise, null.</param>
     /// <param name="role">When this method returns, contains the user role enum if found; otherwise, null.</param>
     /// <returns>True if both shift leader ID and role exist in the token</returns>
     [NonAction]
-    public bool TryGetPersonInfo(out string? shiftLeaderId, out RoleState? role)
+    public bool TryGetPersonInfo(out string? userId, out RoleState? role)
     {
-        shiftLeaderId = null;
+        userId = null;
         role = null;
 
         try
@@ -74,14 +74,16 @@ public abstract class TenantControllerBase : ControllerBase
             var token = authHeader.Substring("Bearer ".Length).Trim();
             var claims = _jwtService.ParseToken(token);
 
-            shiftLeaderId = claims.UserId;
+            userId = claims.UserId;
 
-            if (!string.IsNullOrEmpty(claims.Role) && Enum.TryParse<RoleState>(claims.Role, out var parsedRole))
+            if (!string.IsNullOrEmpty(claims.Role) && 
+                Enum.TryParse<RoleState>(claims.Role, out var parsedRole) && 
+                Enum.IsDefined(typeof(RoleState), parsedRole))
             {
                 role = parsedRole;
             }
 
-            return !string.IsNullOrEmpty(shiftLeaderId) && role.HasValue;
+            return !string.IsNullOrEmpty(userId) && role.HasValue;
         }
         catch
         {

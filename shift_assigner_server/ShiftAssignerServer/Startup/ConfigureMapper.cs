@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using ShiftAssignerServer.Models.Stuff;
+using ShiftAssignerServer.Models.WorkerScheduling;
 using ShiftAssignerServer.Requests;
 using static ShiftAssignerServer.Models.Stuff.Worker;
 
@@ -15,14 +16,16 @@ public class ConfigureMapper : Profile
         CreateMap<Models.Schema, AllTenantsResponse>();
         CreateMap<ShiftLeader, PubShiftLeader>();
         CreateMap<Worker, PubWorker>();
-        CreateMap<WorkerRegisteringRequest,Worker>();
+        CreateMap<WorkerRegisteringRequest, Worker>();
 
         CreateMap<TenantRegisterRequest, BossTenant>();
         CreateMap<LoginShiftLeaderRequest, ShiftLeader>();
         CreateMap<RegisteringShiftLeaderRequest, ShiftLeader>();
 
+        // CreateMap<TenantShiftScheduling, TenantRegisterRequest.TenantShiftInfo>();
+        CreateMap<TenantRegisterRequest, TenantShiftScheduling>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore()); // Let database generate the ID
 
-        
 
     }
 }

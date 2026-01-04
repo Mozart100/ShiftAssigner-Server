@@ -9,7 +9,7 @@ using ShiftAssignerServer.Requests;
 
 public interface ISchemaManagerService
 {
-    Task<bool> AddBossTenantAsync(TenantRegisterRequest request);
+    Task<bool> AddBossTenantWithSchedulingAsync(BossTenant tenant, TenantShiftScheduling tenantShiftScheduling);
     Task<bool> CreateIfNoxExistedTenantSchemaAsync(string companyName);
     Task<AllTenantsResponse> GetAllTenantsAsync();
 }
@@ -91,26 +91,16 @@ public class SchemaManagerService : ISchemaManagerService
             return result;
         }
 
-        // Filter only active tenants
-        // foreach (var tenant in tenants.Where(t => t.IsActive))
-        // {
-        //     result.Tenants.Add(tenant.CompanyName);
-        // }
-
-        return null;
+        return result;
     }
 
-    public async Task<bool> AddBossTenantAsync(TenantRegisterRequest request)
+    public async Task<bool> AddBossTenantWithSchedulingAsync(BossTenant tenant, TenantShiftScheduling tenantShiftScheduling)
     {
-        var bossTenant = _mapper.Map<BossTenant>(request);
-
-        var ptr = await _tenantUnitOfWork.BossTenantRepository.InsertAsync(bossTenant);
-
-        // Save ShiftConfig to the tenant-specific schema using repository
-        await SaveShiftConfigAsync(request.ShiftConfig);
-
+        var ptr = await _tenantUnitOfWork.BossTenantRepository.InsertAsync(tenant);
+        await SaveShiftConfigAsync(tenantShiftScheduling);
         return true;
     }
+
 
     private async Task SaveShiftConfigAsync(TenantShiftScheduling shiftConfig)
     {
@@ -121,6 +111,7 @@ public class SchemaManagerService : ISchemaManagerService
         // Use the repository pattern - AutoSaveMiddleware will handle SaveChanges
         await _tenantUnitOfWork.TenantShiftSchedulingRepository.InsertAsync(shiftConfig);
     }
+
 }
 
 public sealed class TenantModelCacheKeyFactory : IModelCacheKeyFactory

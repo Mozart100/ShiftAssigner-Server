@@ -13,6 +13,7 @@ using ShiftAssignerServer.Requests;
 using ShiftAssignerServer.Services;
 using ShiftAssignerServer.Services.Validation;
 using ShiftAssignerServer.Repositories;
+using ShiftAssignerServer.Models.WorkerScheduling;
 
 namespace ShiftAssignerServer.Controllers
 {
@@ -101,13 +102,15 @@ namespace ShiftAssignerServer.Controllers
         {
             // Debugger.Break();
             var tenant = _mapper.Map<BossTenant>(request);
+            var tenantShiftScheduling = _mapper.Map<TenantShiftScheduling>(request);
+
             tenant.Role = RoleState.Boss;
 
             // Create tenant schema in the database
             await _tenantService.CreateIfNoxExistedTenantSchemaAsync(tenant.Tenant);
             
             // Register the boss tenant in the tenant-specific schema
-            bool flag = await _tenantService.AddBossTenantAsync(request);
+            bool flag = await _tenantService.AddBossTenantWithSchedulingAsync(tenant,tenantShiftScheduling);
             
             // Add schema entry to the main schema registry
             await _mainSchemaService.AddTenantSchemaAsync(tenant.Tenant);

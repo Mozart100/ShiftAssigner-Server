@@ -9,6 +9,7 @@ using ShiftAssignerServer.Requests;
 using ShiftAssignerServer.Services.Validation;
 using ShiftAssignerServer.Tests.Common;
 using Xunit;
+using static ShiftAssignerServer.Models.WorkerScheduling.TenantShiftScheduling;
 
 namespace ShiftAssignerServer.Tests.Steps;
 
@@ -44,15 +45,14 @@ public class MultiTenantRegistrationSteps : FeatureStepBase
         foreach (var tenantGroup in shiftsByTenant)
         {
             var tenantId = tenantGroup.Key;
-            var shiftConfig = new TenantShiftScheduling
+            var request = new TenantRegisterRequest
             {
-                IsActive = true,
-                Shifts = new List<TenantShiftScheduling.ShiftInfo>()
+                Shifts = new List<ShiftInfo>()
             };
 
             foreach (var row in tenantGroup)
             {
-                shiftConfig.Shifts.Add(new TenantShiftScheduling.ShiftInfo
+                request.Shifts.Add(new ShiftInfo
                 {
                     ShiftName = row["ShiftName"],
                     MinimumAmountOfWorkers = int.Parse(row["MinWorkers"]),
@@ -60,8 +60,11 @@ public class MultiTenantRegistrationSteps : FeatureStepBase
                 });
             }
 
-            multiTenantData.Tenants[tenantId] = new TenantInfo { TenantId = tenantId };
-            multiTenantData.Tenants[tenantId].ShiftConfigForRegistration = shiftConfig;
+            multiTenantData.Tenants[tenantId] = new TenantInfo
+            {
+                TenantId = tenantId,
+                TenantRequest = request
+            };
         }
     }
 
@@ -640,7 +643,7 @@ public class MultiTenantRegistrationSteps : FeatureStepBase
             DateOfBirth = DateOnly.FromDateTime(DateTime.Now.AddYears(-30)),
             Tenant = $"MultiTenant_Company{tenantId}",
             PasswordHash = "BossPassword123",
-            ShiftConfig = multiTenantData.Tenants[tenantId].ShiftConfigForRegistration
+            Shifts = multiTenantData.Tenants[tenantId].ShiftConfig
         };
     }
 
@@ -682,10 +685,9 @@ public class TenantInfo
     public TenantRegisterResponse TenantResponse { get; set; } = new TenantRegisterResponse();
     public Dictionary<string, ShiftLeaderInfo> ShiftLeaders { get; set; } = new Dictionary<string, ShiftLeaderInfo>();
     public Dictionary<string, WorkerInfo> Workers { get; set; } = new Dictionary<string, WorkerInfo>();
-    public TenantShiftScheduling ShiftConfigForRegistration { get; set; } = new TenantShiftScheduling();
     public string TenantToken => TenantResponse.Token;
 
-    public TenantShiftScheduling ShiftConfig => TenantRequest.ShiftConfig;
+    public List<ShiftInfo> ShiftConfig => TenantRequest.Shifts;
 }
 
 public class ShiftLeaderInfo

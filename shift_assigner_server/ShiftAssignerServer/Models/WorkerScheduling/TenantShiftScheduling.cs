@@ -1,4 +1,12 @@
+using ShiftAssignerServer.Common;
+
 namespace ShiftAssignerServer.Models.WorkerScheduling;
+
+public interface IShiftMapper :IAutoMapperEntities
+{
+     List<TenantShiftScheduling.ShiftInfo> Shifts { get; set; } 
+
+}
 
 public class TenantShiftScheduling : IActiveEntity
 {
@@ -11,7 +19,7 @@ public class TenantShiftScheduling : IActiveEntity
 
     public class ShiftInfo
     {
-        public string ShiftName { get; set; } //Morning,Night
+        public string ShiftName { get; set; } = string.Empty; //Morning,Night
         public int MinimumAmountOfWorkers { get; set; }
         public int MaximumAmountOfWorkers { get; set; }
     }

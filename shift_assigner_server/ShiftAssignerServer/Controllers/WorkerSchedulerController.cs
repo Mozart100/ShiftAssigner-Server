@@ -29,7 +29,7 @@ public class WorkerSchedulerController : TenantControllerBase
     public async Task<ActionResult<CreateShiftPeriodSchedulingResponse>> CreateShiftPeriod([FromBody] CreateShiftPeriodSchedulingRequest request)
     {
         TryGetPersonInfo(out string? shiftLeaderId, out RoleState? _);
-
+        
         var record = await _workerSchedulerService.CreateNewWorkerRegisteringRequest(request, shiftLeaderId);
 
         var response = new CreateShiftPeriodSchedulingResponse
@@ -49,7 +49,7 @@ public class WorkerSchedulerController : TenantControllerBase
     public async Task<ActionResult<WorkerShiftPeriodSchedulingResponse>> GetWorkerShiftScheduling()
     {
         TryGetPersonInfo(out string? workerId, out RoleState? _);
-
+        
         var response = await _workerSchedulerService.GetWorkerShiftPeriodCurrentAndNextScheduling(workerId);
         return Ok(response);
     }

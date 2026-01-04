@@ -1,12 +1,8 @@
-using System;
-using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ShiftAssignerServer.Middleware;
 using ShiftAssignerServer.Models;
 using ShiftAssignerServer.Models.Stuff;
 using ShiftAssignerServer.Requests;
@@ -55,45 +51,6 @@ namespace ShiftAssignerServer.Controllers
             _validationService = validationService;
         }
 
-        [Authorize]
-        [HttpPost("register-worker")]
-        public async Task<ActionResult<RegisterResponse>> RegisterWorker([FromBody] RegisterRequest dto)
-        {
-            // Validate the registration request
-            _validationService.ValidateRegistration(dto, "Worker");
-
-            // Create typed Worker instance (constructor expects role and passwordHash)
-
-            var worker = _mapper.Map<Worker>(dto);
-            // var worker = new Worker(dto.ID, dto.FirstName, dto.LastName, dto.PhoneNumber, dto.DateOfBirth, dto.Tenant, RoleState.Worker, pwHash);
-            // _store.Add(worker, pwHash);
-            bool flag = await _workerService.AddWorkerAsync(worker);
-            var role = worker.Role.ToString(); // "Worker"
-
-            // Determine tenant for the token. Workers no longer carry tenant; if the DTO included a ShiftLeaderId
-            // we derive the tenant from that leader and create an initial assignment.
-            string tenantForToken = string.Empty;
-            if (!string.IsNullOrWhiteSpace(dto.ShiftLeaderId))
-            {
-                // try to find the leader's tenant and set it on the assignment and token
-                var leader = _shiftLeaderRepository.FirstOrDefault(x => x.ID.Equals(dto.ShiftLeaderId, StringComparison.InvariantCultureIgnoreCase));
-                tenantForToken = GetTenantOrEmpty();
-
-                var assignment = new TeamHierarchy
-                {
-                    WorkerId = worker.ID,
-                    ShiftLeaderId = dto.ShiftLeaderId,
-                    PeriodStart = DateOnly.FromDateTime(DateTime.UtcNow),
-                    PeriodEnd = null,
-                    Notes = "Assigned on registration"
-                };
-
-                await _shiftAssignmentService.AssignAsync(assignment);
-            }
-
-            var token = _jwt.GenerateToken(worker.ID, role, tenantForToken);
-            return Ok(new RegisterResponse { Token = token });
-        }
 
 
         [AllowAnonymous]

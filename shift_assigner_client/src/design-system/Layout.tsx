@@ -2,18 +2,25 @@
  * Layout Components - Bootstrap-inspired containers and utilities
  */
 
-import React from 'react';
-import { View, ViewStyle, ScrollView, ScrollViewProps } from 'react-native';
-import { spacing, colors, shadows, borderRadius } from './tokens';
+import React from "react";
+import { View, ViewStyle, ScrollView, ScrollViewProps } from "react-native";
+import { spacing, colors, shadows, borderRadius } from "./tokens";
 
 // Stack Component (Flexbox utility)
 interface StackProps {
-  direction?: 'row' | 'column';
-  align?: 'flex-start' | 'center' | 'flex-end' | 'stretch';
-  justify?: 'flex-start' | 'center' | 'flex-end' | 'space-between' | 'space-around' | 'space-evenly';
+  direction?: "row" | "column";
+  align?: "flex-start" | "center" | "flex-end" | "stretch";
+  justify?:
+    | "flex-start"
+    | "center"
+    | "flex-end"
+    | "space-between"
+    | "space-around"
+    | "space-evenly";
   gap?: keyof typeof spacing;
   padding?: keyof typeof spacing;
   margin?: keyof typeof spacing;
+  marginTop?: keyof typeof spacing;
   wrap?: boolean;
   flex?: number;
   style?: ViewStyle;
@@ -22,12 +29,13 @@ interface StackProps {
 }
 
 export const Stack: React.FC<StackProps> = ({
-  direction = 'column',
-  align = 'stretch',
-  justify = 'flex-start',
+  direction = "column",
+  align = "stretch",
+  justify = "flex-start",
   gap = 0,
   padding = 0,
   margin = 0,
+  marginTop = 0,
   wrap = false,
   flex,
   style,
@@ -41,7 +49,8 @@ export const Stack: React.FC<StackProps> = ({
     gap: spacing[gap],
     padding: spacing[padding],
     margin: spacing[margin],
-    flexWrap: wrap ? 'wrap' : 'nowrap',
+    marginTop: spacing[marginTop],
+    flexWrap: wrap ? "wrap" : "nowrap",
     ...(flex !== undefined && { flex }),
     ...style,
   };
@@ -54,12 +63,12 @@ export const Stack: React.FC<StackProps> = ({
 };
 
 // HStack (Horizontal Stack)
-export const HStack: React.FC<Omit<StackProps, 'direction'>> = (props) => (
+export const HStack: React.FC<Omit<StackProps, "direction">> = (props) => (
   <Stack direction="row" {...props} />
 );
 
 // VStack (Vertical Stack)
-export const VStack: React.FC<Omit<StackProps, 'direction'>> = (props) => (
+export const VStack: React.FC<Omit<StackProps, "direction">> = (props) => (
   <Stack direction="column" {...props} />
 );
 
@@ -84,11 +93,11 @@ export const Container: React.FC<ContainerProps> = ({
   testID,
 }) => {
   const containerStyle: ViewStyle = {
-    width: '100%',
+    width: "100%",
     paddingHorizontal: spacing[padding],
     marginHorizontal: spacing[margin],
     ...(maxWidth && { maxWidth }),
-    ...(!fluid && { alignSelf: 'center' }),
+    ...(!fluid && { alignSelf: "center" }),
     ...style,
   };
 
@@ -114,8 +123,8 @@ interface CardProps {
 export const Card: React.FC<CardProps> = ({
   padding = 4,
   margin = 0,
-  radius = 'base',
-  shadow = 'sm',
+  radius = "base",
+  shadow = "sm",
   backgroundColor = colors.background.paper,
   style,
   children,
@@ -157,11 +166,7 @@ export const Section: React.FC<SectionProps> = ({
 }) => {
   return (
     <Card padding={padding} margin={margin} style={style} testID={testID}>
-      {title && (
-        <VStack gap={3}>
-          {children}
-        </VStack>
-      )}
+      {title && <VStack gap={3}>{children}</VStack>}
       {!title && children}
     </Card>
   );

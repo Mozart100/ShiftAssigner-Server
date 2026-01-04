@@ -20,7 +20,6 @@ export interface BossTenant {
   phoneNumber: string;
   dateOfBirth: string;
   role: RoleState;
-  passwordHash: string;
   password: string; // For registration form
   isActive: boolean;
   tenant: string;

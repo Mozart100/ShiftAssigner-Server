@@ -1,30 +1,23 @@
 import React, { useState } from 'react';
 import {
-  Alert,
-  Switch
-} from 'react-native';
+  Alert} from 'react-native';
 import { useLanguage } from '../localization';
-import { RoleState, TenantRegistrationActions, BossTenant, submitTenantRegistration } from '../store/tenantReducer';
-import { RootState, useAppDispatch, useAppSelector } from '../store';
+import { TenantRegistrationActions, BossTenant, submitTenantRegistration } from '../store/tenantReducer';
+import { RootState, useAppDispatch } from '../store';
 import { useSelector } from 'react-redux';
-import { LanguageSwitcher } from './LanguageSwitcher';
+import { PasswordConfirmation } from './ConfirmPassword';
 
 // Design System Components
 import {
   Typography,
   Heading4,
   Heading5,
-  Label,
   SafeContainer,
   Section,
   VStack,
   HStack,
   Button,
   Input,
-  Heading6,
-  Heading3,
-  Heading1,
-  Heading2,
 } from '../design-system';
 
 export const TenantRegistrationForm: React.FC = () => {
@@ -42,8 +35,8 @@ export const TenantRegistrationForm: React.FC = () => {
   ]);
   const [newShiftName, setNewShiftName] = useState('');
   
-  // Local state for confirm password (not stored in Redux)
-  const [confirmPassword, setConfirmPassword] = useState('');
+  // State for password confirmation
+  const [isPasswordConfirmed, setIsPasswordConfirmed] = useState(false);
   
   // Get password value from Redux state
   const password = tenant.password;
@@ -56,8 +49,7 @@ export const TenantRegistrationForm: React.FC = () => {
       tenant.tenant.trim() !== "" &&
       tenant.password.trim() !== "" &&
       tenant.password.length >= 6 &&
-      confirmPassword.trim() !== "" &&
-      tenant.password === confirmPassword
+      isPasswordConfirmed
     );
   });
   const isSuccess = useSelector<RootState, boolean>(state => state.tenantRegistration.isSuccess);
@@ -67,18 +59,6 @@ export const TenantRegistrationForm: React.FC = () => {
   };
 
   const handleSubmit = () => {
-    // Validate password
-    if (password.length < 6) {
-      Alert.alert(t('common:error') as string, 'Password must be at least 6 characters');
-      return;
-    }
-    
-    // Validate confirm password equals password
-    if (password !== confirmPassword) {
-      Alert.alert(t('common:error') as string, 'Passwords do not match');
-      return;
-    }
-    
     if (!isFormValid) {
       Alert.alert(t('common:error') as string, t('tenantRegistration:messages.fillRequired') as string);
       return;
@@ -86,11 +66,11 @@ export const TenantRegistrationForm: React.FC = () => {
     dispatch(submitTenantRegistration() as any);
   };
 
-  const handleShiftConfigChange = (shift: keyof NonNullable<typeof tenant.shiftConfig>, value: boolean) => {
-    const currentConfig = tenant.shiftConfig || { morning: false, day: false, evening: false };
-    const newConfig = { ...currentConfig, [shift]: value };
-    dispatch(TenantRegistrationActions.setShiftConfig(newConfig));
+  const handlePasswordConfirm = (confirmedPassword: string) => {
+    updateField('password', confirmedPassword);
+    setIsPasswordConfirmed(true);
   };
+
 
   // Dynamic shift management functions
   const addShift = () => {
@@ -192,30 +172,11 @@ export const TenantRegistrationForm: React.FC = () => {
       </Section>
 
       {/* Security Information */}
-      <Section>
-        <Heading5 style={{ marginBottom: 16 }}>
-          Security Information
-        </Heading5>
-        
-        <VStack gap={4}>
-          <Input
-            label="Password *"
-            value={password}
-            onChangeText={(value) => updateField('password', value)}
-            placeholder="Enter password"
-            secureTextEntry
-            helperText="Minimum 6 characters"
-            size="lg"
-          />
-          <Input
-            label="Confirm Password *"
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            placeholder="Confirm your password"
-            secureTextEntry
-            size="lg"
-          />        </VStack>
-      </Section>
+      <PasswordConfirmation
+        onPasswordConfirm={handlePasswordConfirm}
+        title="Security Information"
+        minLength={6}
+      />
 
       {/* Shift Configuration */}
       <Section>

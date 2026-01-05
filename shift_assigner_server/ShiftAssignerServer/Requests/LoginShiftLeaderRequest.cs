@@ -4,6 +4,8 @@ public class LoginShiftLeaderRequest
 {
     public string ID { get; set; }
 
+    public string TenantName { get; set; }
+
     public string  Password { get; set; }
 
 }

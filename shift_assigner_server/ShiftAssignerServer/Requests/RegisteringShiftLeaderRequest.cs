@@ -10,8 +10,8 @@ public class RegisteringShiftLeaderRequest
     public DateOnly DateOfBirth { get; set; }
 }
 
-public class RegisteringShiftLeaderResponse : RegisterResponse
+public class RegisteringShiftLeaderResponse //: RegisterResponse
 {
-    public string Tenant { get; set; }
+    // public string Tenant { get; set; }
 }
 

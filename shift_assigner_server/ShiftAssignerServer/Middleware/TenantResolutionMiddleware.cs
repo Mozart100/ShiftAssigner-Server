@@ -50,6 +50,12 @@ public class TenantResolutionMiddleware
             return tenantId;
         }
 
+        if (requestPath.StartsWith($"/api/v1/ShiftLeaders/{ShiftLeadersController.Login_EndPoint}", StringComparison.OrdinalIgnoreCase))
+        {
+            var tenantId = await GetTenantFromBodyAsync(context);
+            return tenantId;
+        }
+
         // 2. For authenticated endpoints, try to extract tenant from JWT token
         if (context.Request.Headers.ContainsKey("Authorization"))
         {
@@ -61,6 +67,52 @@ public class TenantResolutionMiddleware
         }
 
         throw new BadHttpRequestException("Unable to resolve tenant context for the request.");
+    }
+
+    private async Task<string> GetTenantFromBodyAsync(HttpContext context)
+    {
+        try
+        {
+            // Enable buffering to allow reading the request body multiple times
+            context.Request.EnableBuffering();
+
+            // Reset position to beginning
+            context.Request.Body.Position = 0;
+
+            using (var reader = new StreamReader(context.Request.Body, leaveOpen: true))
+            {
+                var requestBody = await reader.ReadToEndAsync();
+
+                // Reset position for the controller to read it again
+                context.Request.Body.Position = 0;
+
+                if (!string.IsNullOrEmpty(requestBody))
+                {
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    };
+
+                    var loginRequest = JsonSerializer.Deserialize<LoginShiftLeaderRequest>(requestBody, options);
+
+                    if (loginRequest != null && !string.IsNullOrEmpty(loginRequest.TenantName))
+                    {
+                        return loginRequest.TenantName;
+                    }
+                }
+            }
+        }
+        catch (JsonException)
+        {
+            throw new BadHttpRequestException("Invalid JSON format in shift leader login request.");
+        }
+        catch (Exception)
+        {
+            throw new BadHttpRequestException("Error reading shift leader login request body.");
+        }
+
+        // If we reach here, tenant was not found or was empty
+        throw new BadHttpRequestException("Shift leader login request must contain a valid 'TenantName' field in the request body.");
     }
 
     private string GetTenantFromJwtToken(HttpContext context)

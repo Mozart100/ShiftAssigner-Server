@@ -9,7 +9,7 @@ using ShiftAssignerServer.Services;
 
 namespace ShiftAssignerServer.Controllers;
 
-[Authorize]
+// [Authorize]
 [ApiController]
 [Route("api/v1/[controller]")]
 public class ShiftLeadersController : TenantControllerBase
@@ -56,19 +56,21 @@ public class ShiftLeadersController : TenantControllerBase
 
         var role = leader.Role.ToString(); // "ShiftLeader"
         var token = _jwtService.GenerateToken(leader.ID, role, GetTenantOrEmpty());
-        return Ok(new RegisteringShiftLeaderResponse { Token = token });
+        return Ok(new RegisteringShiftLeaderResponse());
     }
 
-    [Authorize]
+    [AllowAnonymous]
     [HttpPost(Login_EndPoint)]
+    // [OnlyRole(RoleState.ShiftLeader)] // rely on id and password and Tenant which is used in middleware
     public async Task<ActionResult<LoginShiftLeaderResponse>> Login([FromBody] LoginShiftLeaderRequest request)
     {
+        TryGetPersonInfo(out string? shiftLeaderId, out var tmpRole);
         var tenant = GetTenant();
 
         bool flag = await _shiftLeaderService.LoginAsync(request);
 
-        var role =  RoleState.ShiftLeader.ToString(); // "ShiftLeader"
-        var token = _jwtService.GenerateToken(request.ID,role, GetTenantOrEmpty());
+        var role = RoleState.ShiftLeader.ToString(); // "ShiftLeader"
+        var token = _jwtService.GenerateToken(request.ID, role, GetTenantOrEmpty());
         return Ok(new LoginShiftLeaderResponse { Token = token });
     }
 

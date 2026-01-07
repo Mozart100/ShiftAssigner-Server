@@ -2,9 +2,11 @@ import { combineReducers, createStore } from "redux";
 import { configureStore } from "@reduxjs/toolkit";
 import { useDispatch, useSelector, TypedUseSelectorHook } from 'react-redux';
 import { tenantRegistrationReducer } from "./tenantReducer";
+import { loadingReducer } from "./loadingReducer";
 
 export const rootReducer = combineReducers({
-  tenantRegistration: tenantRegistrationReducer
+  tenantRegistration: tenantRegistrationReducer,
+  loading: loadingReducer,
 });
 
 export type AppState = ReturnType<typeof rootReducer>;

@@ -1,5 +1,6 @@
 import { ImmerReducer, createReducerFunction, createActionCreators } from "immer-reducer";
 import type { SupportedLanguage } from '../localization/i18n';
+import { startLoading, stopLoading, spinnerOperations } from './loadingReducer';
 
 export enum RoleState {
   Worker = "Worker",
@@ -122,6 +123,8 @@ export const submitTenantRegistration = () => async (dispatch: any, getState: an
   const state = getState();
   const tenant = state.tenantRegistration.tenant;
 
+  // Start global loading with predefined operation ID and message
+  dispatch(startLoading('registerTenant')); // Will use "register Tenant" message
   dispatch(TenantRegistrationActions.submitStart());
 
   try {
@@ -130,6 +133,7 @@ export const submitTenantRegistration = () => async (dispatch: any, getState: an
     
     if (validationError) {
       dispatch(TenantRegistrationActions.submitFailure(validationError));
+      dispatch(stopLoading('registerTenant'));
       return;
     }
 
@@ -160,5 +164,8 @@ export const submitTenantRegistration = () => async (dispatch: any, getState: an
     const errorMessage = error instanceof Error ? error.message : "Registration failed";
     dispatch(TenantRegistrationActions.submitFailure(errorMessage));
     console.error('Registration error:', error);
+  } finally {
+    // Stop global loading
+    dispatch(stopLoading('registerTenant'));
   }
 };

@@ -17,6 +17,9 @@ export * from './Layout';
 export * from './Button';
 export * from './Input';
 
+// Loading Components
+export * from './Spinner';
+
 // Theme object for easy access
 export const theme = {
   colors: require('./tokens').colors,

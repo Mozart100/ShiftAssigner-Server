@@ -6,6 +6,7 @@ import { TenantRegistrationActions, BossTenant, submitTenantRegistration, initia
 import { RootState, useAppDispatch } from '../store';
 import { useSelector } from 'react-redux';
 import { PasswordConfirmation } from './ConfirmPassword';
+import { GlobalSpinner } from './GlobalSpinner';
 
 // Design System Components
 import {
@@ -18,6 +19,7 @@ import {
   HStack,
   Button,
   Input,
+  Spinner,
 } from '../design-system';
 
 export const TenantRegistrationForm: React.FC = () => {
@@ -111,8 +113,12 @@ export const TenantRegistrationForm: React.FC = () => {
   }, [error, t]);
 
   return (
-    <SafeContainer>
-      {/* <LanguageSwitcher /> */}
+    <>
+      {/* Global loading handled by GlobalSpinner - outside SafeContainer for full screen coverage */}
+      <GlobalSpinner />
+      
+      <SafeContainer>
+        {/* <LanguageSwitcher /> */}
       
       <Heading4 align="center" style={{ marginBottom: 24 }}>
         {String(t('tenantRegistration:title'))}
@@ -272,6 +278,7 @@ export const TenantRegistrationForm: React.FC = () => {
         </Button>
       </VStack>
     </SafeContainer>
+    </>
   );
 };
 

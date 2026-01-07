@@ -36,17 +36,21 @@ export interface TenantRegistrationState {
 
 export const initialTenantRegistrationState: TenantRegistrationState = {
   tenant: {
-    id: "",
-    firstName: "",
-    lastName: "",
-    phoneNumber: "",
-    dateOfBirth: "",
+    id: "tenant_12345",
+    firstName: "John",
+    lastName: "Doe",
+    phoneNumber: "+1-555-123-4567",
+    dateOfBirth: "1985-03-15",
     role: RoleState.TenantBoss,
     passwordHash: "",
-    password: "",
+    password: "SecurePass123!",
     isActive: true,
-    tenant: "",
-    shiftConfig: null
+    tenant: "Acme Corporation",
+    shiftConfig: {
+      morning: true,
+      day: true,
+      evening: false
+    }
   },
   isSubmitting: false,
   isSuccess: false,

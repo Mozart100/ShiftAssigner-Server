@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   Alert} from 'react-native';
 import { useLanguage } from '../localization';
-import { TenantRegistrationActions, BossTenant, submitTenantRegistration } from '../store/tenantReducer';
+import { TenantRegistrationActions, BossTenant, submitTenantRegistration, initialTenantRegistrationState, TenantRegistrationReducer } from '../store/tenantReducer';
 import { RootState, useAppDispatch } from '../store';
 import { useSelector } from 'react-redux';
 import { PasswordConfirmation } from './ConfirmPassword';
@@ -23,9 +23,14 @@ import {
 export const TenantRegistrationForm: React.FC = () => {
   const { t, tPlural, tICU, isRTL, direction, textAlign } = useLanguage(['tenantRegistration', 'common']);
   const dispatch = useAppDispatch();
-  const tenant = useSelector<RootState, BossTenant>(state => state.tenantRegistration.tenant);
+  const reduxTenant = useSelector<RootState, BossTenant>(state => state.tenantRegistration.tenant);
   const isSubmitting = useSelector<RootState,boolean>(state=> state.tenantRegistration.isSubmitting);
   const error = useSelector<RootState, string | undefined>(state => state.tenantRegistration.error);
+  
+  // Local form state - not connected to Redux until submit
+  const [localTenant, setLocalTenant] = useState<BossTenant>(initialTenantRegistrationState.tenant);
+
+
   
   // State for dynamic shifts
   const [shifts, setShifts] = useState<Array<{ id: string; name: string; enabled: boolean }>>([
@@ -38,36 +43,34 @@ export const TenantRegistrationForm: React.FC = () => {
   // State for password confirmation
   const [isPasswordConfirmed, setIsPasswordConfirmed] = useState(false);
   
-  // Get password value from Redux state
-  const password = tenant.password;
-  const isFormValid = useSelector<RootState, boolean>(state => {
-    const { tenant } = state.tenantRegistration;
-    return (
-      tenant.firstName.trim() !== "" &&
-      tenant.lastName.trim() !== "" &&
-      tenant.phoneNumber.trim() !== "" &&
-      tenant.tenant.trim() !== "" &&
-      tenant.password.trim() !== "" &&
-      tenant.password.length >= 6 &&
-      isPasswordConfirmed
-    );
-  });
+  // Form validation using local state and reducer validation
+  const getValidationError = () => {
+    return TenantRegistrationReducer.validateTenant(localTenant);
+  };
+  
+  const isFormValid = getValidationError() === null && isPasswordConfirmed;
   const isSuccess = useSelector<RootState, boolean>(state => state.tenantRegistration.isSuccess);
 
-  const updateField = <K extends keyof typeof tenant>(key: K, value: typeof tenant[K]) => {
-    dispatch(TenantRegistrationActions.setField({ key, value }));
+  const updateLocalField = <K extends keyof BossTenant>(key: K, value: BossTenant[K]) => {
+    setLocalTenant(prev => ({ ...prev, [key]: value }));
   };
 
   const handleSubmit = () => {
-    if (!isFormValid) {
-      Alert.alert(t('common:error') as string, t('tenantRegistration:messages.fillRequired') as string);
+    const validationError = getValidationError();
+    
+    if (validationError || !isPasswordConfirmed) {
+      const errorMessage = validationError || "Please confirm your password";
+      Alert.alert(t('common:error') as string, errorMessage);
       return;
     }
+
+    // Now update Redux store with all the local form data
+    dispatch(TenantRegistrationActions.setTenant(localTenant));
     dispatch(submitTenantRegistration() as any);
   };
 
   const handlePasswordConfirm = (confirmedPassword: string) => {
-    updateField('password', confirmedPassword);
+    updateLocalField('password', confirmedPassword);
     setIsPasswordConfirmed(true);
   };
 
@@ -124,30 +127,30 @@ export const TenantRegistrationForm: React.FC = () => {
         <VStack gap={4}>
           <Input
             label={`${String(t('tenantRegistration:firstName'))} *`}
-            value={tenant.firstName}
-            onChangeText={(value) => updateField('firstName', value)}
+            value={localTenant.firstName}
+            onChangeText={(value) => updateLocalField('firstName', value)}
             placeholder={String(t('tenantRegistration:placeholders.firstName'))}
           />
 
           <Input
             label={`${String(t('tenantRegistration:lastName'))} *`}
-            value={tenant.lastName}
-            onChangeText={(value) => updateField('lastName', value)}
+            value={localTenant.lastName}
+            onChangeText={(value) => updateLocalField('lastName', value)}
             placeholder={String(t('tenantRegistration:placeholders.lastName'))}
           />
 
           <Input
             label={`${String(t('tenantRegistration:phoneNumber'))} *`}
-            value={tenant.phoneNumber}
-            onChangeText={(value) => updateField('phoneNumber', value)}
+            value={localTenant.phoneNumber}
+            onChangeText={(value) => updateLocalField('phoneNumber', value)}
             placeholder={String(t('tenantRegistration:placeholders.phoneNumber'))}
             keyboardType="phone-pad"
           />
 
           <Input
             label={`${String(t('tenantRegistration:dateOfBirth'))} *`}
-            value={tenant.dateOfBirth}
-            onChangeText={(value) => updateField('dateOfBirth', value)}
+            value={localTenant.dateOfBirth}
+            onChangeText={(value) => updateLocalField('dateOfBirth', value)}
             placeholder={String(t('tenantRegistration:placeholders.dateOfBirth'))}
           />
         </VStack>
@@ -162,8 +165,8 @@ export const TenantRegistrationForm: React.FC = () => {
         <VStack gap={4}>
           <Input
             label={`${String(t('tenantRegistration:tenantName'))} *`}
-            value={tenant.tenant}
-            onChangeText={(value) => updateField('tenant', value)}
+            value={localTenant.tenant}
+            onChangeText={(value) => updateLocalField('tenant', value)}
             placeholder={String(t('tenantRegistration:placeholders.tenantName'))}
             size='lg'
           />

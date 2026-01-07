@@ -8,10 +8,12 @@ export enum RoleState {
 }
 
 export interface TenantShiftScheduling {
-  morning: boolean;
-  day: boolean;
-  evening: boolean;
+  shiftName: string; // Morning, Night
+  minimumAmountOfWorkers: number;
+  maximumAmountOfWorkers: number;
 }
+
+
 
 export interface BossTenant {
   id: string;
@@ -23,7 +25,7 @@ export interface BossTenant {
   password: string; // For registration form
   isActive: boolean;
   tenant: string;
-  shiftConfig?: TenantShiftScheduling | null;
+  shiftConfig: TenantShiftScheduling[] | null;
 }
 
 export interface TenantRegistrationState {
@@ -46,11 +48,7 @@ export const initialTenantRegistrationState: TenantRegistrationState = {
     password: "SecurePass123!",
     isActive: true,
     tenant: "Acme Corporation",
-    shiftConfig: {
-      morning: true,
-      day: true,
-      evening: false
-    }
+    shiftConfig: []
   },
   isSubmitting: false,
   isSuccess: false,
@@ -62,7 +60,7 @@ export class TenantRegistrationReducer extends ImmerReducer<TenantRegistrationSt
     this.draftState.tenant[payload.key] = payload.value;
   }
 
-  setShiftConfig(config: TenantShiftScheduling) {
+  setShiftConfig(config: TenantShiftScheduling[]) {
     this.draftState.tenant.shiftConfig = config;
   }
 
@@ -100,6 +98,17 @@ export class TenantRegistrationReducer extends ImmerReducer<TenantRegistrationSt
   setLanguage(language: SupportedLanguage) {
     this.draftState.currentLanguage = language;
   }
+
+  static validateTenant(tenant: BossTenant): string | null {
+    if (!tenant.firstName.trim()) return "First name is required";
+    if (!tenant.lastName.trim()) return "Last name is required";
+    if (!tenant.phoneNumber.trim()) return "Phone number is required";
+    if (!tenant.tenant.trim()) return "Tenant name is required";
+    if (!tenant.password.trim()) return "Password is required";
+    if (tenant.password.length < 6) return "Password must be at least 6 characters";
+    
+    return null; // No validation errors
+  }
 }
 
 export const TenantRegistrationActions = createActionCreators(TenantRegistrationReducer);
@@ -116,9 +125,11 @@ export const submitTenantRegistration = () => async (dispatch: any, getState: an
   dispatch(TenantRegistrationActions.submitStart());
 
   try {
-    // Simple validation
-    if (!tenant.firstName.trim() || !tenant.lastName.trim() || !tenant.phoneNumber.trim() || !tenant.tenant.trim()) {
-      dispatch(TenantRegistrationActions.submitFailure("Please fill all required fields"));
+    // Validate using the static method
+    const validationError = TenantRegistrationReducer.validateTenant(tenant);
+    
+    if (validationError) {
+      dispatch(TenantRegistrationActions.submitFailure(validationError));
       return;
     }
 

@@ -46,7 +46,6 @@ export const initialTenantRegistrationState: TenantRegistrationState = {
     phoneNumber: "+1-555-123-4567",
     dateOfBirth: "1985-03-15",
     role: RoleState.TenantBoss,
-    passwordHash: "",
     password: "SecurePass123!",
     isActive: true,
     tenant: "Acme Corporation",

@@ -15,13 +15,13 @@ export const PasswordConfirmation: React.FC<PasswordConfirmationProps> = ({
     minLength = 6 
 }) => {
 
-    const [password, setPassword] = useState<string>("");
-    const [confirmPassword, setConfirmPassword] = useState<string>("");
+    const [password, setPassword] = useState<string>("123456");
+    const [confirmPassword, setConfirmPassword] = useState<string>("123456");
     const [error, setError] = useState<string>("");
 
     function resetPassword() {
-        setPassword("");
-        setConfirmPassword("");
+        setPassword("123456");
+        setConfirmPassword("123456");
         setError("");
     }
 

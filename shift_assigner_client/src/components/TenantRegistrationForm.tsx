@@ -7,6 +7,8 @@ import { RootState, useAppDispatch } from '../store';
 import { useSelector } from 'react-redux';
 import { PasswordConfirmation } from './ConfirmPassword';
 import { GlobalSpinner } from './GlobalSpinner';
+import { ToastContainer } from './ToastNotification';
+import { showError, showSuccess } from '../store/toastReducer';
 
 // Design System Components
 import {
@@ -50,8 +52,8 @@ export const TenantRegistrationForm: React.FC = () => {
     return TenantRegistrationReducer.validateTenant(localTenant);
   };
   
-  const isFormValid = getValidationError() === null && isPasswordConfirmed;
   const isSuccess = useSelector<RootState, boolean>(state => state.tenantRegistration.isSuccess);
+  const isFormValid = getValidationError() === null && isPasswordConfirmed;
 
   const updateLocalField = <K extends keyof BossTenant>(key: K, value: BossTenant[K]) => {
     setLocalTenant(prev => ({ ...prev, [key]: value }));
@@ -62,7 +64,7 @@ export const TenantRegistrationForm: React.FC = () => {
     
     if (validationError || !isPasswordConfirmed) {
       const errorMessage = validationError || "Please confirm your password";
-      Alert.alert(t('common:error') as string, errorMessage);
+      dispatch(showError(errorMessage));
       return;
     }
 
@@ -102,20 +104,23 @@ export const TenantRegistrationForm: React.FC = () => {
 
   React.useEffect(() => {
     if (isSuccess) {
-      Alert.alert(t('common:success') as string, t('tenantRegistration:messages.success') as string);
+      dispatch(showSuccess(t('tenantRegistration:messages.success') as string));
     }
-  }, [isSuccess, t]);
+  }, [isSuccess]);
 
   React.useEffect(() => {
     if (error) {
-      Alert.alert(t('common:error') as string, error);
+      dispatch(showError(error));
     }
-  }, [error, t]);
+  }, [error]);
 
   return (
     <>
       {/* Global loading handled by GlobalSpinner - outside SafeContainer for full screen coverage */}
       <GlobalSpinner />
+      
+      {/* Toast notifications */}
+      <ToastContainer />
       
       <SafeContainer>
         {/* <LanguageSwitcher /> */}

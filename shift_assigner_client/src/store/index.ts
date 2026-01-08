@@ -3,10 +3,12 @@ import { configureStore } from "@reduxjs/toolkit";
 import { useDispatch, useSelector, TypedUseSelectorHook } from 'react-redux';
 import { tenantRegistrationReducer } from "./tenantReducer";
 import { loadingReducer } from "./loadingReducer";
+import { toastReducer } from "./toastReducer";
 
 export const rootReducer = combineReducers({
   tenantRegistration: tenantRegistrationReducer,
   loading: loadingReducer,
+  toast: toastReducer,
 });
 
 export type AppState = ReturnType<typeof rootReducer>;

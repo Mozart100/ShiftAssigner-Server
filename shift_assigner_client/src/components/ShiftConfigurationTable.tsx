@@ -118,9 +118,30 @@ export const ShiftConfigurationTable: React.FC<ShiftConfigurationTableProps> = (
   return (
     <Section>
       <HStack justify="space-between" align="center" style={{ marginBottom: isLandscape ? 12 : 16 }}>
-        <Heading5>
-          {String(t('tenantRegistration:shiftConfig'))}
-        </Heading5>
+        <HStack gap={2} align="center">
+          <Heading5>
+            {String(t('tenantRegistration:shiftConfig'))}
+          </Heading5>
+          <TouchableOpacity
+            onPress={clearSelection}
+            style={{
+              backgroundColor: '#3b82f6',
+              paddingHorizontal: 12,
+              paddingVertical: 6,
+              borderRadius: 6,
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <Typography style={{ 
+              color: 'white', 
+              fontSize: 16,
+              fontWeight: '600'
+            }}>
+              📅
+            </Typography>
+          </TouchableOpacity>
+        </HStack>
         
         {shifts.length > 0 && selectedRowIndex !== null && (
           <HStack gap={1}>

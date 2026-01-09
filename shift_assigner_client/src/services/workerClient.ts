@@ -3,7 +3,7 @@
  * Handles all worker operations and shift management
  */
 
-import HttpClientBase from './httpClient';
+import HttpClientBase from './httpClientBase';
 
 export interface WorkerRegistrationRequest {
   id: string;
@@ -56,7 +56,7 @@ class WorkerClient extends HttpClientBase {
    * Register a new worker
    */
   async register(data: WorkerRegistrationRequest): Promise<{ token: string }> {
-    const response = await this.registerWorker(data);
+    const response = await this.post<WorkerRegistrationRequest, { token: string }>('/Workers/register', data);
     
     // Auto-store the auth token after successful registration
     if (response.token) {
@@ -70,7 +70,7 @@ class WorkerClient extends HttpClientBase {
    * Login existing worker
    */
   async login(credentials: WorkerLoginRequest): Promise<WorkerLoginResponse> {
-    const response = await this.loginWorker(credentials);
+    const response = await this.post<{ id: string; password: string }, { token: string }>('/Workers/login', credentials);
     
     // Auto-store the auth token after successful login
     if (response.token) {

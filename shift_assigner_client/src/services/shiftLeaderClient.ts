@@ -3,7 +3,8 @@
  * Handles all shift leader operations and team management
  */
 
-import HttpClientBase, { type ShiftLeaderRegistrationRequest, type ShiftLeaderRegistrationResponse } from './httpClient';
+import HttpClientBase from './httpClientBase';
+import type { ShiftLeaderRegistrationRequest, ShiftLeaderRegistrationResponse } from './httpClientBase';
 
 export interface ShiftLeaderProfile {
   id: string;
@@ -41,7 +42,10 @@ class ShiftLeaderClient extends HttpClientBase {
    * Register a new shift leader
    */
   async register(data: ShiftLeaderRegistrationRequest): Promise<ShiftLeaderRegistrationResponse> {
-    const response = await this.registerShiftLeader(data);
+    const response = await this.post<ShiftLeaderRegistrationRequest, ShiftLeaderRegistrationResponse>(
+      '/ShiftLeaders/register', 
+      data
+    );
     
     // Auto-store the auth token after successful registration
     if (response.token) {
@@ -55,7 +59,7 @@ class ShiftLeaderClient extends HttpClientBase {
    * Login existing shift leader
    */
   async login(credentials: ShiftLeaderLoginRequest): Promise<ShiftLeaderLoginResponse> {
-    const response = await this.loginShiftLeader(credentials);
+    const response = await this.post<{ id: string; password: string }, { token: string }>('/ShiftLeaders/login', credentials);
     
     // Auto-store the auth token after successful login
     if (response.token) {

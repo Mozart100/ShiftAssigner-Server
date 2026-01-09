@@ -3,7 +3,8 @@
  * Handles all tenant/boss organization management operations
  */
 
-import HttpClientBase, { type BossTenantRegistrationRequest, type BossTenantRegistrationResponse } from './httpClient';
+import HttpClientBase from './httpClientBase';
+import type { BossTenantRegistrationRequest, BossTenantRegistrationResponse } from './httpClientBase';
 
 export interface TenantShiftConfig {
   shiftName: string;
@@ -38,7 +39,10 @@ class TenantClient extends HttpClientBase {
    * Register a new boss tenant (organization owner)
    */
   async register(data: BossTenantRegistrationRequest): Promise<BossTenantRegistrationResponse> {
-    const response = await this.registerBossTenant(data);
+    const response = await this.post<BossTenantRegistrationRequest, BossTenantRegistrationResponse>(
+      '/Auth/register-boss-tenant', 
+      data
+    );
     
     // Auto-store the auth token after successful registration
     if (response.token) {

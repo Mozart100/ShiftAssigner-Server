@@ -1,6 +1,8 @@
 {
   "dependencies": {
     "@types/react": "~19.1.10",
-    "react-native-screens": "~4.16.0"
+    "react-dom": "^19.2.3",
+    "react-native-screens": "~4.16.0",
+    "react-native-web": "^0.21.2"
   }
 }

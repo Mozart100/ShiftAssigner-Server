@@ -5,7 +5,8 @@ import { showSuccess, showError } from './toastReducer';
 import type { RootState } from './index';
 import type { ThunkAction } from 'redux-thunk';
 import type { AnyAction } from 'redux';
-import { tenantClient } from '../services';
+import { apiClient } from '../services';
+import { BossTenantRegistrationRequest } from "../services/httpClientBase";
 
 export enum RoleState {
   Worker = "Worker",
@@ -125,6 +126,8 @@ export const tenantRegistrationReducer = createReducerFunction(
 // Async Actions with proper TypeScript typing
 export const submitTenantRegistration = (): ThunkAction<Promise<void>, RootState, unknown, AnyAction> => 
   async (dispatch, getState) => {
+
+    const {tenantClient}  = apiClient
     const state: RootState = getState();
     const tenant: BossTenant = state.tenantRegistration.tenant;
 
@@ -142,49 +145,44 @@ export const submitTenantRegistration = (): ThunkAction<Promise<void>, RootState
         return;
       }
 
-      // Import tenantClient for API call
-      // const { tenantClient } = await import('../services');
-
-      // Prepare registration data for API
       const registrationData = {
         ...tenant, 
-        role: 'Boss' // Override role property
+        role: 'Boss' 
       };
 
       console.log('🚀 Submitting tenant registration to server:', {
         ...registrationData,
-        password: '[REDACTED]' // Don't log password
+        password: '[REDACTED]' 
       });
       
-      // Send registration request to server using tenantClient
-      const response = await tenantClient.register(registrationData);
+      // const response = await tenantClient.register(registrationData);
       
-      // Handle successful registration
-      dispatch(TenantRegistrationActions.submitSuccess());
-      dispatch(TenantRegistrationActions.setField({ key: "id", value: response.id }));
+      // // Handle successful registration
+      // dispatch(TenantRegistrationActions.submitSuccess());
+      // dispatch(TenantRegistrationActions.setField({ key: "id", value: response.id }));
 
-      console.log('✅ Registration successful:', {
-        id: response.id,
-        tenant: response.tenant,
-        token: response.token ? '[RECEIVED]' : '[NOT_RECEIVED]'
-      });
+      // console.log('✅ Registration successful:', {
+      //   id: response.id,
+      //   tenant: response.tenant,
+      //   token: response.token ? '[RECEIVED]' : '[NOT_RECEIVED]'
+      // });
 
       // Note: tenantClient.register() automatically stores the auth token
 
     } catch (error: any) {
-      let errorMessage = "Registration failed";
+      // let errorMessage = "Registration failed";
       
-      // Handle different error types
-      if (error?.message) {
-        errorMessage = error.message;
-      } else if (error?.errors && Array.isArray(error.errors)) {
-        errorMessage = error.errors.join(', ');
-      } else if (typeof error === 'string') {
-        errorMessage = error;
-      }
+      // // Handle different error types
+      // if (error?.message) {
+      //   errorMessage = error.message;
+      // } else if (error?.errors && Array.isArray(error.errors)) {
+      //   errorMessage = error.errors.join(', ');
+      // } else if (typeof error === 'string') {
+      //   errorMessage = error;
+      // }
 
-      console.error('❌ Registration error:', error);
-      dispatch(TenantRegistrationActions.submitFailure(errorMessage));
+      // console.error('❌ Registration error:', error);
+      // dispatch(TenantRegistrationActions.submitFailure(errorMessage));
     } finally {
       // Stop global loading
       dispatch(stopLoading('registerTenant'));

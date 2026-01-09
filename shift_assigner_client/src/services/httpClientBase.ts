@@ -54,52 +54,6 @@ export interface ShiftLeaderRegistrationResponse {
  * All domain-specific clients inherit from this base class
  */
 
-import axios, { AxiosInstance, AxiosResponse, AxiosRequestConfig } from 'axios';
-
-// Server Configuration
-const API_BASE_URL = 'https://localhost:7083/api/v1';
-
-export interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  message?: string;
-  errors?: string[];
-}
-
-export interface BossTenantRegistrationRequest {
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  dateOfBirth: string;
-  tenant: string;
-  password: string;
-  role: string;
-  shiftConfig: Array<{
-    shiftName: string;
-    minimumAmountOfWorkers: number;
-    maximumAmountOfWorkers: number;
-  }>;
-}
-
-export interface BossTenantRegistrationResponse {
-  token: string;
-  tenant: string;
-  id: string;
-}
-
-export interface ShiftLeaderRegistrationRequest {
-  id: string;
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  dateOfBirth: string;
-  password: string;
-}
-
-export interface ShiftLeaderRegistrationResponse {
-  token: string;
-}
-
 export abstract class HttpClientBase {
   protected client: AxiosInstance;
   protected authToken: string | null = null;
@@ -222,67 +176,11 @@ export abstract class HttpClientBase {
     return response.data;
   }
 
-  // Base API endpoints that all clients can use
-  
-  /**
-   * Register a new boss tenant (organization owner)
-   */
-  public async registerBossTenant(data: BossTenantRegistrationRequest): Promise<BossTenantRegistrationResponse> {
-    return this.post<BossTenantRegistrationRequest, BossTenantRegistrationResponse>(
-      '/Auth/register-boss-tenant', 
-      data
-    );
-  }
-
-  /**
-   * Register a new shift leader
-   */
-  public async registerShiftLeader(data: ShiftLeaderRegistrationRequest): Promise<ShiftLeaderRegistrationResponse> {
-    return this.post<ShiftLeaderRegistrationRequest, ShiftLeaderRegistrationResponse>(
-      '/ShiftLeaders/register', 
-      data
-    );
-  }
-
-  /**
-   * Login shift leader
-   */
-  public async loginShiftLeader(credentials: { id: string; password: string }): Promise<{ token: string }> {
-    return this.post<{ id: string; password: string }, { token: string }>('/ShiftLeaders/login', credentials);
-  }
-
-  /**
-   * Register worker
-   */
-  public async registerWorker(data: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    phoneNumber: string;
-    dateOfBirth: string;
-    password: string;
-  }): Promise<{ token: string }> {
-    return this.post('/Workers/register', data);
-  }
-
-  /**
-   * Login worker
-   */
-  public async loginWorker(credentials: { id: string; password: string }): Promise<{ token: string }> {
-    return this.post('/Workers/login', credentials);
-  }
-
   // Health check
   public async healthCheck(): Promise<{ status: string; timestamp: string }> {
     return this.get('/health');
   }
 }
 
-// Create a singleton instance for direct usage
-export const httpClient = new (class extends HttpClientBase {})();
-
-// Export the base class and instance
+// Export the base class as default
 export default HttpClientBase;
-
-// Export for easy access to types and client
-export default httpClient;

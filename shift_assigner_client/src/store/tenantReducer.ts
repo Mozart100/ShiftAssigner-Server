@@ -5,6 +5,7 @@ import { showSuccess, showError } from './toastReducer';
 import type { RootState } from './index';
 import type { ThunkAction } from 'redux-thunk';
 import type { AnyAction } from 'redux';
+import { tenantClient } from '../services';
 
 export enum RoleState {
   Worker = "Worker",
@@ -142,7 +143,7 @@ export const submitTenantRegistration = (): ThunkAction<Promise<void>, RootState
       }
 
       // Import tenantClient for API call
-      const { tenantClient } = await import('../services');
+      // const { tenantClient } = await import('../services');
 
       // Prepare registration data for API
       const registrationData = {

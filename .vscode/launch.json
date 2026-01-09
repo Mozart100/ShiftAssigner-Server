@@ -30,6 +30,24 @@
       "skipFiles": ["<node_internals>/**"]
     },
     {
+      "name": "DEBUG: Client - Mobile App",
+      "type": "node",
+      "request": "launch",
+      "preLaunchTask": "clean-and-start-expo",
+      "program": "${workspaceFolder}/shift_assigner_client/node_modules/@expo/cli/build/bin/cli",
+      "args": ["start", "--android"],
+      "cwd": "${workspaceFolder}/shift_assigner_client",
+      "console": "integratedTerminal",
+      "env": {
+        "NODE_ENV": "development",
+        "DEBUG": "expo:*",
+        "EXPO_DEBUG": "1"
+      },
+      "skipFiles": ["<node_internals>/**"],
+      "outputCapture": "console",
+      "trace": "verbose"
+    },
+    {
       "name": "Client - Launch ShiftAssigner (Delayed)",
       "type": "node",
       "request": "launch",

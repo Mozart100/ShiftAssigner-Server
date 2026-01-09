@@ -119,6 +119,22 @@
       }
     },
     {
+      "label": "wait-for-server",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-Command",
+        "Write-Host '⏳ Waiting 5 seconds for server to start...' -ForegroundColor Yellow; Start-Sleep -Seconds 5; Write-Host '✅ Server ready, starting client!' -ForegroundColor Green"
+      ],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
       "label": "install-expo-deps",
       "type": "shell",
       "command": "npm",

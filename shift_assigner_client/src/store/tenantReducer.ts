@@ -2,6 +2,9 @@ import { ImmerReducer, createReducerFunction, createActionCreators } from "immer
 import type { SupportedLanguage } from '../localization/i18n';
 import { startLoading, stopLoading, spinnerOperations } from './loadingReducer';
 import { showSuccess, showError } from './toastReducer';
+import type { RootState } from './index';
+import type { ThunkAction } from 'redux-thunk';
+import type { AnyAction } from 'redux';
 
 export enum RoleState {
   Worker = "Worker",
@@ -118,76 +121,71 @@ export const tenantRegistrationReducer = createReducerFunction(
   initialTenantRegistrationState
 );
 
-// Async Actions
-export const submitTenantRegistration = () => async (dispatch: any, getState: any) => {
-  const state = getState();
-  const tenant = state.tenantRegistration.tenant;
+// Async Actions with proper TypeScript typing
+export const submitTenantRegistration = (): ThunkAction<Promise<void>, RootState, unknown, AnyAction> => 
+  async (dispatch, getState) => {
+    const state: RootState = getState();
+    const tenant: BossTenant = state.tenantRegistration.tenant;
 
-  // Start global loading with predefined operation ID and message
-  dispatch(startLoading('registerTenant')); // Will use "register Tenant" message
-  dispatch(TenantRegistrationActions.submitStart());
+    // Start global loading with predefined operation ID and message
+    dispatch(startLoading('registerTenant')); // Will use "register Tenant" message
+    dispatch(TenantRegistrationActions.submitStart());
 
-  try {
-    // Validate using the static method
-    const validationError = TenantRegistrationReducer.validateTenant(tenant);
-    
-    if (validationError) {
-      dispatch(TenantRegistrationActions.submitFailure(validationError));
+    try {
+      // Validate using the static method
+      const validationError = TenantRegistrationReducer.validateTenant(tenant);
+      
+      if (validationError) {
+        dispatch(TenantRegistrationActions.submitFailure(validationError));
+        dispatch(stopLoading('registerTenant'));
+        return;
+      }
+
+      // Import tenantClient for API call
+      const { tenantClient } = await import('../services');
+
+      // Prepare registration data for API
+      const registrationData = {
+        ...tenant, 
+        role: 'Boss' // Override role property
+      };
+
+      console.log('🚀 Submitting tenant registration to server:', {
+        ...registrationData,
+        password: '[REDACTED]' // Don't log password
+      });
+      
+      // Send registration request to server using tenantClient
+      const response = await tenantClient.register(registrationData);
+      
+      // Handle successful registration
+      dispatch(TenantRegistrationActions.submitSuccess());
+      dispatch(TenantRegistrationActions.setField({ key: "id", value: response.id }));
+
+      console.log('✅ Registration successful:', {
+        id: response.id,
+        tenant: response.tenant,
+        token: response.token ? '[RECEIVED]' : '[NOT_RECEIVED]'
+      });
+
+      // Note: tenantClient.register() automatically stores the auth token
+
+    } catch (error: any) {
+      let errorMessage = "Registration failed";
+      
+      // Handle different error types
+      if (error?.message) {
+        errorMessage = error.message;
+      } else if (error?.errors && Array.isArray(error.errors)) {
+        errorMessage = error.errors.join(', ');
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+
+      console.error('❌ Registration error:', error);
+      dispatch(TenantRegistrationActions.submitFailure(errorMessage));
+    } finally {
+      // Stop global loading
       dispatch(stopLoading('registerTenant'));
-      return;
     }
-
-    // Import tenantClient for API call
-    const { tenantClient } = await import('../services');
-
-    // Prepare registration data for API
-    const registrationData = {
-      firstName: tenant.firstName,
-      lastName: tenant.lastName,
-      phoneNumber: tenant.phoneNumber,
-      dateOfBirth: tenant.dateOfBirth,
-      tenant: tenant.tenant,
-      password: tenant.password,
-      role: 'Boss', // Default role for boss tenant
-      shiftConfig: tenant.shiftConfig || []
-    };
-
-    console.log('🚀 Submitting tenant registration to server:', {
-      ...registrationData,
-      password: '[REDACTED]' // Don't log password
-    });
-    
-    // Send registration request to server using tenantClient
-    const response = await tenantClient.register(registrationData);
-    
-    // Handle successful registration
-    dispatch(TenantRegistrationActions.submitSuccess());
-    dispatch(TenantRegistrationActions.setField({ key: "id", value: response.id }));
-
-    console.log('✅ Registration successful:', {
-      id: response.id,
-      tenant: response.tenant,
-      token: response.token ? '[RECEIVED]' : '[NOT_RECEIVED]'
-    });
-
-    // Note: tenantClient.register() automatically stores the auth token
-
-  } catch (error: any) {
-    let errorMessage = "Registration failed";
-    
-    // Handle different error types
-    if (error?.message) {
-      errorMessage = error.message;
-    } else if (error?.errors && Array.isArray(error.errors)) {
-      errorMessage = error.errors.join(', ');
-    } else if (typeof error === 'string') {
-      errorMessage = error;
-    }
-
-    console.error('❌ Registration error:', error);
-    dispatch(TenantRegistrationActions.submitFailure(errorMessage));
-  } finally {
-    // Stop global loading
-    dispatch(stopLoading('registerTenant'));
-  }
-};
+  };

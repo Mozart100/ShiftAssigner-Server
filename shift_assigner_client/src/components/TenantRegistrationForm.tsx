@@ -139,7 +139,7 @@ export const TenantRegistrationForm: React.FC = () => {
     }
   }, [error]);
 
-  const stepLabels = ['Basic Info', 'Shift Config'];
+  const stepLabels = [String(t('tenantRegistration:stepBasicInfo')), String(t('tenantRegistration:stepShiftConfig'))];
   const currentStepNumber = currentStep === 'basic-info' ? 1 : 2;
   const screenData = Dimensions.get('window');
   const isLandscape = screenData.width > screenData.height;
@@ -192,7 +192,7 @@ export const TenantRegistrationForm: React.FC = () => {
               disabled={!isBasicInfoValid}
               onPress={handleContinue}
             >
-              Continue to Shift Configuration
+              {String(t('tenantRegistration:continueToShiftConfig'))}
             </Button>
           ) : (
             <VStack gap={2}>
@@ -203,7 +203,7 @@ export const TenantRegistrationForm: React.FC = () => {
                 loading={isSubmitting}
                 onPress={handleSubmit}
               >
-                {isSubmitting ? 'Creating Tenant...' : 'Complete Registration'}
+                {isSubmitting ? String(t('tenantRegistration:creatingTenant')) : String(t('tenantRegistration:completeRegistration'))}
               </Button>
               <Button
                 variant="outline-secondary"
@@ -211,7 +211,7 @@ export const TenantRegistrationForm: React.FC = () => {
                 fullWidth
                 onPress={handleBack}
               >
-                Back
+                {String(t('tenantRegistration:back'))}
               </Button>
             </VStack>
           )}
@@ -222,7 +222,7 @@ export const TenantRegistrationForm: React.FC = () => {
             fullWidth
             onPress={handleReset}
           >
-            Reset Form
+            {String(t('tenantRegistration:resetForm'))}
           </Button>
         </VStack>
       </SafeContainer>

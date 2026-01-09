@@ -36,15 +36,31 @@ export default {
 
   // Dynamic shifts
   addShift: "Добавить смену",
+  editShift: "Редактировать смену",
+  updateShift: "Обновить смену",
+  cancelEdit: "Отменить редактирование",
   removeShift: "Удалить",
   shiftName: "Название смены",
   shiftNamePlaceholder: "Введите название смены",
+  minWorkers: "Мин. работников",
+  maxWorkers: "Макс. работников",
+  action: "Действие",
   noShifts: "Смены не настроены. Нажмите 'Добавить смену' для создания первой смены.",
+  clearSelection: "Очистить выбор",
+  rowSelected: "Строка {number} выбрана",
 
   // Actions
   register: "Зарегистрировать арендатора",
+  completeRegistration: "ЗАВЕРШИТЬ РЕГИСТРАЦИЮ",
+  continueToShiftConfig: "Продолжить к настройке смен",
+  back: "НАЗАД",
   submitting: "Отправка...",
-  resetForm: "Сбросить форму",
+  resetForm: "СБРОСИТЬ ФОРМУ",
+  creatingTenant: "Создание арендатора...",
+  
+  // Step labels
+  stepBasicInfo: "Основная информация",
+  stepShiftConfig: "Настройка смен",
 
   // Messages with interpolation  
   messages: {

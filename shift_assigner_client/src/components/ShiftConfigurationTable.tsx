@@ -125,7 +125,7 @@ export const ShiftConfigurationTable: React.FC<ShiftConfigurationTableProps> = (
         {shifts.length > 0 && selectedRowIndex !== null && (
           <HStack gap={1}>
             <Typography variant="body2" style={{ color: '#6b7280', marginRight: 8 }}>
-              Row {selectedRowIndex + 1} selected
+              {String(t('tenantRegistration:rowSelected')).replace('{number}', String(selectedRowIndex + 1))}
             </Typography>
             <Button
               variant="outline-secondary"
@@ -133,7 +133,7 @@ export const ShiftConfigurationTable: React.FC<ShiftConfigurationTableProps> = (
               onPress={clearSelection}
               style={{ paddingHorizontal: 12 }}
             >
-              Clear Selection
+              {String(t('tenantRegistration:clearSelection'))}
             </Button>
           </HStack>
         )}
@@ -158,22 +158,22 @@ export const ShiftConfigurationTable: React.FC<ShiftConfigurationTableProps> = (
             marginBottom: isLandscape ? 8 : 12,
             color: '#374151'
           }}>
-            {selectedRowIndex !== null ? 'Edit Shift' : 'Add New Shift'}
+            {selectedRowIndex !== null ? String(t('tenantRegistration:editShift')) : String(t('tenantRegistration:addShift'))}
           </Typography>
           
           {isLandscape ? (
             // Landscape layout: compact horizontal form
             <HStack gap={1.5} align="flex-end">
               <Input
-                label="Shift Name"
+                label={String(t('tenantRegistration:shiftName')) + " *"}
                 value={newShift.shiftName}
                 onChangeText={(value) => setNewShift(prev => ({ ...prev, shiftName: value }))}
-                placeholder="Morning, Day, Night"
+                placeholder={String(t('tenantRegistration:shiftNamePlaceholder'))}
                 containerStyle={{ flex: 2.5 }}
                 size="sm"
               />
               <Input
-                label="Min"
+                label={String(t('tenantRegistration:minWorkers'))}
                 value={newShift.minimumAmountOfWorkers}
                 onChangeText={(value) => setNewShift(prev => ({ ...prev, minimumAmountOfWorkers: value }))}
                 placeholder="2"
@@ -182,7 +182,7 @@ export const ShiftConfigurationTable: React.FC<ShiftConfigurationTableProps> = (
                 size="sm"
               />
               <Input
-                label="Max"
+                label={String(t('tenantRegistration:maxWorkers'))}
                 value={newShift.maximumAmountOfWorkers}
                 onChangeText={(value) => setNewShift(prev => ({ ...prev, maximumAmountOfWorkers: value }))}
                 placeholder="5"
@@ -198,7 +198,7 @@ export const ShiftConfigurationTable: React.FC<ShiftConfigurationTableProps> = (
                   disabled={!newShift.shiftName.trim() || !newShift.minimumAmountOfWorkers || !newShift.maximumAmountOfWorkers}
                   style={{ minWidth: 80, paddingHorizontal: 12 }}
                 >
-                  {selectedRowIndex !== null ? 'Update' : '+ Add'}
+                  {selectedRowIndex !== null ? String(t('tenantRegistration:updateShift')) : String(t('tenantRegistration:addShift'))}
                 </Button>
               </View>
               {selectedRowIndex !== null && (
@@ -209,7 +209,7 @@ export const ShiftConfigurationTable: React.FC<ShiftConfigurationTableProps> = (
                     onPress={clearSelection}
                     style={{ minWidth: 80, paddingHorizontal: 12 }}
                   >
-                    Cancel
+                    {String(t('tenantRegistration:cancelEdit'))}
                   </Button>
                 </View>
               )}
@@ -218,15 +218,15 @@ export const ShiftConfigurationTable: React.FC<ShiftConfigurationTableProps> = (
             // Portrait layout: original vertical layout with better styling
             <VStack gap={2}>
               <Input
-                label="Shift Name *"
+                label={String(t('tenantRegistration:shiftName')) + " *"}
                 value={newShift.shiftName}
                 onChangeText={(value) => setNewShift(prev => ({ ...prev, shiftName: value }))}
-                placeholder="e.g., Morning, Evening, Night"
+                placeholder={String(t('tenantRegistration:shiftNamePlaceholder'))}
               />
 
               <HStack gap={2}>
                 <Input
-                  label="Min Workers *"
+                  label={String(t('tenantRegistration:minWorkers')) + " *"}
                   value={newShift.minimumAmountOfWorkers}
                   onChangeText={(value) => setNewShift(prev => ({ ...prev, minimumAmountOfWorkers: value }))}
                   placeholder="1"
@@ -234,7 +234,7 @@ export const ShiftConfigurationTable: React.FC<ShiftConfigurationTableProps> = (
                   containerStyle={{ flex: 1 }}
                 />
                 <Input
-                  label="Max Workers *"
+                  label={String(t('tenantRegistration:maxWorkers')) + " *"}
                   value={newShift.maximumAmountOfWorkers}
                   onChangeText={(value) => setNewShift(prev => ({ ...prev, maximumAmountOfWorkers: value }))}
                   placeholder="10"
@@ -249,7 +249,7 @@ export const ShiftConfigurationTable: React.FC<ShiftConfigurationTableProps> = (
                 onPress={addShift}
                 disabled={!newShift.shiftName.trim() || !newShift.minimumAmountOfWorkers || !newShift.maximumAmountOfWorkers}
               >
-                {selectedRowIndex !== null ? 'Update Shift' : 'Add Shift'}
+                {selectedRowIndex !== null ? String(t('tenantRegistration:updateShift')) : String(t('tenantRegistration:addShift'))}
               </Button>
               
               {selectedRowIndex !== null && (
@@ -258,7 +258,7 @@ export const ShiftConfigurationTable: React.FC<ShiftConfigurationTableProps> = (
                   size="md"
                   onPress={clearSelection}
                 >
-                  Cancel Edit
+                  {String(t('tenantRegistration:cancelEdit'))}
                 </Button>
               )}
             </VStack>
@@ -307,7 +307,7 @@ export const ShiftConfigurationTable: React.FC<ShiftConfigurationTableProps> = (
                 fontSize: isLandscape ? 12 : 14
               }}
             >
-              Shift Name
+              {String(t('tenantRegistration:shiftName'))}
             </Typography>
             <Typography 
               variant="body2" 
@@ -319,7 +319,7 @@ export const ShiftConfigurationTable: React.FC<ShiftConfigurationTableProps> = (
                 fontSize: isLandscape ? 12 : 14
               }}
             >
-              {isLandscape ? 'Min' : 'Min Workers'}
+              {isLandscape ? String(t('tenantRegistration:minWorkers')).replace(' Workers', '') : String(t('tenantRegistration:minWorkers'))}
             </Typography>
             <Typography 
               variant="body2" 
@@ -331,7 +331,7 @@ export const ShiftConfigurationTable: React.FC<ShiftConfigurationTableProps> = (
                 fontSize: isLandscape ? 12 : 14
               }}
             >
-              {isLandscape ? 'Max' : 'Max Workers'}
+              {isLandscape ? String(t('tenantRegistration:maxWorkers')).replace(' Workers', '') : String(t('tenantRegistration:maxWorkers'))}
             </Typography>
             <Typography 
               variant="body2" 
@@ -343,7 +343,7 @@ export const ShiftConfigurationTable: React.FC<ShiftConfigurationTableProps> = (
                 fontSize: isLandscape ? 12 : 14
               }}
             >
-              Action
+              {String(t('tenantRegistration:action'))}
             </Typography>
           </HStack>
 
@@ -366,7 +366,7 @@ export const ShiftConfigurationTable: React.FC<ShiftConfigurationTableProps> = (
                   color: '#6b7280'
                 }}
               >
-                No shifts configured yet. Add your first shift above.
+                {String(t('tenantRegistration:noShifts'))}
               </Typography>
             </View>
           ) : (

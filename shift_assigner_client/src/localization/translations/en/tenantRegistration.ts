@@ -36,15 +36,31 @@ export default {
 
   // Dynamic shifts
   addShift: "Add Shift",
+  editShift: "Edit Shift", 
+  updateShift: "Update Shift",
+  cancelEdit: "Cancel Edit",
   removeShift: "Remove",
   shiftName: "Shift Name",
   shiftNamePlaceholder: "Enter shift name",
+  minWorkers: "Min Workers",
+  maxWorkers: "Max Workers", 
+  action: "Action",
   noShifts: "No shifts configured. Click 'Add Shift' to create your first shift.",
+  clearSelection: "Clear Selection",
+  rowSelected: "Row {number} selected",
 
   // Actions  
   register: "Register Tenant",
+  completeRegistration: "COMPLETE REGISTRATION",
+  continueToShiftConfig: "Continue to Shift Configuration",
+  back: "BACK",
   submitting: "Submitting...",
-  resetForm: "Reset Form",
+  resetForm: "RESET FORM",
+  creatingTenant: "Creating Tenant...",
+  
+  // Step labels
+  stepBasicInfo: "Basic Info",
+  stepShiftConfig: "Shift Config",
 
   // Messages with interpolation
   messages: {

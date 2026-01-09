@@ -137,33 +137,55 @@ export const submitTenantRegistration = () => async (dispatch: any, getState: an
       return;
     }
 
-    // Simulate API call
-    console.log('Submitting tenant registration:', tenant);
+    // Import tenantClient for API call
+    const { tenantClient } = await import('../services');
+
+    // Prepare registration data for API
+    const registrationData = {
+      firstName: tenant.firstName,
+      lastName: tenant.lastName,
+      phoneNumber: tenant.phoneNumber,
+      dateOfBirth: tenant.dateOfBirth,
+      tenant: tenant.tenant,
+      password: tenant.password,
+      role: 'Boss', // Default role for boss tenant
+      shiftConfig: tenant.shiftConfig || []
+    };
+
+    console.log('🚀 Submitting tenant registration to server:', {
+      ...registrationData,
+      password: '[REDACTED]' // Don't log password
+    });
     
-    // Replace with actual API endpoint
-    const response = await new Promise<{ ok: boolean; json: () => Promise<{ id: string }> }>((resolve) => {
-      setTimeout(() => {
-        resolve({
-          ok: true,
-          json: async () => ({ id: `tenant_${Date.now()}` })
-        });
-      }, 2000);
+    // Send registration request to server using tenantClient
+    const response = await tenantClient.register(registrationData);
+    
+    // Handle successful registration
+    dispatch(TenantRegistrationActions.submitSuccess());
+    dispatch(TenantRegistrationActions.setField({ key: "id", value: response.id }));
+
+    console.log('✅ Registration successful:', {
+      id: response.id,
+      tenant: response.tenant,
+      token: response.token ? '[RECEIVED]' : '[NOT_RECEIVED]'
     });
 
-    if (!response.ok) {
-      throw new Error('Registration failed');
+    // Note: tenantClient.register() automatically stores the auth token
+
+  } catch (error: any) {
+    let errorMessage = "Registration failed";
+    
+    // Handle different error types
+    if (error?.message) {
+      errorMessage = error.message;
+    } else if (error?.errors && Array.isArray(error.errors)) {
+      errorMessage = error.errors.join(', ');
+    } else if (typeof error === 'string') {
+      errorMessage = error;
     }
 
-    const result = await response.json();
-    dispatch(TenantRegistrationActions.submitSuccess());
-    dispatch(TenantRegistrationActions.setField({ key: "id", value: result.id }));
-
-    console.log('Registration successful:', result);
-
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Registration failed";
+    console.error('❌ Registration error:', error);
     dispatch(TenantRegistrationActions.submitFailure(errorMessage));
-    console.error('Registration error:', error);
   } finally {
     // Stop global loading
     dispatch(stopLoading('registerTenant'));

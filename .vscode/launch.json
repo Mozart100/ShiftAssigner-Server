@@ -48,6 +48,28 @@
       "trace": "verbose"
     },
     {
+      "name": "DEBUG: Client - Web (Auto DevTools)",
+      "type": "node",
+      "request": "launch",
+      "preLaunchTask": "install-expo-deps",
+      "program": "${workspaceFolder}/shift_assigner_client/node_modules/@expo/cli/build/bin/cli",
+      "args": ["start", "--web"],
+      "cwd": "${workspaceFolder}/shift_assigner_client",
+      "console": "integratedTerminal",
+      "env": {
+        "NODE_ENV": "development",
+        "DEBUG": "expo:*",
+        "EXPO_DEBUG": "1"
+      },
+      "skipFiles": ["<node_internals>/**"],
+      "outputCapture": "console",
+      "serverReadyAction": {
+        "pattern": "Web is waiting on.*http://localhost:(\\d+)",
+        "uriFormat": "http://localhost:%s",
+        "action": "openExternally"
+      }
+    },
+    {
       "name": "Client - Launch ShiftAssigner (Delayed)",
       "type": "node",
       "request": "launch",

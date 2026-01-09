@@ -1,5 +1,10 @@
-// API Configuration
-const API_BASE_URL = 'http://localhost:5000/api/v1'; // Adjust to your server URL
+/**
+ * Legacy API Service - Consider migrating to httpClient.ts
+ * Updated to use correct server URL
+ */
+
+// Updated API Configuration to match server
+const API_BASE_URL = 'https://localhost:7083/api/v1'; // ✅ Matches server configuration
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -16,11 +21,11 @@ export interface BossTenantRegistrationRequest {
   tenant: string;
   password: string;
   role: string;
-  shiftConfig?: {
-    morning: boolean;
-    day: boolean;
-    evening: boolean;
-  } | null;
+  shiftConfig: Array<{
+    shiftName: string;
+    minimumAmountOfWorkers: number;
+    maximumAmountOfWorkers: number;
+  }>;
 }
 
 export interface BossTenantRegistrationResponse {
@@ -78,16 +83,15 @@ class ApiService {
     }
   }
 
-  // Boss Tenant Registration
-  async registerBossTenant(    data: BossTenantRegistrationRequest
-  ): Promise<BossTenantRegistrationResponse> {
-    return this.makeRequest<BossTenantRegistrationResponse>('/tenants/register', {
+  // Boss Tenant Registration - Updated endpoint
+  async registerBossTenant(data: BossTenantRegistrationRequest): Promise<BossTenantRegistrationResponse> {
+    return this.makeRequest<BossTenantRegistrationResponse>('/Auth/register-boss-tenant', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
-  // Shift Leader Registration
+  // Shift Leader Registration - Updated endpoint
   async registerShiftLeader(data: {
     id: string;
     firstName: string;
@@ -96,7 +100,7 @@ class ApiService {
     dateOfBirth: string;
     password: string;
   }): Promise<{ token: string }> {
-    return this.makeRequest<{ token: string }>('/shiftleaders/register', {
+    return this.makeRequest<{ token: string }>('/ShiftLeaders/register', {
       method: 'POST',
       body: JSON.stringify(data),
     });

@@ -29,5 +29,18 @@
       },
       "skipFiles": ["<node_internals>/**"]
     }
+  ],
+  "compounds": [
+    {
+      "name": "Launch Full Stack (Server + Client)",
+      "configurations": [
+        "Launch ShiftAssignerServer",
+        "Client - Launch ShiftAssigner"
+      ],
+      "stopAll": true,
+      "presentation": {
+        "order": 1
+      }
+    }
   ]
 }

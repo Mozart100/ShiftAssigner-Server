@@ -7,6 +7,7 @@ import type { ThunkAction } from 'redux-thunk';
 import type { AnyAction } from 'redux';
 import { apiClient } from '../services';
 import { BossTenantRegistrationRequest } from "../services/httpClientBase";
+import { BaseTenantData, TenantShiftScheduling } from '../models/commonTypes';
 
 export enum RoleState {
   Worker = "Worker",
@@ -14,25 +15,8 @@ export enum RoleState {
   TeamLeader = "TeamLeader"
 }
 
-export interface TenantShiftScheduling {
-  shiftName: string; // Morning, Night
-  minimumAmountOfWorkers: number;
-  maximumAmountOfWorkers: number;
-}
-
-
-
-export interface BossTenant {
-  id: string;
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  dateOfBirth: string;
-  role: RoleState;
-  password: string; // For registration form
-  isActive: boolean;
-  tenant: string;
-  shiftConfig: TenantShiftScheduling[] | null;
+// UI state interface extends the base with additional fields
+export interface BossTenant extends BaseTenantData {
 }
 
 export interface TenantRegistrationState {
@@ -123,6 +107,18 @@ export const tenantRegistrationReducer = createReducerFunction(
   initialTenantRegistrationState
 );
 
+// Helper function to convert BossTenant to BossTenantRegistrationRequest
+const convertToRegistrationRequest = (tenant: BossTenant): BossTenantRegistrationRequest => ({
+  firstName: tenant.firstName,
+  lastName: tenant.lastName,
+  phoneNumber: tenant.phoneNumber,
+  dateOfBirth: tenant.dateOfBirth,
+  tenant: tenant.tenant,
+  password: tenant.password,
+  role: 'Boss',
+  shiftConfig: tenant.shiftConfig || []
+});
+
 // Async Actions with proper TypeScript typing
 export const submitTenantRegistration = (): ThunkAction<Promise<void>, RootState, unknown, AnyAction> => 
   async (dispatch, getState) => {
@@ -154,35 +150,42 @@ export const submitTenantRegistration = (): ThunkAction<Promise<void>, RootState
         ...registrationData,
         password: '[REDACTED]' 
       });
-      
-      // const response = await tenantClient.register(registrationData);
-      
-      // // Handle successful registration
-      // dispatch(TenantRegistrationActions.submitSuccess());
-      // dispatch(TenantRegistrationActions.setField({ key: "id", value: response.id }));
 
-      // console.log('✅ Registration successful:', {
-      //   id: response.id,
-      //   tenant: response.tenant,
-      //   token: response.token ? '[RECEIVED]' : '[NOT_RECEIVED]'
-      // });
+      // Convert tenant to BossTenantRegistrationRequest using helper
+      const registrationRequest = convertToRegistrationRequest(tenant);
+      
+      const response = await tenantClient.register(registrationRequest);
+      
+      // Handle successful registration
+      dispatch(TenantRegistrationActions.submitSuccess());
+      dispatch(TenantRegistrationActions.setField({ key: "id", value: response.id }));
+
+      console.log('✅ Registration successful:', {
+        id: response.id,
+        tenant: response.tenant,
+        token: response.token ? '[RECEIVED]' : '[NOT_RECEIVED]'
+      });
+
+      // Show success message
+      dispatch(showSuccess('Registration successful! Welcome to ShiftAssigner.'));
 
       // Note: tenantClient.register() automatically stores the auth token
 
     } catch (error: any) {
-      // let errorMessage = "Registration failed";
+      let errorMessage = "Registration failed";
       
-      // // Handle different error types
-      // if (error?.message) {
-      //   errorMessage = error.message;
-      // } else if (error?.errors && Array.isArray(error.errors)) {
-      //   errorMessage = error.errors.join(', ');
-      // } else if (typeof error === 'string') {
-      //   errorMessage = error;
-      // }
+      // Handle different error types
+      if (error?.message) {
+        errorMessage = error.message;
+      } else if (error?.errors && Array.isArray(error.errors)) {
+        errorMessage = error.errors.join(', ');
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
 
-      // console.error('❌ Registration error:', error);
-      // dispatch(TenantRegistrationActions.submitFailure(errorMessage));
+      console.error('❌ Registration error:', error);
+      dispatch(TenantRegistrationActions.submitFailure(errorMessage));
+      dispatch(showError(errorMessage));
     } finally {
       // Stop global loading
       dispatch(stopLoading('registerTenant'));

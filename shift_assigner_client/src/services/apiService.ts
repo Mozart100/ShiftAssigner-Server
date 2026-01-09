@@ -3,6 +3,8 @@
  * Updated to use correct server URL
  */
 
+import { BaseTenantData } from '../models/commonTypes';
+
 // Updated API Configuration to match server
 const API_BASE_URL = 'https://localhost:7083/api/v1'; // ✅ Matches server configuration
 
@@ -13,19 +15,7 @@ export interface ApiResponse<T> {
   errors?: string[];
 }
 
-export interface BossTenantRegistrationRequest {
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  dateOfBirth: string;
-  tenant: string;
-  password: string;
-  role: string;
-  shiftConfig: Array<{
-    shiftName: string;
-    minimumAmountOfWorkers: number;
-    maximumAmountOfWorkers: number;
-  }>;
+export interface BossTenantRegistrationRequest extends BaseTenantData {
 }
 
 export interface BossTenantRegistrationResponse {

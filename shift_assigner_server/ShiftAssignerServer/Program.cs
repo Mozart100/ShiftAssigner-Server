@@ -25,7 +25,12 @@ var jwtAudience = jwtSection.GetValue<string>("Audience") ?? "ShiftAssignerClien
 // ---------------- MVC + Swagger ----------------
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    // Fix schema ID conflicts by using full type name instead of just class name
+    // This prevents conflicts when multiple nested classes have the same name (e.g., CreateDaySchedule)
+    options.CustomSchemaIds(type => type.FullName?.Replace('+', '.'));
+});
 
 // ---------------- Multi-tenancy ----------------
 builder.Services.AddHttpContextAccessor();
@@ -150,14 +155,14 @@ using (var scope = app.Services.CreateScope())
 }
 
 // ---------------- HTTP pipeline ----------------
+// Global exception middleware
+app.UseGlobalErrorHandling();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-// Global exception middleware
-app.UseGlobalErrorHandling();
 
 if (!app.Environment.IsDevelopment())
 {

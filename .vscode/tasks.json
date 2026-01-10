@@ -69,6 +69,30 @@
       }
     },
     {
+      "label": "kill-server",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-Command",
+        "Write-Host '🛑 Killing existing dotnet server processes...' -ForegroundColor Yellow; taskkill /f /im 'dotnet.exe' 2>$null; Write-Host '✅ Server processes killed!' -ForegroundColor Green"
+      ],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "kill-and-start-server",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "kill-server",
+        "start-postgres-and-build"
+      ]
+    },
+    {
       "label": "start-emulator-and-expo",
       "dependsOrder": "sequence",
       "dependsOn": [

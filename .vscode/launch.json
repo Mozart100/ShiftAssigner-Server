@@ -5,7 +5,7 @@
       "name": "Launch ShiftAssignerServer",
       "type": "coreclr",
       "request": "launch",
-      "preLaunchTask": "start-postgres-and-build",
+      "preLaunchTask": "kill-and-start-server",
       "program": "${workspaceFolder}/shift_assigner_server/ShiftAssignerServer/bin/Debug/net8.0/ShiftAssignerServer.dll",
       "args": [],
       "cwd": "${workspaceFolder}/shift_assigner_server/ShiftAssignerServer",
@@ -89,7 +89,7 @@
       "name": "Launch Full Stack (Server + Client)",
       "configurations": [
         "Launch ShiftAssignerServer",
-        "Client - Launch ShiftAssigner (Delayed)"
+        "DEBUG: Client - Mobile App"
       ],
       "stopAll": true,
       "presentation": {

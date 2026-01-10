@@ -104,14 +104,20 @@ export const tenantRegistrationReducer = createReducerFunction(
 
 // Helper function to convert BossTenant to BossTenantRegistrationRequest
 const convertToRegistrationRequest = (tenant: BossTenant): BossTenantRegistrationRequest => ({
-  firstName: tenant.firstName,
-  lastName: tenant.lastName,
-  phoneNumber: tenant.phoneNumber,
-  dateOfBirth: tenant.dateOfBirth,
-  tenant: tenant.tenant,
-  password: tenant.password,
-  role: 'Boss',
-  shiftConfig: tenant.shiftConfig || []
+  ID: tenant.id,                           // Use actual tenant.id, not hardcoded "xxx"
+  FirstName: tenant.firstName,             // PascalCase to match server
+  LastName: tenant.lastName,               // PascalCase to match server
+  PhoneNumber: tenant.phoneNumber,         // PascalCase to match server
+  DateOfBirth: tenant.dateOfBirth,         // PascalCase to match server
+  ShiftLeaderId: "",                       // Required by server, empty string is fine
+  PasswordHash: tenant.password,           // Server expects "PasswordHash"
+  Tenant: tenant.tenant,                   // PascalCase to match server
+  Shifts: (tenant.shiftConfig || []).map(shift => ({  // Map shiftConfig to Shifts
+    ShiftName: shift.shiftName,            // PascalCase to match server
+    MinimumAmountOfWorkers: shift.minimumAmountOfWorkers,  // PascalCase to match server
+    MaximumAmountOfWorkers: shift.maximumAmountOfWorkers   // PascalCase to match server
+  }))
+  // Note: "role" field removed - server doesn't expect it
 });
 
 // Async Actions with proper TypeScript typing

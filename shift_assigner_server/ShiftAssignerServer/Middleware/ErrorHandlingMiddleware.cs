@@ -53,7 +53,22 @@ public class ErrorHandlingMiddleware
         {
             // Log the error with stacktrace for diagnostics
             var errorId = Guid.NewGuid().ToString("N");
-            _logger.LogError(ex, "Unhandled exception (errorId={ErrorId})", errorId);
+            _logger.LogError(ex, "🚨 UNHANDLED EXCEPTION (errorId={ErrorId}) - Path: {Path}, Method: {Method}", 
+                errorId, context.Request.Path, context.Request.Method);
+
+            // Add specific debugging for auth-related exceptions
+            if (ex.Message.Contains("JWT") || ex.Message.Contains("token") || ex.Message.Contains("Authorization"))
+            {
+                _logger.LogError("🔑 AUTH-RELATED EXCEPTION: {Message}", ex.Message);
+                var hasAuthHeader = context.Request.Headers.ContainsKey("Authorization");
+                _logger.LogError("📋 Auth Header Present: {HasAuthHeader}", hasAuthHeader);
+                if (hasAuthHeader)
+                {
+                    var authHeader = context.Request.Headers["Authorization"].ToString();
+                    var headerStart = authHeader.Length > 20 ? authHeader.Substring(0, 20) + "..." : authHeader;
+                    _logger.LogError("📋 Auth Header Value: {AuthHeader}", headerStart);
+                }
+            }
 
             // Prepare a safe response
             context.Response.ContentType = "application/json";

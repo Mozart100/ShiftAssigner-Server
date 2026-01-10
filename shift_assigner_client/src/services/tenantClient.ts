@@ -40,7 +40,7 @@ class TenantClient extends HttpClientBase {
    */
   async register(data: BossTenantRegistrationRequest): Promise<BossTenantRegistrationResponse> {
     const response = await this.post<BossTenantRegistrationRequest, BossTenantRegistrationResponse>(
-      '/Auth/register-boss-tenant', 
+      'http://10.0.2.2:5041/api/v1/Auth/register-boss-tenant', 
       data
     );
     

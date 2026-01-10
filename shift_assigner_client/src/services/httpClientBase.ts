@@ -16,18 +16,20 @@ export interface ApiResponse<T> {
 }
 
 export interface BossTenantRegistrationRequest {
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  dateOfBirth: string;
-  tenant: string;
-  password: string;
-  role: string;
-  shiftConfig: Array<{
-    shiftName: string;
-    minimumAmountOfWorkers: number;
-    maximumAmountOfWorkers: number;
+  ID: string;                    // Server expects "ID" (uppercase)
+  FirstName: string;             // Server expects "FirstName" (PascalCase)
+  LastName: string;              // Server expects "LastName" (PascalCase)  
+  PhoneNumber: string;           // Server expects "PhoneNumber" (PascalCase)
+  DateOfBirth: string;           // Server expects "DateOfBirth" (PascalCase)
+  ShiftLeaderId: string;         // Server expects this field (can be empty string)
+  PasswordHash: string;          // Server expects "PasswordHash", not "password"
+  Tenant: string;                // Server expects "Tenant" (PascalCase)
+  Shifts: Array<{                // Server expects "Shifts", not "shiftConfig"
+    ShiftName: string;           // Server expects "ShiftName" (PascalCase)
+    MinimumAmountOfWorkers: number; // Server expects "MinimumAmountOfWorkers" (PascalCase)
+    MaximumAmountOfWorkers: number; // Server expects "MaximumAmountOfWorkers" (PascalCase)
   }>;
+  // Note: "role" field removed - server doesn't expect it
 }
 
 export interface BossTenantRegistrationResponse {

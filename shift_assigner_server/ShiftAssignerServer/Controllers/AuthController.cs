@@ -57,6 +57,25 @@ namespace ShiftAssignerServer.Controllers
         [HttpPost(Register_Tenant)]
         public async Task<ActionResult<TenantRegisterResponse>> RegisterBossTenant([FromBody] TenantRegisterRequest request)
         {
+            // 🔍 DEBUG: Log the received request
+            Console.WriteLine($"🔍 CONTROLLER DEBUG: Received request for tenant: {request?.Tenant ?? "NULL"}");
+            Console.WriteLine($"🔍 CONTROLLER DEBUG: Request ID: {request?.ID ?? "NULL"}");
+            Console.WriteLine($"🔍 CONTROLLER DEBUG: Request FirstName: {request?.FirstName ?? "NULL"}");
+            Console.WriteLine($"🔍 CONTROLLER DEBUG: Shifts count: {request?.Shifts?.Count ?? 0}");
+            
+            // Check ModelState for validation errors
+            if (!ModelState.IsValid)
+            {
+                Console.WriteLine("❌ CONTROLLER DEBUG: ModelState is INVALID");
+                foreach (var error in ModelState)
+                {
+                    Console.WriteLine($"❌ Field: {error.Key}, Errors: {string.Join(", ", error.Value.Errors.Select(e => e.ErrorMessage))}");
+                }
+                return BadRequest(ModelState);
+            }
+            
+            Console.WriteLine("✅ CONTROLLER DEBUG: ModelState is VALID, proceeding...");
+            
             // Debugger.Break();
             var tenant = _mapper.Map<BossTenant>(request);
             var tenantShiftScheduling = _mapper.Map<TenantShiftScheduling>(request);

@@ -32,6 +32,18 @@ builder.Services.AddSwaggerGen(options =>
     options.CustomSchemaIds(type => type.FullName?.Replace('+', '.'));
 });
 
+// ---------------- CORS (for React Native app) ----------------
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactNativeApp", builder =>
+    {
+        builder
+            .AllowAnyOrigin() // Allow any origin for development
+            .AllowAnyMethod() // Allow GET, POST, PUT, DELETE, etc.
+            .AllowAnyHeader(); // Allow any headers
+    });
+});
+
 // ---------------- Multi-tenancy ----------------
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ITenantProvider, TenantProvider>();
@@ -169,14 +181,58 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
+// Enable CORS (must be before authentication)
+app.UseCors("AllowReactNativeApp");
+
 // Add tenant resolution middleware before authentication
 app.UseTenantResolution();
+
+// Add debugging middleware to track request flow
+app.Use(async (context, next) =>
+{
+    Console.WriteLine($"🔍 DEBUG: Before Authentication - Path: {context.Request.Path}, Method: {context.Request.Method}");
+    await next();
+    Console.WriteLine($"✅ DEBUG: After Authentication - Status: {context.Response.StatusCode}");
+});
 
 // Add auto-save middleware after tenant resolution
 app.UseAutoSave();
 
 app.UseAuthentication();
+
+// Add debugging middleware after authentication
+app.Use(async (context, next) =>
+{
+    Console.WriteLine($"🔍 DEBUG: Before Authorization - User: {context.User?.Identity?.Name ?? "Anonymous"}");
+    await next();
+    Console.WriteLine($"✅ DEBUG: After Authorization - Status: {context.Response.StatusCode}");
+});
+
 app.UseAuthorization();
+
+// Add immediate debugging right after authorization
+app.Use(async (context, next) =>
+{
+    Console.WriteLine($"🚀 DEBUG: IMMEDIATELY after UseAuthorization - about to continue pipeline");
+    try 
+    {
+        await next();
+        Console.WriteLine($"🚀 DEBUG: Successfully returned from next middleware");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"💥 DEBUG: EXCEPTION caught right after Authorization: {ex.Message}");
+        throw;
+    }
+});
+
+// Add debugging middleware before controllers
+app.Use(async (context, next) =>
+{
+    Console.WriteLine($"🎯 DEBUG: About to hit Controllers - Path: {context.Request.Path}");
+    await next();
+    Console.WriteLine($"🏁 DEBUG: Controller completed - Status: {context.Response.StatusCode}");
+});
 
 app.MapControllers();
 

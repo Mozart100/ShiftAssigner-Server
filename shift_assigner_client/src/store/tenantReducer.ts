@@ -7,13 +7,9 @@ import type { ThunkAction } from 'redux-thunk';
 import type { AnyAction } from 'redux';
 import { apiClient } from '../services';
 import { BossTenantRegistrationRequest } from "../services/httpClientBase";
-import { BaseTenantData, TenantShiftScheduling } from '../models/commonTypes';
+import { BaseTenantData, TenantShiftScheduling, RoleState } from '../models/commonTypes';
 
-export enum RoleState {
-  Worker = "Worker",
-  TenantBoss = "TenantBoss",
-  TeamLeader = "TeamLeader"
-}
+
 
 // UI state interface extends the base with additional fields
 export interface BossTenant extends BaseTenantData {
@@ -36,7 +32,6 @@ export const initialTenantRegistrationState: TenantRegistrationState = {
     dateOfBirth: "1985-03-15",
     role: RoleState.TenantBoss,
     password: "SecurePass123!",
-    isActive: true,
     tenant: "Acme Corporation",
     shiftConfig: []
   },
